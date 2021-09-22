@@ -25,7 +25,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          file: ./base/ubi8/Dockerfile
-          context: ./base/ubi8/
+          context: base/ubi8
           tags: |
             quay.io/devfile/base-developer-image:ubi8
