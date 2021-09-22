@@ -16,8 +16,9 @@ LABEL io.k8s.display-name="devfile-developer-base"
 LABEL io.openshift.expose-services=""
 
 RUN dnf update -y && \
-    dnf install -y bash curl diffutils git iproute jq less lsof man nano net-tools time vim wget zip && \
-    dnf clean all
+    dnf install -y bash curl diffutils git iproute jq less lsof man nano \
+                   net-tools openssh-clients rsync socat sudo time vim wget zip && \
+                   dnf clean all
 
 RUN dnf config-manager \
         --add-repo https://dl.fedoraproject.org/pub/archive//fedora/linux/releases/29/Everything/x86_64/os/media.repo && \
@@ -25,7 +26,7 @@ RUN dnf config-manager \
         --setopt=*.baseurl=https://dl.fedoraproject.org/pub/archive//fedora/linux/releases/29/Everything/x86_64/os/ \
         InstallMedia && \
     dnf update -y --nobest && \
-    dnf install -y --nobest emacs fish htop ripgrep zsh && \
+    dnf install -y --nobest emacs fish htop ripgrep tmux zsh && \
     dnf clean all
 
 # not found:

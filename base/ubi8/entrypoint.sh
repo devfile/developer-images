@@ -7,7 +7,7 @@ fi
 
 # Setup $PS1 for a consistent and reasonable prompt
 if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
-  echo "PS1='\u@\h \w \$ '" > "${HOME}"/.bashrc
+  echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc
 fi
 
 # Add current (arbitrary) user to /etc/passwd and /etc/group
