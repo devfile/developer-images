@@ -1,0 +1,26 @@
+
+name: Next build of Developer Images
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  build_base_ubi8_image:
+    name: Build and publish base ubi8 image to Quay.io
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check developer-images source code
+        uses: actions/checkout@v2
+      
+      - name: Docker Build & Push
+        uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+          registry: quay.io
+          repository: devfile/base-developer-image
+          dockerfile: ./base/ubi8/Dockerfile
+          tags: ubi8
+          tag_with_sha: true
