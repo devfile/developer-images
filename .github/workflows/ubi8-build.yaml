@@ -1,5 +1,5 @@
 
-name: Next build of Developer Images
+name: Build of UBI 8 based Developer Images
 
 on:
   push:
@@ -22,5 +22,6 @@ jobs:
           registry: quay.io
           repository: devfile/base-developer-image
           dockerfile: ./base/ubi8/Dockerfile
+          context: ./base/ubi8/
           tags: ubi8
           tag_with_sha: true
