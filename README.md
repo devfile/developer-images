@@ -4,20 +4,20 @@
 
 Containers images with tools for developers 👨‍💻👩‍💻
 
-## Base Images
+## Developer Base Image
 
-### [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image ([quay.io/devfile/base-developer-image:ubi8-latest](https://quay.io/repository/devfile/base-developer-image/))
+### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/base-developer-image:ubi8-latest](https://quay.io/repository/devfile/base-developer-image/))
 
-Run the following command to test it with docker 
+Run the following command to test it with Docker:
 
 ```bash
-docker run -ti --rm \
+$ docker run -ti --rm \
        --entrypoint=bash \
        quay.io/devfile/base-developer-image:ubi8-latest
 ```
-### Tools included in the images
+### Included Developement Tools
 
-| Tool                | ubi8 based imate                    |
+| Tool                | ubi8 based image                    |
 |---------------------|-------------------------------------|
 | `bash`              |`bash`                               |
 | `bat`               |`<gh releases>`                      |
@@ -59,16 +59,16 @@ docker run -ti --rm \
 
 ## Universal Images
 
-### [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image ([quay.io/devfile/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/))
+### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/))
 
-Run the following command to test it with docker 
+Run the following command to test it with docker: 
 
 ```bash
 docker run -ti --rm \
        --entrypoint=bash \
        quay.io/devfile/universal-developer-image:ubi8-latest
 ```
-
+### Included Developement Tools
 
 | Tool or language    | ubi8 based image                    |
 |---------------------|-------------------------------------|
