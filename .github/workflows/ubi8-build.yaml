@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  build_base_ubi8_image:
-    name: Build and publish base ubi8 image to Quay.io
+  build_ubi8_images:
+    name: Build and publish ubi8 images to Quay.io
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -23,10 +23,17 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
-      - name: Docker Build & Push
+      - name: Docker Build & Push base
         uses: docker/build-push-action@v2
         with:
           push: true
           context: base/ubi8
           tags: |
             quay.io/devfile/base-developer-image:ubi8
+      - name: Docker Build & Push universal
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: universal/ubi8
+          tags: |
+            quay.io/devfile/universal-developer-image:ubi8

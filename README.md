@@ -46,6 +46,9 @@ Containers images with tools for developers 👨‍💻👩‍💻
 | `zsh`               |**`zsh <fedora>`**     |
 | **TOTAL SIZE**      | **1.04GB** (364.4MB compressed) |
 
+## Universal Images
+
+- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/universal-developer-image:ubi8](https://quay.io/repository/devfile/universal-developer-image/)
 
 
 
