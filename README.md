@@ -8,50 +8,80 @@ Containers images with tools for developers 👨‍💻👩‍💻
 
 - [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/base-developer-image:ubi8](https://quay.io/repository/devfile/base-developer-image/)
 
-| Tool                | ubi8 package          |
-|---------------------|-----------------------|
-| `bash`              |`bash`                 |
-| `curl`              |`curl`                 |
-| `diff`              |`diffutils`            |
-| `emacs`             |**`emacs <fedora>`**   |
-| `fish`              |**`fish <fedora>`**    |
-| `git`               |`git`                  |
-| `ip`                |`iproute`              |
-| `jq`                |`jq`                   |
-| `htop`              |**`htop <fedora>`**    |
-| `less`              |`less`                 |
-| `lsof`              |`lsof`                 |
-| `man`               |`man`                  |
-| `nano`              |`nano`                 |
-| `netcat`            |`<not found>`          |
-| `netstat`           |`net-tools`            |
-| `openssh-client`    |`openssh-clients`      |
-| `ripgrep`           |**`ripgrep <fedora>`** |
-| `rsync`             |`rsync`                |
-| `scp`               |`openssh-clients`      |
-| `screen`            |`<not found>`          |
-| `sed`               |`sed`                  |
-| `socat`             |`socat`                |
-| `sudo`              |`sudo`                 |
-| `ss`                |`<not found>`          |
-| `ssl-cert`          |`<not found>`          |
-| `tail`              |`<built in>`           |
-| `tar`               |`tar`                  |
-| `time`              |`time`                 |
-| `tldr`              |`<not found>`          |
-| `tmux`              |**`tmux <fedora>`**    |
-| `vim`               |`vim`                  |
-| `wget`              |`wget`                 |
-| `zip`               |`zip`                  |
-| `zsh`               |**`zsh <fedora>`**     |
-| **TOTAL SIZE**      | **1.04GB** (364.4MB compressed) |
+| Tool                | ubi8 based imate                    |
+|---------------------|-------------------------------------|
+| `bash`              |`bash`                               |
+| `bat`               |`<gh releases>`                      |
+| `curl`              |`curl`                               |
+| `diff`              |`diffutils`                          |
+| `emacs`             |`NOT AVAILABLE (fedora only)`        |
+| `fish`              |`NOT AVAILABLE (fedora only)`        |
+| `gh`                |`<gh releases>`                      |
+| `git`               |`git`                                |
+| `ip`                |`iproute`                            |
+| `jq`                |`jq`                                 |
+| `htop`              |`NOT AVAILABLE (fedora only)`        |
+| `less`              |`less`                               |
+| `lsof`              |`lsof`                               |
+| `man`               |`man`                                |
+| `nano`              |`nano`                               |
+| `netcat`            |`NOT AVAILABLE`                      |
+| `netstat`           |`net-tools`                          |
+| `openssh-client`    |`openssh-clients`                    |
+| `ripgrep`           |`<gh releases>`                      |
+| `rsync`             |`rsync`                              |
+| `scp`               |`openssh-clients`                    |
+| `screen`            |`NOT AVAILABLE`                      |
+| `sed`               |`sed`                                |
+| `socat`             |`socat`                              |
+| `sudo`              |`sudo`                               |
+| `ss`                |`NOT AVAILABLE`                      |
+| `ssl-cert`          |`NOT AVAILABLE`                      |
+| `tail`              |`<built in>`                         |
+| `tar`               |`tar`                                |
+| `time`              |`time`                               |
+| `tldr`              |`NOT AVAILABLE (fedora only)`        |
+| `tmux`              |`NOT AVAILABLE (fedora only)`        |
+| `vim`               |`vim`                                |
+| `wget`              |`wget`                               |
+| `zip`               |`zip`                                |
+| `zsh`               |`NOT AVAILABLE (fedora only)`        |
+| **TOTAL SIZE**      | **411MB** (372MB compressed)        |
 
 ## Universal Images
 
 - [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/universal-developer-image:ubi8](https://quay.io/repository/devfile/universal-developer-image/)
 
-
-
+| Tool or language    | ubi8 based image                    |
+|---------------------|-------------------------------------|
+| `sdk`               |`<https://get.sdkman.io>`            |
+| `java`              |`<11.0.12-open via sdkman>`          |
+| `maven`             |`<via sdkman>`                       |
+| `gradle`            |`<via sdkman>`                       |
+|---------------------|-------------------------------------|
+| `nodejs`            |`nodejs`                             |
+| `npm`               |`npm`                                |
+| `yarn`              |`<via npm>`                          |
+|---------------------|-------------------------------------|
+| `go`                |`go-toolset`                         |
+|---------------------|-------------------------------------|
+| `python`            |`python39`                           |
+| `setuptools`        |`python39-setuptools`                |
+| `pip`               |`python39-pip`                       |
+|---------------------|-------------------------------------|
+| `podman`            |`container-tools:rhel8`              |
+| `buildah`           |`container-tools:rhel8`              |
+| `skopeo`            |`container-tools:rhel8`              |
+| `kubectl`           |`<kubernetes dnf repo>`              |
+| `krew`              |`<gh releases>`                      |
+| `helm`              |`<get.helm.sh>`                      |
+| `kustomize`         |`<gh releases>`                      |
+| `tkn`               |`<gh releases>`                      |
+| `kn`                |`<gh releases>`                      |
+| `terraform`         |`<releases.hashicorp.com>`           |
+| `docker`            |`<download.docker.com>`              |
+| `docker-compose`    |`<gh releases>`                      |
+| **TOTAL SIZE**      | **2.72GB** (372MB compressed)       |
 
 
 

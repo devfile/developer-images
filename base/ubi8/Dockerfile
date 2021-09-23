@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3-labs
+
 FROM registry.access.redhat.com/ubi8/ubi
 
 LABEL maintainer="Red Hat, Inc."
@@ -15,24 +17,63 @@ LABEL description="Image with base developers tools. Languages SDK and runtimes 
 LABEL io.k8s.display-name="devfile-developer-base"
 LABEL io.openshift.expose-services=""
 
+USER 0
+
 RUN dnf update -y && \
     dnf install -y bash curl diffutils git iproute jq less lsof man nano \
                    net-tools openssh-clients rsync socat sudo time vim wget zip && \
                    dnf clean all
 
-RUN dnf config-manager \
-        --add-repo https://dl.fedoraproject.org/pub/archive//fedora/linux/releases/29/Everything/x86_64/os/media.repo && \
-    dnf config-manager --save \
-        --setopt=*.baseurl=https://dl.fedoraproject.org/pub/archive//fedora/linux/releases/29/Everything/x86_64/os/ \
-        InstallMedia && \
-    dnf update -y --nobest && \
-    dnf install -y --nobest emacs fish htop ripgrep tmux zsh && \
-    dnf clean all
+## gh-cli
+RUN <<EOF
+set -euf -o pipefail
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+GH_VERSION="2.0.0"
+GH_ARCH="linux_amd64"
+GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"
+GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"
+GH_CHEKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"
+curl -sSLO "${GH_TGZ_URL}"
+curl -sSLO "${GH_CHEKSUMS_URL}"
+sha256sum --ignore-missing -c "gh_${GH_VERSION}_checksums.txt" 2>&1 | grep OK
+tar -zxvf "${GH_TGZ}"
+mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/
+cd -
+rm -rf "${TEMP_DIR}"
+EOF
 
-# not found:
-    # ssl-cert 
+## ripgrep
+RUN <<EOF
+set -euf -o pipefail
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+RG_VERSION="13.0.0"
+RG_ARCH="x86_64-unknown-linux-musl"
+RG_TGZ="ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"
+RG_TGZ_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/${RG_TGZ}"
+curl -sSLO "${RG_TGZ_URL}"
+tar -zxvf "${RG_TGZ}"
+mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/rg /usr/local/bin/
+cd -
+rm -rf "${TEMP_DIR}"
+EOF
 
-USER 0
+## bat
+RUN <<EOF
+set -euf -o pipefail
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+BAT_VERSION="0.18.3"
+BAT_ARCH="x86_64-unknown-linux-musl"
+BAT_TGZ="bat-v${BAT_VERSION}-${BAT_ARCH}.tar.gz"
+BAT_TGZ_URL="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/${BAT_TGZ}"
+curl -sSLO "${BAT_TGZ_URL}"
+tar -zxvf "${BAT_TGZ}"
+mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat /usr/local/bin/
+cd -
+rm -rf "${TEMP_DIR}"
+EOF
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 COPY --chown=0:0 entrypoint.sh /
