@@ -6,7 +6,16 @@ Containers images with tools for developers 👨‍💻👩‍💻
 
 ## Base Images
 
-- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/base-developer-image:ubi8-latest](https://quay.io/repository/devfile/base-developer-image/)
+### [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image ([quay.io/devfile/base-developer-image:ubi8-latest](https://quay.io/repository/devfile/base-developer-image/))
+
+Run the following command to test it with docker 
+
+```bash
+docker run -ti --rm \
+       --entrypoint=bash \
+       quay.io/devfile/base-developer-image:ubi8-latest
+```
+### Tools included in the images
 
 | Tool                | ubi8 based imate                    |
 |---------------------|-------------------------------------|
@@ -50,7 +59,16 @@ Containers images with tools for developers 👨‍💻👩‍💻
 
 ## Universal Images
 
-- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/)
+### [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image ([quay.io/devfile/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/))
+
+Run the following command to test it with docker 
+
+```bash
+docker run -ti --rm \
+       --entrypoint=bash \
+       quay.io/devfile/universal-developer-image:ubi8-latest
+```
+
 
 | Tool or language    | ubi8 based image                    |
 |---------------------|-------------------------------------|
