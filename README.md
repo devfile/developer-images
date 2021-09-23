@@ -6,7 +6,7 @@ Containers images with tools for developers 👨‍💻👩‍💻
 
 ## Base Images
 
-- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/base-developer-image:ubi8](https://quay.io/repository/devfile/base-developer-image/)
+- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/base-developer-image:ubi8-latest](https://quay.io/repository/devfile/base-developer-image/)
 
 | Tool                | ubi8 based imate                    |
 |---------------------|-------------------------------------|
@@ -50,7 +50,7 @@ Containers images with tools for developers 👨‍💻👩‍💻
 
 ## Universal Images
 
-- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/universal-developer-image:ubi8](https://quay.io/repository/devfile/universal-developer-image/)
+- [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/articles/ubi-faq#) based image: [quay.io/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/)
 
 | Tool or language    | ubi8 based image                    |
 |---------------------|-------------------------------------|
