@@ -12,8 +12,8 @@ Run the following command to test it with Docker:
 
 ```bash
 $ docker run -ti --rm \
-       --entrypoint=bash \
-       quay.io/devfile/base-developer-image:ubi8-latest
+       quay.io/devfile/base-developer-image:ubi8-latest \
+       bash
 ```
 ### Included Developement Tools
 
@@ -61,12 +61,12 @@ $ docker run -ti --rm \
 
 ### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/))
 
-Run the following command to test it with docker: 
+Run the following command to test it with Docker: 
 
 ```bash
 docker run -ti --rm \
-       --entrypoint=bash \
-       quay.io/devfile/universal-developer-image:ubi8-latest
+       quay.io/devfile/universal-developer-image:ubi8-latest \
+       bash
 ```
 ### Included Developement Tools
 
