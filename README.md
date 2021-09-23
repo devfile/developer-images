@@ -46,7 +46,7 @@ Containers images with tools for developers 👨‍💻👩‍💻
 | `wget`              |`wget`                               |
 | `zip`               |`zip`                                |
 | `zsh`               |`NOT AVAILABLE (fedora only)`        |
-| **TOTAL SIZE**      | **411MB** (372MB compressed)        |
+| **TOTAL SIZE**      | **411MB** (143MB compressed)        |
 
 ## Universal Images
 
@@ -81,7 +81,7 @@ Containers images with tools for developers 👨‍💻👩‍💻
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **2.72GB** (372MB compressed)       |
+| **TOTAL SIZE**      | **2.72GB** (1.1GB compressed)       |
 
 
 
