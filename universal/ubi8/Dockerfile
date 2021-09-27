@@ -234,4 +234,8 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+RUN mkdir -p /home/user && chgrp -R 0 /home && \
+    chmod -R g=u /etc/passwd /etc/group /home
+
 USER 1001

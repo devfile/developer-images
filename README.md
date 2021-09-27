@@ -57,7 +57,7 @@ $ docker run -ti --rm \
 | `zsh`               |`NOT AVAILABLE (fedora only)`        |
 | **TOTAL SIZE**      | **411MB** (143MB compressed)        |
 
-## Universal Images
+## Developer Universal Image
 
 ### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image/))
 
@@ -72,21 +72,22 @@ docker run -ti --rm \
 
 | Tool or language    | ubi8 based image                    |
 |---------------------|-------------------------------------|
+|--------JAVA---------|-------------------------------------|
 | `sdk`               |`<https://get.sdkman.io>`            |
 | `java`              |`<11.0.12-open via sdkman>`          |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-|---------------------|-------------------------------------|
+|-------NODEJS--------|-------------------------------------|
 | `nodejs`            |`nodejs`                             |
 | `npm`               |`npm`                                |
 | `yarn`              |`<via npm>`                          |
-|---------------------|-------------------------------------|
+|--------GO-----------|-------------------------------------|
 | `go`                |`go-toolset`                         |
-|---------------------|-------------------------------------|
+|------PYTHON---------|-------------------------------------|
 | `python`            |`python39`                           |
 | `setuptools`        |`python39-setuptools`                |
 | `pip`               |`python39-pip`                       |
-|---------------------|-------------------------------------|
+|------CLOUD----------|-------------------------------------|
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |
 | `skopeo`            |`container-tools:rhel8`              |
