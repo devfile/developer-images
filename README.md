@@ -22,6 +22,7 @@ $ docker run -ti --rm \
 | `bash`              |`bash`                               |
 | `bat`               |`<gh releases>`                      |
 | `curl`              |`curl`                               |
+| `ps`                |`ps`                                 |
 | `diff`              |`diffutils`                          |
 | `emacs`             |`NOT AVAILABLE (fedora only)`        |
 | `fish`              |`NOT AVAILABLE (fedora only)`        |
@@ -55,7 +56,7 @@ $ docker run -ti --rm \
 | `wget`              |`wget`                               |
 | `zip`               |`zip`                                |
 | `zsh`               |`NOT AVAILABLE (fedora only)`        |
-| **TOTAL SIZE**      | **411MB** (143MB compressed)        |
+| **TOTAL SIZE**      | **412MB** (143MB compressed)        |
 
 ## Developer Universal Image
 
