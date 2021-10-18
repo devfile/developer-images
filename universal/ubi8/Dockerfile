@@ -46,7 +46,8 @@ RUN dnf install -y go-toolset  && \
 RUN dnf -y module enable python39:3.9 && \
     dnf -y update && \
     dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper && \
-    dnf -y clean all --enablerepo='*' 
+    dnf -y clean all --enablerepo='*'
+RUN pip-3.9 install pylint
 
 # Cloud
 
