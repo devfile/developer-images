@@ -88,6 +88,7 @@ docker run -ti --rm \
 | `python`            |`python39`                           |
 | `setuptools`        |`python39-setuptools`                |
 | `pip`               |`python39-pip`                       |
+| `pylint`            |`<via pip>`                       |
 |------CLOUD----------|-------------------------------------|
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |
@@ -101,7 +102,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **2.72GB** (1.1GB compressed)       |
+| **TOTAL SIZE**      | **4.3GB** (1.9GB compressed)        |
 
 
 

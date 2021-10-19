@@ -47,7 +47,11 @@ RUN dnf -y module enable python39:3.9 && \
     dnf -y update && \
     dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper && \
     dnf -y clean all --enablerepo='*'
-RUN pip-3.9 install pylint
+RUN cd /usr/bin && ln -s python3.9 python \
+                    && ln -s pydoc3.9 pydoc \
+                    && ln -s python3.9-config python-config \
+                    && ln -s pip-3.9 pip
+RUN pip install pylint
 
 # Cloud
 
@@ -81,17 +85,21 @@ EOF2
 dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://rawgit.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/user/.bashrc
-(
-  set -x; cd "$(mktemp -d)" &&
-  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
-  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" &&
-  tar zxvf krew.tar.gz &&
-  KREW=./krew-"${OS}_${ARCH}" &&
-  "$KREW" install krew
-)
+# krew
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+KREW_VERSION="0.4.2"
+KREW_ARCH="linux_amd64"
+KREW_TGZ="krew-${KREW_ARCH}.tar.gz"
+KREW_TGZ_URL="https://github.com/kubernetes-sigs/krew/releases/download/v${KREW_VERSION}/${KREW_TGZ}"
+curl -sSLO "${KREW_TGZ_URL}"
+curl -sSLO "${KREW_TGZ_URL}.sha256"
+sha256sum -c "${KREW_TGZ_URL}.sha256" 2>&1 | grep OK
+tar -zxvf "${KREW_TGZ}"
+./"krew-${KREW_ARCH}" install krew
 echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> /home/user/.bashrc
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+# kubens and kubectx
 kubectl krew install ns
 kubectl krew install ctx
 EOF
