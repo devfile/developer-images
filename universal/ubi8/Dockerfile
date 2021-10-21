@@ -40,7 +40,9 @@ RUN dnf -y module enable nodejs:$NODEJS_VERSION && \
 
 # Go
 RUN dnf install -y go-toolset  && \
-    dnf -y clean all --enablerepo='*' 
+    dnf -y clean all --enablerepo='*' && \
+    go get -v github.com/ramya-rao-a/go-outline && \
+    go get -v golang.org/x/tools/gopls
 
 # Python
 RUN dnf -y module enable python39:3.9 && \
