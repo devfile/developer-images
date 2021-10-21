@@ -84,6 +84,8 @@ docker run -ti --rm \
 | `yarn`              |`<via npm>`                          |
 |--------GO-----------|-------------------------------------|
 | `go`                |`go-toolset`                         |
+| `go-outline`        |`github.com/ramya-rao-a/go-outline`  |
+| `gopls`             |`golang.org/x/tools/gopls`           |
 |------PYTHON---------|-------------------------------------|
 | `python`            |`python39`                           |
 | `setuptools`        |`python39-setuptools`                |
@@ -102,7 +104,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **4.3GB** (1.9GB compressed)        |
+| **TOTAL SIZE**      | **4.65GB** (2.1GB compressed)        |
 
 
 
