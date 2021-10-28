@@ -20,7 +20,7 @@ LABEL io.openshift.expose-services=""
 USER 0
 
 RUN dnf update -y && \
-    dnf install -y bash curl diffutils git iproute jq less lsof man nano procps \
+    dnf install -y bash curl diffutils git git-lfs iproute jq less lsof man nano procps \
                    net-tools openssh-clients rsync socat sudo time vim wget zip && \
                    dnf clean all
 
@@ -78,6 +78,9 @@ EOF
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 COPY --chown=0:0 entrypoint.sh /
 RUN mkdir -p /home/user && chgrp -R 0 /home && \
+    # Copy the global git configuration to user config as global /etc/gitconfig
+    #  file may be overwritten by a mounted file at runtime
+    cp /etc/gitconfig /home/user/.gitconfig && \
     chmod -R g=u /etc/passwd /etc/group /home && \
     chmod +x /entrypoint.sh
 
