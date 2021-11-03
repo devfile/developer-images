@@ -16,7 +16,7 @@ LABEL description="Image with developers tools. Languages SDK and runtimes inclu
 LABEL io.k8s.display-name="devfile-developer-universal"
 LABEL io.openshift.expose-services=""
 
-USER 1001
+USER 10001
 
 # Java
 RUN curl -fsSL "https://get.sdkman.io" | bash \
@@ -48,10 +48,13 @@ RUN dnf -y module enable python39:3.9 && \
     dnf -y update && \
     dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper && \
     dnf -y clean all --enablerepo='*'
-RUN cd /usr/bin && ln -s python3.9 python \
-                    && ln -s pydoc3.9 pydoc \
-                    && ln -s python3.9-config python-config \
-                    && ln -s pip-3.9 pip
+
+RUN cd /usr/bin \
+    && if [ ! -L python ]; then ln -s python3.9 python; fi \
+    && if [ ! -L pydoc ]; then ln -s pydoc3.9 pydoc; fi \
+    && if [ ! -L python-config ]; then ln -s python3.9-config python-config; fi \
+    && if [ ! -L pip ]; then ln -s pip-3.9 pip; fi
+
 RUN pip install pylint
 
 # Cloud
@@ -65,7 +68,9 @@ RUN dnf -y module enable container-tools:rhel8 && \
 
 # Adjust storage.conf to enable Fuse storage.
 RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
-RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; touch /var/lib/shared/overlay-images/images.lock; touch /var/lib/shared/overlay-layers/layers.lock
+RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
+    touch /var/lib/shared/overlay-images/images.lock; \
+    touch /var/lib/shared/overlay-layers/layers.lock
 
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to
@@ -74,6 +79,8 @@ ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
 
 ## kubectl
 RUN <<EOF
+set -euf -o pipefail
+
 cat <<EOF2 > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -83,10 +90,15 @@ gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF2
+
 dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://rawgit.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/user/.bashrc
-# krew
+EOF
+
+## krew
+RUN <<EOF
+set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 KREW_VERSION="0.4.2"
@@ -95,7 +107,13 @@ KREW_TGZ="krew-${KREW_ARCH}.tar.gz"
 KREW_TGZ_URL="https://github.com/kubernetes-sigs/krew/releases/download/v${KREW_VERSION}/${KREW_TGZ}"
 curl -sSLO "${KREW_TGZ_URL}"
 curl -sSLO "${KREW_TGZ_URL}.sha256"
-sha256sum -c "${KREW_TGZ_URL}.sha256" 2>&1 | grep OK
+
+# File ${KREW_TGZ_URL}.sha256 has invalid format to be checked with sha256sum.
+# It needs to create a valid one.
+echo "$(cat ${KREW_TGZ}.sha256)  ${KREW_TGZ}" > "${KREW_TGZ}.sha256"
+
+sha256sum -c "${KREW_TGZ}.sha256" 2>&1 | grep OK
+
 tar -zxvf "${KREW_TGZ}"
 ./"krew-${KREW_ARCH}" install krew
 echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> /home/user/.bashrc
@@ -103,6 +121,8 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 # kubens and kubectx
 kubectl krew install ns
 kubectl krew install ctx
+cd -
+rm -rf "${TEMP_DIR}"
 EOF
 
 ## helm
@@ -245,7 +265,6 @@ rm -rf "${TEMP_DIR}"
 EOF
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN mkdir -p /home/user && chgrp -R 0 /home && \
-    chmod -R g=u /etc/passwd /etc/group /home
+RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
-USER 1001
+USER 10001
