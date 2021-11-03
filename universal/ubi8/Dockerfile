@@ -27,6 +27,23 @@ RUN curl -fsSL "https://get.sdkman.io" | bash \
              && sdk flush archives \
              && sdk flush temp"
 
+# Java-related environment variables are described and set by /home/user/.bashrc
+# To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
+ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
+ENV SDKMAN_CANDIDATES_DIR="/home/user/.sdkman/candidates"
+ENV SDKMAN_DIR="/home/user/.sdkman"
+ENV SDKMAN_PLATFORM="linuxx64"
+ENV SDKMAN_VERSION="5.13.0"
+
+ENV GRADLE_HOME="/home/user/.sdkman/candidates/gradle/current"
+ENV JAVA_HOME="/home/user/.sdkman/candidates/java/current"
+ENV MAVEN_HOME="/home/user/.sdkman/candidates/maven/current"
+
+ENV PATH="/home/user/.krew/bin:$PATH"
+ENV PATH="/home/user/.sdkman/candidates/maven/current/bin:$PATH"
+ENV PATH="/home/user/.sdkman/candidates/java/current/bin:$PATH"
+ENV PATH="/home/user/.sdkman/candidates/gradle/current/bin:$PATH"
+
 USER 0
 
 # NodeJS
