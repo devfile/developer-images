@@ -44,6 +44,17 @@ ENV PATH="/home/user/.sdkman/candidates/maven/current/bin:$PATH"
 ENV PATH="/home/user/.sdkman/candidates/java/current/bin:$PATH"
 ENV PATH="/home/user/.sdkman/candidates/gradle/current/bin:$PATH"
 
+# Scala
+RUN curl -fLo cs https://git.io/coursier-cli && \
+    chmod +x cs && \
+    mv cs /usr/local/bin/
+RUN curl -fLo sbt https://raw.githubusercontent.com/dwijnand/sbt-extras/master/sbt && \
+    chmod +x sbt && \
+    mv sbt /usr/local/bin/
+RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
+    chmod +x mill && \
+    mv mill /usr/local/bin/
+
 USER 0
 
 # NodeJS
