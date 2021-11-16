@@ -78,6 +78,10 @@ docker run -ti --rm \
 | `java`              |`<11.0.12-open via sdkman>`          |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
+|--------SCALA--------|-------------------------------------|
+| `cs`                |`<https://get-coursier.io/>`         |
+| `sbt`               |`<sbt launch script>`                |
+| `mill`              |`<mill launch script>`               |
 |-------NODEJS--------|-------------------------------------|
 | `nodejs`            |`nodejs`                             |
 | `npm`               |`npm`                                |
