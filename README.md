@@ -82,6 +82,10 @@ docker run -ti --rm \
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |
 | `mill`              |`<mill launch script>`               |
+|--------C/CPP--------|-------------------------------------|
+| `clang`             |`clang`                              |
+| `clangd`            |`llvm-toolset`                       |
+| `gdb`               |`gdb`                                |
 |-------NODEJS--------|-------------------------------------|
 | `nodejs`            |`nodejs`                             |
 | `npm`               |`npm`                                |
@@ -93,7 +97,7 @@ docker run -ti --rm \
 | `python`            |`python39`                           |
 | `setuptools`        |`python39-setuptools`                |
 | `pip`               |`python39-pip`                       |
-| `pylint`            |`<via pip>`                       |
+| `pylint`            |`<via pip>`                          |
 |------CLOUD----------|-------------------------------------|
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |

@@ -57,12 +57,15 @@ RUN curl -fLo sbt https://raw.githubusercontent.com/dwijnand/sbt-extras/master/s
 RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
     chmod +x mill && \
     mv mill /usr/local/bin/
+    
+# C/CPP
+RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
 # NodeJS
 ENV NODEJS_VERSION=14
 RUN dnf -y module enable nodejs:$NODEJS_VERSION && \
     dnf -y update && \
-    dnf -y install make gcc gcc-c++ libatomic_ops git openssl-devel \
+    dnf -y install make libatomic_ops openssl-devel \
                    nodejs npm nodejs-nodemon nss_wrapper && \
     dnf -y clean all --enablerepo='*' && \
     npm install --global yarn
