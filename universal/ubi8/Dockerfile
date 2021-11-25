@@ -124,8 +124,25 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF2
 
 dnf install -y kubectl
-curl -sSL -o ~/.kubectl_aliases https://rawgit.com/ahmetb/kubectl-alias/master/.kubectl_aliases
+curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/user/.bashrc
+EOF
+
+## shellcheck
+RUN <<EOF
+dnf install -y xz
+set -euf -o pipefail
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+SHELL_CHECK_VERSION="0.8.0"
+SHELL_CHECK_ARCH="x86_64"
+SHELL_CHECK_TGZ="shellcheck-v${SHELL_CHECK_VERSION}.linux.${SHELL_CHECK_ARCH}.tar.xz"
+SHELL_CHECK_TGZ_URL="https://github.com/koalaman/shellcheck/releases/download/v${SHELL_CHECK_VERSION}/${SHELL_CHECK_TGZ}"
+curl -sSLO "${SHELL_CHECK_TGZ_URL}"
+tar -xvf "${SHELL_CHECK_TGZ}"
+mv "${TEMP_DIR}"/shellcheck-v${SHELL_CHECK_VERSION}/shellcheck /bin/shellcheck
+cd -
+rm -rf "${TEMP_DIR}"
 EOF
 
 ## krew
