@@ -86,6 +86,10 @@ docker run -ti --rm \
 | `clang`             |`clang`                              |
 | `clangd`            |`llvm-toolset`                       |
 | `gdb`               |`gdb`                                |
+|--------PHP--------  |-------------------------------------|
+| `php`               |`php`                                |
+| `composer`          |`https://getcomposer.org/`           |
+| `xdebug`            |`pecl`                               |
 |-------NODEJS--------|-------------------------------------|
 | `nodejs`            |`nodejs`                             |
 | `npm`               |`npm`                                |

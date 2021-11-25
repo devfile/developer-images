@@ -81,6 +81,30 @@ RUN dnf -y module enable python39:3.9 && \
     dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper && \
     dnf -y clean all --enablerepo='*'
 
+# PHP
+ENV PHP_VERSION=7.4
+RUN dnf -y module enable php:$PHP_VERSION && \
+    dnf install -y --setopt=tsflags=nodocs php php-mysqlnd php-pgsql php-bcmath \
+                php-gd php-intl php-json php-ldap php-mbstring php-pdo \
+                php-pear php-zlib php-mysqli php-curl php-xml php-devel\
+                php-process php-soap php-opcache php-fpm ca-certificates \
+                php-gmp php-pecl-apcu php-pecl-zip mod_ssl hostname && \
+    wget https://getcomposer.org/installer -O /tmp/composer-installer.php && \
+    php /tmp/composer-installer.php --filename=composer --install-dir=/usr/local/bin && \
+    pecl channel-update pecl.php.net && \
+    pecl install xdebug
+
+ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
+    PHP_SYSCONF_PATH=/etc \
+    PHP_HTTPD_CONF_FILE=php.conf \
+    HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
+    HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
+    HTTPD_MODULES_CONF_D_PATH=/etc/httpd/conf.modules.d \
+    HTTPD_VAR_RUN=/var/run/httpd \
+    HTTPD_DATA_PATH=/var/www \
+    HTTPD_DATA_ORIG_PATH=/var/www \
+    HTTPD_VAR_PATH=/var
+
 RUN cd /usr/bin \
     && if [ ! -L python ]; then ln -s python3.9 python; fi \
     && if [ ! -L pydoc ]; then ln -s pydoc3.9 pydoc; fi \
