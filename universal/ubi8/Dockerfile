@@ -81,6 +81,14 @@ RUN dnf -y module enable python39:3.9 && \
     dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper && \
     dnf -y clean all --enablerepo='*'
 
+RUN cd /usr/bin \
+    && if [ ! -L python ]; then ln -s python3.9 python; fi \
+    && if [ ! -L pydoc ]; then ln -s pydoc3.9 pydoc; fi \
+    && if [ ! -L python-config ]; then ln -s python3.9-config python-config; fi \
+    && if [ ! -L pip ]; then ln -s pip-3.9 pip; fi
+
+RUN pip install pylint
+
 # PHP
 ENV PHP_VERSION=7.4
 RUN dnf -y module enable php:$PHP_VERSION && \
@@ -88,11 +96,9 @@ RUN dnf -y module enable php:$PHP_VERSION && \
                 php-gd php-intl php-json php-ldap php-mbstring php-pdo \
                 php-pear php-zlib php-mysqli php-curl php-xml php-devel\
                 php-process php-soap php-opcache php-fpm ca-certificates \
-                php-gmp php-pecl-apcu php-pecl-zip mod_ssl hostname && \
+                php-gmp php-pecl-xdebug php-pecl-zip mod_ssl hostname && \
     wget https://getcomposer.org/installer -O /tmp/composer-installer.php && \
-    php /tmp/composer-installer.php --filename=composer --install-dir=/usr/local/bin && \
-    pecl channel-update pecl.php.net && \
-    pecl install xdebug
+    php /tmp/composer-installer.php --filename=composer --install-dir=/usr/local/bin
 
 ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
     PHP_SYSCONF_PATH=/etc \
@@ -105,13 +111,9 @@ ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
     HTTPD_DATA_ORIG_PATH=/var/www \
     HTTPD_VAR_PATH=/var
 
-RUN cd /usr/bin \
-    && if [ ! -L python ]; then ln -s python3.9 python; fi \
-    && if [ ! -L pydoc ]; then ln -s pydoc3.9 pydoc; fi \
-    && if [ ! -L python-config ]; then ln -s python3.9-config python-config; fi \
-    && if [ ! -L pip ]; then ln -s pip-3.9 pip; fi
-
-RUN pip install pylint
+# .NET
+ENV DOTNET_RPM_VERSION=5.0
+RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
 
 # Cloud
 

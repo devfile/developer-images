@@ -86,7 +86,7 @@ docker run -ti --rm \
 | `clang`             |`clang`                              |
 | `clangd`            |`llvm-toolset`                       |
 | `gdb`               |`gdb`                                |
-|--------PHP--------  |-------------------------------------|
+|--------PHP----------|-------------------------------------|
 | `php`               |`php`                                |
 | `composer`          |`https://getcomposer.org/`           |
 | `xdebug`            |`pecl`                               |
@@ -97,6 +97,8 @@ docker run -ti --rm \
 |--------GO-----------|-------------------------------------|
 | `go`                |`go-toolset`                         |
 | `gopls`             |`golang.org/x/tools/gopls`           |
+|--------.NET---------|-------------------------------------|
+| `dotnet`            |`dotnet-sdk-5.0`                     |
 |------PYTHON---------|-------------------------------------|
 | `python`            |`python39`                           |
 | `setuptools`        |`python39-setuptools`                |
