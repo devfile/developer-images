@@ -47,6 +47,10 @@ ENV PATH="/home/user/.local/share/coursier/bin:$PATH"
 
 USER 0
 
+# Lombok
+ENV LOMBOK_VERSION=1.18.18
+RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+
 # Scala
 RUN curl -fLo cs https://git.io/coursier-cli && \
     chmod +x cs && \
