@@ -119,6 +119,15 @@ ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
 ENV DOTNET_RPM_VERSION=5.0
 RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
 
+# rust
+ENV CARGO_HOME=/home/user/.cargo \
+    RUSTUP_HOME=/home/user/.rustup \
+    PATH=/home/user/.cargo/bin:${PATH}
+RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
+    chmod +x rustup && \
+    mv rustup /usr/bin/ && \
+    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls
+
 # Cloud
 
 ## podman buildah skopeo
