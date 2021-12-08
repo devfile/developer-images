@@ -104,6 +104,10 @@ docker run -ti --rm \
 | `setuptools`        |`python39-setuptools`                |
 | `pip`               |`python39-pip`                       |
 | `pylint`            |`<via pip>`                          |
+|--------RUST---------|-------------------------------------|
+| `rustup`            |`<sh.rustup.rs>`                     |
+| `rust-src`          |`<via rustup>`                       |
+| `rust-analysis`     |`<via rustup>`                       |
 |------CLOUD----------|-------------------------------------|
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |
@@ -117,7 +121,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **4.48GB** (1.9GB compressed)        |
+| **TOTAL SIZE**      | **6.03GB** (2.21GB compressed)      |
 
 
 
