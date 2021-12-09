@@ -110,6 +110,8 @@ docker run -ti --rm \
 | `rustup`            |`<sh.rustup.rs>`                     |
 | `rust-src`          |`<via rustup>`                       |
 | `rust-analysis`     |`<via rustup>`                       |
+|--------Platform-----|-------------------------------------|
+| `camel-k`           |`<gh release>`                       |
 |------CLOUD----------|-------------------------------------|
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |
@@ -123,7 +125,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **6.5GB** (2.5GB compressed)      |
+| **TOTAL SIZE**      | **6.5GB** (2.7GB compressed)      |
 
 ### Environment Variables
 
