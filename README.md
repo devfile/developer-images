@@ -75,7 +75,9 @@ docker run -ti --rm \
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
 | `sdk`               |`<https://get.sdkman.io>`            |
-| `java`              |`<11.0.12-open via sdkman>`          |
+| `java`              |`<8.0.302-open via sdkman>`          |
+| `java`              |`<11.0.12-open via sdkman>/default`  |
+| `java`              |`<17.0.1-open via sdkman>`           |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
 |--------SCALA--------|-------------------------------------|
@@ -121,12 +123,12 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **6.03GB** (2.21GB compressed)      |
+| **TOTAL SIZE**      | **6.5GB** (2.5GB compressed)      |
 
+### Environment Variables
 
-
-
-
+#### Java
+JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17
 
 
 
