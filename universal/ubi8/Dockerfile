@@ -21,11 +21,20 @@ USER 10001
 # Java
 RUN curl -fsSL "https://get.sdkman.io" | bash \
     && bash -c ". /home/user/.sdkman/bin/sdkman-init.sh \
+             && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/user/.sdkman/etc/config \
+             && sdk install java 8.0.302-open \
              && sdk install java 11.0.12-open \
+             && sdk install java 17.0.1-open \
+             && sdk default java 11.0.12-open \
              && sdk install gradle \
              && sdk install maven \
              && sdk flush archives \
              && sdk flush temp"
+
+# sdk home java <version>
+ENV JAVA_HOME_8=/home/user/.sdkman/candidates/java/8.0.302-open
+ENV JAVA_HOME_11=/home/user/.sdkman/candidates/java/11.0.12-open
+ENV JAVA_HOME_17=/home/user/.sdkman/candidates/java/17.0.1-open
 
 # Java-related environment variables are described and set by /home/user/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
