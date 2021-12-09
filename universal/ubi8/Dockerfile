@@ -132,7 +132,10 @@ RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_
 ENV CARGO_HOME=/home/user/.cargo \
     RUSTUP_HOME=/home/user/.rustup \
     PATH=/home/user/.cargo/bin:${PATH}
-RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs | sh -s -- --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls
+RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
+    chmod +x rustup && \
+    mv rustup /usr/bin/ && \
+    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls
 
 # camel-k
 ENV KAMEL_VERSION 1.7.0
