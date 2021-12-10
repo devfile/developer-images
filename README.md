@@ -113,6 +113,7 @@ docker run -ti --rm \
 |--------Platform-----|-------------------------------------|
 | `camel-k`           |`<gh release>`                       |
 |------CLOUD----------|-------------------------------------|
+| `oc`                |`mirror.openshift.com`               |
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |
 | `skopeo`            |`container-tools:rhel8`              |
@@ -125,7 +126,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **6.5GB** (2.7GB compressed)      |
+| **TOTAL SIZE**      | **7.04GB** (2.7GB compressed)       |
 
 ### Environment Variables
 
