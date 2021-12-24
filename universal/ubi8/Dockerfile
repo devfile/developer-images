@@ -56,6 +56,9 @@ ENV PATH="/home/user/.local/share/coursier/bin:$PATH"
 
 USER 0
 
+# Required packages for AWT
+RUN dnf install -y libXext libXrender libXtst libXi
+
 # Lombok
 ENV LOMBOK_VERSION=1.18.18
 RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
