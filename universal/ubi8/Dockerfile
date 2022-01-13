@@ -103,7 +103,7 @@ RUN cd /usr/bin \
     && if [ ! -L python-config ]; then ln -s python3.9-config python-config; fi \
     && if [ ! -L pip ]; then ln -s pip-3.9 pip; fi
 
-RUN pip install pylint
+RUN pip install pylint yq
 
 # PHP
 ENV PHP_VERSION=7.4
