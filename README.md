@@ -106,6 +106,7 @@ docker run -ti --rm \
 | `setuptools`        |`python39-setuptools`                |
 | `pip`               |`python39-pip`                       |
 | `pylint`            |`<via pip>`                          |
+| `yq`                |`<via pip>`                          |
 |--------RUST---------|-------------------------------------|
 | `rustup`            |`<sh.rustup.rs>`                     |
 | `rust-src`          |`<via rustup>`                       |
