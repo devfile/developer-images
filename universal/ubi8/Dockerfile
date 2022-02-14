@@ -78,7 +78,7 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
 # NodeJS
-ENV NODEJS_VERSION=14
+ENV NODEJS_VERSION=16
 RUN dnf -y module enable nodejs:$NODEJS_VERSION && \
     dnf -y update && \
     dnf -y install make libatomic_ops openssl-devel \
