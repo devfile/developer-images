@@ -54,6 +54,18 @@ ENV PATH="/home/user/.sdkman/candidates/java/current/bin:$PATH"
 ENV PATH="/home/user/.sdkman/candidates/gradle/current/bin:$PATH"
 ENV PATH="/home/user/.local/share/coursier/bin:$PATH"
 
+# NodeJS
+ENV NVM_DIR="/home/user/.nvm"
+ENV NODEJS_VERSION=16.14.0
+ENV NODEJS_12_VERSION=12.22.10
+ENV NODEJS_14_VERSION=14.19.0
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+RUN source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17
+ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
+ENV NODEJS_HOME_12=$NVM_DIR/versions/node/v$NODEJS_12_VERSION
+ENV NODEJS_HOME_14=$NVM_DIR/versions/node/v$NODEJS_14_VERSION
+ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
+
 USER 0
 
 # Required packages for AWT
@@ -76,15 +88,6 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
     
 # C/CPP
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
-
-# NodeJS
-ENV NODEJS_VERSION=14
-RUN dnf -y module enable nodejs:$NODEJS_VERSION && \
-    dnf -y update && \
-    dnf -y install make libatomic_ops openssl-devel \
-                   nodejs npm nodejs-nodemon nss_wrapper && \
-    dnf -y clean all --enablerepo='*' && \
-    npm install --global yarn
 
 # Go
 RUN dnf install -y go-toolset  && \
