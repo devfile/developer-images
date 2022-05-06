@@ -69,7 +69,7 @@ docker run -ti --rm \
        quay.io/devfile/universal-developer-image:ubi8-latest \
        bash
 ```
-### Included Developement Tools
+### Included Development Tools
 
 | Tool or language    | ubi8 based image                    |
 |---------------------|-------------------------------------|
@@ -128,6 +128,10 @@ docker run -ti --rm \
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
 | **TOTAL SIZE**      | **7.04GB** (2.7GB compressed)       |
+
+### Included libraries
+
+#### e2fsprogs v1.46.5
 
 ### Environment Variables
 
