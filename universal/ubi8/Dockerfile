@@ -378,6 +378,32 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+# e2fsprogs setup
+# Since e2fsprogs-static package has removed RHEL 8 distribution, it is not possible to install from the repository
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#removed-packages_changes-to-packages
+RUN <<EOF
+set -euf -o pipefail
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+E2FSPROGS_VERSION="1.46.5"
+E2FSPROGS_TGZ="e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
+E2FSPROGS_TGZ_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/${E2FSPROGS_TGZ}"
+E2FSPROGS_CHEKSUMS_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/sha256sums.asc"
+curl -sSLO "${E2FSPROGS_TGZ_URL}"
+curl -sSLO "${E2FSPROGS_CHEKSUMS_URL}"
+sha256sum --ignore-missing -c "sha256sums.asc" 2>&1 | grep OK
+tar -zxvf "${E2FSPROGS_TGZ}"
+cd "e2fsprogs-${E2FSPROGS_VERSION}"
+mkdir build
+cd build
+../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs --disable-evms
+make
+make install
+make install-libs
+cd -
+rm -rf "${TEMP_DIR}"
+EOF
+
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
