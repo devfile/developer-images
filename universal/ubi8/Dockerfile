@@ -25,6 +25,7 @@ RUN curl -fsSL "https://get.sdkman.io" | bash \
              && sdk install java 8.0.302-open \
              && sdk install java 11.0.12-open \
              && sdk install java 17.0.1-open \
+             && sdk install java 22.1.0.0.r11-mandrel \
              && sdk default java 11.0.12-open \
              && sdk install gradle \
              && sdk install maven \
@@ -47,6 +48,8 @@ ENV SDKMAN_VERSION="5.13.0"
 ENV GRADLE_HOME="/home/user/.sdkman/candidates/gradle/current"
 ENV JAVA_HOME="/home/user/.sdkman/candidates/java/current"
 ENV MAVEN_HOME="/home/user/.sdkman/candidates/maven/current"
+
+ENV GRAALVM_HOME=/home/user/.sdkman/candidates/java/22.1.0.0.r11-mandrel
 
 ENV PATH="/home/user/.krew/bin:$PATH"
 ENV PATH="/home/user/.sdkman/candidates/maven/current/bin:$PATH"

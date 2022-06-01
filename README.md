@@ -80,6 +80,7 @@ docker run -ti --rm \
 | `java`              |`<17.0.1-open via sdkman>`           |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
+| `mandrel`           |`<via sdkman>`                       |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |
@@ -127,7 +128,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| **TOTAL SIZE**      | **7.04GB** (2.7GB compressed)       |
+| **TOTAL SIZE**      | **8.34GB** (2.7GB compressed)       |
 
 ### Included libraries
 
@@ -137,12 +138,3 @@ docker run -ti --rm \
 
 #### Java
 JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17
-
-
-
-
-
-
-
-
-
