@@ -80,7 +80,7 @@ docker run -ti --rm \
 | `java`              |`<17.0.1-open via sdkman>`           |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-| `mandrel`           |`<via sdkman>`                       |
+| `mandrel`           |`<22.1.0.0.r11-mandrel via sdkman>`  |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |
