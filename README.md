@@ -81,6 +81,7 @@ docker run -ti --rm \
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
 | `mandrel`           |`<22.1.0.0.r11-mandrel via sdkman>`  |
+| `jbang`             |`<via sdkman>`                    |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |

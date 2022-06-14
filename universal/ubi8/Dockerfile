@@ -29,6 +29,7 @@ RUN curl -fsSL "https://get.sdkman.io" | bash \
              && sdk default java 11.0.12-open \
              && sdk install gradle \
              && sdk install maven \
+             && sdk install jbang \
              && sdk flush archives \
              && sdk flush temp"
 
