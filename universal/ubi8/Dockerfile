@@ -22,11 +22,11 @@ USER 10001
 RUN curl -fsSL "https://get.sdkman.io" | bash \
     && bash -c ". /home/user/.sdkman/bin/sdkman-init.sh \
              && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/user/.sdkman/etc/config \
-             && sdk install java 8.0.302-open \
-             && sdk install java 11.0.12-open \
-             && sdk install java 17.0.1-open \
-             && sdk install java 22.1.0.0.r11-mandrel \
-             && sdk default java 11.0.12-open \
+             && sdk install java 8.0.332-tem \
+             && sdk install java 11.0.15-tem \
+             && sdk install java 17.0.3-tem \
+             && sdk install java 22.1.0.0.r17-mandrel \
+             && sdk default java 11.0.15-tem \
              && sdk install gradle \
              && sdk install maven \
              && sdk install jbang \
@@ -34,9 +34,9 @@ RUN curl -fsSL "https://get.sdkman.io" | bash \
              && sdk flush temp"
 
 # sdk home java <version>
-ENV JAVA_HOME_8=/home/user/.sdkman/candidates/java/8.0.302-open
-ENV JAVA_HOME_11=/home/user/.sdkman/candidates/java/11.0.12-open
-ENV JAVA_HOME_17=/home/user/.sdkman/candidates/java/17.0.1-open
+ENV JAVA_HOME_8=/home/user/.sdkman/candidates/java/8.0.332-tem
+ENV JAVA_HOME_11=/home/user/.sdkman/candidates/java/11.0.15-tem
+ENV JAVA_HOME_17=/home/user/.sdkman/candidates/java/17.0.3-tem
 
 # Java-related environment variables are described and set by /home/user/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
@@ -50,7 +50,7 @@ ENV GRADLE_HOME="/home/user/.sdkman/candidates/gradle/current"
 ENV JAVA_HOME="/home/user/.sdkman/candidates/java/current"
 ENV MAVEN_HOME="/home/user/.sdkman/candidates/maven/current"
 
-ENV GRAALVM_HOME=/home/user/.sdkman/candidates/java/22.1.0.0.r11-mandrel
+ENV GRAALVM_HOME=/home/user/.sdkman/candidates/java/22.1.0.0.r17-mandrel
 
 ENV PATH="/home/user/.krew/bin:$PATH"
 ENV PATH="/home/user/.sdkman/candidates/maven/current/bin:$PATH"
