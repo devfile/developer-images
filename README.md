@@ -75,12 +75,12 @@ docker run -ti --rm \
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
 | `sdk`               |`<https://get.sdkman.io>`            |
-| `java`              |`<8.0.302-open via sdkman>`          |
-| `java`              |`<11.0.12-open via sdkman>/default`  |
-| `java`              |`<17.0.1-open via sdkman>`           |
+| `java`              |`<8.0.332-tem via sdkman>`          |
+| `java`              |`<11.0.15-tem via sdkman>/default`  |
+| `java`              |`<17.0.3-tem via sdkman>`           |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-| `mandrel`           |`<22.1.0.0.r11-mandrel via sdkman>`  |
+| `mandrel`           |`<22.1.0.0.r17-mandrel via sdkman>`  |
 | `jbang`             |`<via sdkman>`                    |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
