@@ -129,6 +129,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
+| `kamel`            |`<gh release>`                     |
 | **TOTAL SIZE**      | **8.34GB** (2.7GB compressed)       |
 
 ### Included libraries
