@@ -152,7 +152,6 @@ ENV KAMEL_VERSION 1.9.2
 RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-64bit.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/kamel
 
-
 # Cloud
 
 # oc
@@ -166,6 +165,9 @@ RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y reinstall shadow-utils && \
     dnf -y install podman buildah skopeo fuse-overlayfs && \
     dnf -y clean all --enablerepo='*'
+
+# shasum
+RUN dnf -y install shasum
 
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to
