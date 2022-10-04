@@ -166,9 +166,6 @@ RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y install podman buildah skopeo fuse-overlayfs && \
     dnf -y clean all --enablerepo='*'
 
-# shasum
-RUN dnf -y install shasum
-
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to
 # isolate the filesystem with chroot.
