@@ -43,6 +43,7 @@ $ docker run -ti --rm \
 | `scp`               |`openssh-clients`                    |
 | `screen`            |`NOT AVAILABLE`                      |
 | `sed`               |`sed`                                |
+| `shasum`            |`perl-Digest-SHA`                    |
 | `socat`             |`socat`                              |
 | `sudo`              |`sudo`                               |
 | `ss`                |`NOT AVAILABLE`                      |
