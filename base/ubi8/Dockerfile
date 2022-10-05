@@ -21,7 +21,7 @@ USER 0
 
 RUN dnf update -y && \
     dnf install -y bash curl diffutils git git-lfs iproute jq less lsof man nano procps \
-                   net-tools openssh-clients rsync shasum socat sudo time vim wget zip && \
+                   perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip && \
                    dnf clean all
 
 ## gh-cli
