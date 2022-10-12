@@ -20,7 +20,7 @@ LABEL io.openshift.expose-services=""
 USER 0
 
 RUN dnf update -y && \
-    dnf install -y bash curl diffutils git git-lfs iproute jq less lsof man nano procps \
+    dnf install -y bash curl diffutils git git-lfs iproute jq less lsof man nano procps p7zip-plugins \
                    perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip && \
                    dnf clean all
 
