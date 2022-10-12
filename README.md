@@ -38,6 +38,7 @@ $ docker run -ti --rm \
 | `netcat`            |`NOT AVAILABLE`                      |
 | `netstat`           |`net-tools`                          |
 | `openssh-client`    |`openssh-clients`                    |
+| `7z`                |`p7zip-plugins`                      |
 | `ripgrep`           |`<gh releases>`                      |
 | `rsync`             |`rsync`                              |
 | `scp`               |`openssh-clients`                    |
@@ -131,7 +132,7 @@ docker run -ti --rm \
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
 | `kamel`            |`<gh release>`                     |
-| **TOTAL SIZE**      | **8.34GB** (2.7GB compressed)       |
+| **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
 ### Included libraries
 
