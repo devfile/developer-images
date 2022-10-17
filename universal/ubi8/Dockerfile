@@ -163,7 +163,9 @@ RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSIO
 RUN dnf -y module enable container-tools:rhel8 && \ 
     dnf -y update && \
     dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs && \
+    # CRW-3397 ensure fuse-overlayfs is installed BEFORE podman - https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md#ensure-fuse-overlayfs-is-installed
+    dnf -y install fuse-overlayfs && fuse-overlayfs -V && \
+    dnf -y install podman buildah skopeo && \
     dnf -y clean all --enablerepo='*'
 
 # Set up environment variables to note that this is
@@ -182,10 +184,6 @@ RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var
 RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-images/images.lock; \
     touch /var/lib/shared/overlay-layers/layers.lock
-
-# But use VFS since we were not able to make Fuse work yet...
-RUN mkdir -p "${HOME}"/.config/containers && \
-   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
 ## kubectl
 RUN <<EOF
