@@ -6,8 +6,8 @@ if [ ! -d "${HOME}" ]; then
 fi
 
 # Setup $PS1 for a consistent and reasonable prompt
-if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
-  echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc
+if [ -w "${HOME}" ]; then
+  echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> "${HOME}"/.bashrc
 fi
 
 # Add current (arbitrary) user to /etc/passwd and /etc/group
