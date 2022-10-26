@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1.3-labs
 
 FROM registry.access.redhat.com/ubi8/ubi
-
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-base-container"
@@ -76,12 +75,16 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+
 COPY --chown=0:0 entrypoint.sh /
-RUN mkdir -p /home/user && chgrp -R 0 /home && \
+RUN mkdir -p /home/user && \
+    # Setup $PS1 for a consistent and reasonable prompt
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> "${HOME}"/.bashrc && \
     # Copy the global git configuration to user config as global /etc/gitconfig
     #  file may be overwritten by a mounted file at runtime
     cp /etc/gitconfig /home/user/.gitconfig && \
+    # Set permissions on /etc/passwd and /home to allow arbitrary users to write
+    chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
     chmod +x /entrypoint.sh
 
