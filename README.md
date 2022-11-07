@@ -142,3 +142,16 @@ docker run -ti --rm \
 
 #### Java
 JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17
+
+# Builds
+
+This repo contains [actions](https://github.com/eclipse-che/che-operator/actions), including:
+* [![release latest stable](https://github.com/devfile/developer-images/actions/workflows/ubi8-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi8-build.yaml)
+
+Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
+
+* [udi_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/udi_3.x)
+
+# License
+
+Che is open sourced under the Eclipse Public License 2.0.
