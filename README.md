@@ -28,6 +28,7 @@ $ docker run -ti --rm \
 | `fish`              |`NOT AVAILABLE (fedora only)`        |
 | `gh`                |`<gh releases>`                      |
 | `git`               |`git`                                |
+| `git-lfs`           |`git-lfs`                            |
 | `ip`                |`iproute`                            |
 | `jq`                |`jq`                                 |
 | `htop`              |`NOT AVAILABLE (fedora only)`        |
