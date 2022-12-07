@@ -40,6 +40,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           context: base/ubi8
           tags: |
+            quay.io/devfile/base-developer-image:latest
             ${{ steps.meta.outputs.tags }}
 
   build_universal_ubi8_image:
