@@ -76,4 +76,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           context: universal/ubi8
           tags: |
+            quay.io/devfile/universal-developer-image:latest
             ${{ steps.meta.outputs.tags }}

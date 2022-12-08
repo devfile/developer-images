@@ -94,16 +94,15 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
 # C/CPP
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
-# Go
-RUN dnf install -y go-toolset  && \
-    dnf -y clean all --enablerepo='*' && \
-    GO111MODULE=on go get -v golang.org/x/tools/gopls@master golang.org/x/tools@master
+# Go 1.18+    - installed to /usr/bin/go
+# gopls 0.10+ - installed to /home/user/go/bin/gopls and /home/user/go/pkg/mod/
+RUN dnf install -y go-toolset && \
+    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest
 
 # Python
 RUN dnf -y module enable python39:3.9 && \
     dnf -y update && \
-    dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper && \
-    dnf -y clean all --enablerepo='*'
+    dnf -y install python39 python39-devel python39-setuptools python39-pip nss_wrapper
 
 RUN cd /usr/bin \
     && if [ ! -L python ]; then ln -s python3.9 python; fi \
@@ -164,8 +163,7 @@ RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSIO
 RUN dnf -y module enable container-tools:rhel8 && \ 
     dnf -y update && \
     dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs && \
-    dnf -y clean all --enablerepo='*'
+    dnf -y install podman buildah skopeo fuse-overlayfs
 
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to
@@ -420,5 +418,8 @@ EOF
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+
+# cleanup dnf cache
+RUN dnf -y clean all --enablerepo='*'
 
 USER 10001
