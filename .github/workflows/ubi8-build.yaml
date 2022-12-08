@@ -6,10 +6,9 @@ on:
     branches: [ main ]
 
 jobs:
-
   build_base_ubi8_image:
     name: Build and publish base ubi8 image to Quay.io
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -45,7 +44,8 @@ jobs:
 
   build_universal_ubi8_image:
     name: Build and publish universal ubi8 image to Quay.io
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    needs: build_base_ubi8_image
     steps:
       - name: Checkout
         uses: actions/checkout@v2
