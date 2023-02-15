@@ -1,0 +1,80 @@
+
+name: Build of UBI 9 based Developer Images
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_base_ubi9_image:
+    name: Build and publish base ubi9 image to Quay.io
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            quay.io/devfile/base-developer-image
+          flavor: |
+            latest=true
+            prefix=ubi9-,onlatest=true
+          tags: |
+            type=sha,prefix=ubi9-,format=short
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Quay.io
+        uses: docker/login-action@v1 
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Docker Build & Push Base
+        uses: docker/build-push-action@v2
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          context: base/ubi9
+          tags: |
+            quay.io/devfile/base-developer-image:ubi9-latest
+            ${{ steps.meta.outputs.tags }}
+
+  build_universal_ubi9_image:
+    name: Build and publish universal ubi9 image to Quay.io
+    runs-on: ubuntu-22.04
+    needs: build_base_ubi9_image
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            quay.io/devfile/universal-developer-image
+          flavor: |
+            latest=true
+            prefix=ubi9-,onlatest=true
+          tags: |
+            type=sha,prefix=ubi9-,format=short
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Quay.io
+        uses: docker/login-action@v1 
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Docker Build & Push Universal
+        uses: docker/build-push-action@v2
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          context: universal/ubi9
+          tags: |
+            quay.io/devfile/universal-developer-image:latest
+            ${{ steps.meta.outputs.tags }}
