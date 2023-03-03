@@ -39,6 +39,7 @@ RUN \
     sha256sum --ignore-missing -c "gh_${GH_VERSION}_checksums.txt" 2>&1 | grep OK; \
     tar -zxvf "${GH_TGZ}"; \
     mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/; \
+    mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
@@ -53,6 +54,7 @@ RUN \
     curl -sSLO "${RG_TGZ_URL}"; \
     tar -zxvf "${RG_TGZ}"; \
     mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/rg /usr/local/bin/; \
+    mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/doc/rg.1 /usr/local/share/man/man1; \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
@@ -67,6 +69,7 @@ RUN \
     curl -sSLO "${BAT_TGZ_URL}"; \
     tar -zxvf "${BAT_TGZ}"; \
     mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat /usr/local/bin/; \
+    mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat.1 /usr/local/share/man/man1; \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
