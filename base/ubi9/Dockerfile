@@ -19,16 +19,17 @@ LABEL io.openshift.expose-services=""
 
 USER 0
 
-RUN dnf update -y && \
-    dnf install -y diffutils git git-lfs iproute jq less lsof man nano procps \
-                   perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip && \
-                   dnf clean all
+# Removed because of vulnerabilities: git-lfs
+RUN dnf install -y diffutils git iproute jq less lsof man nano procps \
+    perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip && \
+    dnf update -y && \
+    dnf clean all
 
 ## gh-cli
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    GH_VERSION="2.0.0"; \
+    GH_VERSION="2.23.0"; \
     GH_ARCH="linux_amd64"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
@@ -75,9 +76,6 @@ RUN \
     useradd -u 10001 -G wheel,root -d /home/user --shell /bin/bash -m user && \
     # Setup $PS1 for a consistent and reasonable prompt
     echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /home/user/.bashrc && \
-    # Copy the global git configuration to user config as global /etc/gitconfig
-    #  file may be overwritten by a mounted file at runtime
-    cp /etc/gitconfig /home/user/.gitconfig && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
     chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
