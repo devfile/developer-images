@@ -37,6 +37,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
+          provenance: false
           context: base/ubi8
           tags: |
             quay.io/devfile/base-developer-image:latest
@@ -74,6 +75,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
+          provenance: false
           context: universal/ubi8
           tags: |
             quay.io/devfile/universal-developer-image:latest

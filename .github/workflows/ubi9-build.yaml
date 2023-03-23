@@ -37,6 +37,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
+          provenance: false
           context: base/ubi9
           platforms: linux/amd64, linux/arm64
           tags: |
