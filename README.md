@@ -105,7 +105,7 @@ docker run -ti --rm \
 | `go`                |`go-toolset`                         |
 | `gopls`             |`golang.org/x/tools/gopls`           |
 |--------.NET---------|-------------------------------------|
-| `dotnet`            |`dotnet-sdk-5.0`                     |
+| `dotnet`            |`dotnet-sdk-6.0`                     |
 |------PYTHON---------|-------------------------------------|
 | `python`            |`python39`                           |
 | `setuptools`        |`python39-setuptools`                |
