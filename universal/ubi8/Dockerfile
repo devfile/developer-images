@@ -197,6 +197,15 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
 RUN mkdir -p "${HOME}"/.config/containers && \
    (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
+# Install kubedock
+ENV KUBEDOCK_VERSION 0.11.0
+RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
+    && chmod +x /usr/local/bin/kubedock
+
+# Configure the podman wrapper
+COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
+RUN mv /usr/bin/podman /usr/bin/podman.orig
+
 ## kubectl
 RUN <<EOF
 set -euf -o pipefail
@@ -436,5 +445,7 @@ RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/gro
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
+
+COPY --chown=0:0 entrypoint.sh /
 
 USER 10001
