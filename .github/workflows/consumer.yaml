@@ -1,0 +1,18 @@
+
+name: Consumer of variable
+on:
+  [workflow_dispatch]
+
+jobs:
+  runner:
+    name: runner
+    uses: ./.github/workflows/manufacter.yaml
+
+  consumer:
+    name: consumer
+    runs-on: ubuntu-22.04
+    needs: runner
+    steps:
+      - name: run echo command
+        run: |
+          echo "${{needs.runner.outputs.firstword}}"

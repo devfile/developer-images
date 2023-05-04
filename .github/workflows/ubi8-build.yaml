@@ -1,9 +1,9 @@
-
 name: Build of UBI 8 based Developer Images
 
 on:
-  push:
-    branches: [ main ]
+   push:
+   pull_request:
+     branches: [ main ]
 
 jobs:
   build_base_ubi8_image:
@@ -17,7 +17,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            quay.io/devfile/base-developer-image
+            quay.io/mmusiien/base-developer-image
           flavor: |
             latest=true
             prefix=ubi8-,onlatest=true
@@ -40,7 +40,7 @@ jobs:
           provenance: false
           context: base/ubi8
           tags: |
-            quay.io/devfile/base-developer-image:latest
+            quay.io/mmusiien/base-developer-image:latest
             ${{ steps.meta.outputs.tags }}
 
   build_universal_ubi8_image:
@@ -55,7 +55,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            quay.io/devfile/universal-developer-image
+            quay.io/mmusiien/universal-developer-image
           flavor: |
             latest=true
             prefix=ubi8-,onlatest=true
@@ -78,5 +78,17 @@ jobs:
           provenance: false
           context: universal/ubi8
           tags: |
-            quay.io/devfile/universal-developer-image:latest
+            quay.io/mmusiien/universal-developer-image:latest
             ${{ steps.meta.outputs.tags }}
+ 
+      - name: Get tag with uniq prefix
+        run: |
+          UNIQ_TAG_IMAGE="$(echo $DOCKER_METADATA_OUTPUT_TAGS | cut -d ':' -f1):$DOCKER_METADATA_OUTPUT_VERSION"
+          echo "......................"$UNIQ_TAG_IMAGE
+          mkdir -p ./tag
+          echo "$UNIQ_TAG_IMAGE" > ./tag/uniq_tag_image
+      - name: Store tag
+        uses: actions/upload-artifact@v3
+        with:
+          name: uniq_tag_image
+          path: tag/

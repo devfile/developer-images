@@ -1,0 +1,25 @@
+
+name: Manufacter of variable
+on:
+  workflow_call:
+    outputs:
+      firstword:
+        description: "The first output string"
+        value: ${{ jobs.manufacter.outputs.test_manufacter }}
+
+
+
+jobs:
+  manufacter:
+    name: Build and publish base ubi8 image to Quay.io
+    runs-on: ubuntu-22.04
+    outputs:
+      test_manufacter: ${{steps.identify.outputs.firstword}}
+    steps:
+      - name: test manufacter
+        id: identify
+        run: |
+          echo "firstword=maxura!" >> "$GITHUB_OUTPUT"
+
+
+
