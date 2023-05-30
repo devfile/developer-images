@@ -22,6 +22,10 @@ jobs:
     name: Build and publish base ubi8 image to Quay.io
     runs-on: ubuntu-22.04
     steps:
+      - name: Secrets
+        run: |
+          echo "$QUAY_USERNAME"
+          echo "$QUAY_PASSWORD"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Docker meta
