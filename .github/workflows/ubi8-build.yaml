@@ -1,20 +1,18 @@
 name: Build of UBI 8 based Developer Images
 
-on:
-  push:
-    branches: [ main ]
+on: workflow_dispatch
 
-  workflow_call:
-    # Map the workflow outputs to job outputs
-    # secrets:
-    #   QUAY_USERNAME:
-    #     required: true
-    #   QUAY_PASSWORD:
-    #     required: true
-    outputs:
-      uniq_tag:
-        description: "The first output string"
-        value: ${{ jobs.build_universal_ubi8_image.outputs.output1 }}
+  # workflow_call:
+  #   # Map the workflow outputs to job outputs
+  #   secrets:
+  #     QUAY_USERNAME:
+  #       required: true
+  #     QUAY_PASSWORD:
+  #       required: true
+  #   outputs:
+  #     uniq_tag:
+  #       description: "The first output string"
+  #       value: ${{ jobs.build_universal_ubi8_image.outputs.output1 }}
 
 
 jobs:
