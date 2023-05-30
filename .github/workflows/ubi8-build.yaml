@@ -6,11 +6,11 @@ on:
 
   workflow_call:
     # Map the workflow outputs to job outputs
-    secrets:
-      QUAY_USERNAME:
-        required: true
-      QUAY_PASSWORD:
-        required: true
+    # secrets:
+    #   QUAY_USERNAME:
+    #     required: true
+    #   QUAY_PASSWORD:
+    #     required: true
     outputs:
       uniq_tag:
         description: "The first output string"
