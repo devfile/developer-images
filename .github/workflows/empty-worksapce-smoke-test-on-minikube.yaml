@@ -27,7 +27,7 @@ env:
 jobs:
   build_image_runner:
     # reuse existing workflow
-    uses: devfile/mmusiien/.github/workflows/ubi8-build.yaml@invastigate-login-problems
+    uses: musienko-maxim/developer-images/.github/workflows/ubi8-build.yaml@invastigate-login-problems
     secrets: inherit
   workspace-api-tests-on-minikube:
     runs-on: ubuntu-22.04
