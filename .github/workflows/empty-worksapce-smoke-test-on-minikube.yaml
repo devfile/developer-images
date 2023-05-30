@@ -28,7 +28,9 @@ jobs:
   build_image_runner:
     # reuse existing workflow
     uses: ./.github/workflows/ubi8-build.yaml
-    secrets: inherit
+     secrets:
+      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
   workspace-api-tests-on-minikube:
     runs-on: ubuntu-22.04
     needs: build_image_runner
