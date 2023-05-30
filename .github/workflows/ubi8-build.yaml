@@ -1,9 +1,21 @@
-
 name: Build of UBI 8 based Developer Images
 
 on:
   push:
     branches: [ main ]
+
+  workflow_call:
+    # Map the workflow outputs to job outputs
+    secrets:
+      QUAY_USERNAME:
+        required: true
+      QUAY_PASSWORD:
+        required: true
+    outputs:
+      uniq_tag:
+        description: "The first output string"
+        value: ${{ jobs.build_universal_ubi8_image.outputs.output1 }}
+
 
 jobs:
   build_base_ubi8_image:
@@ -28,7 +40,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Quay.io
-        uses: docker/login-action@v2 
+        uses: docker/login-action@v2
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
@@ -47,6 +59,9 @@ jobs:
     name: Build and publish universal ubi8 image to Quay.io
     runs-on: ubuntu-22.04
     needs: build_base_ubi8_image
+   # job output for passing to mapping value (the workflow_call section)
+    outputs:
+      output1: ${{ steps.setTagName.outputs.uniq_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -66,7 +81,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Quay.io
-        uses: docker/login-action@v2 
+        uses: docker/login-action@v2
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
@@ -80,3 +95,11 @@ jobs:
           tags: |
             quay.io/devfile/universal-developer-image:latest
             ${{ steps.meta.outputs.tags }}
+      - name: Get tag with uniq prefix
+        id: setTagName
+        # set the image with uniq tag prefix (for example: quay.io/..../base-developer-image:ubi8-7ad6cab) to env. var
+        # and define it for output. This output with tag image will be used in caller job
+        run: |
+          UNIQ_TAG_IMAGE=$(echo $DOCKER_METADATA_OUTPUT_JSON | jq .tags[0])
+          echo "...................$UNIQ_TAG_IMAGE"
+          echo "uniq_tag=$UNIQ_TAG_IMAGE" >> $GITHUB_OUTPUT
