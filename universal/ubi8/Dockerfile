@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.3-labs
-
+#
 # updateBaseImages.sh can't operate on SHA-based tags as they're not date-based or semver-sequential, and therefore cannot be ordered
 FROM quay.io/devfile/base-developer-image:ubi8-latest
 LABEL maintainer="Red Hat, Inc."
