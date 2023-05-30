@@ -1,18 +1,20 @@
 name: Build of UBI 8 based Developer Images
 
-on: workflow_dispatch
+on:
+  push:
+    branches: [ main ]
 
-  # workflow_call:
-  #   # Map the workflow outputs to job outputs
-  #   secrets:
-  #     QUAY_USERNAME:
-  #       required: true
-  #     QUAY_PASSWORD:
-  #       required: true
-  #   outputs:
-  #     uniq_tag:
-  #       description: "The first output string"
-  #       value: ${{ jobs.build_universal_ubi8_image.outputs.output1 }}
+  workflow_call:
+    # Map the workflow outputs to job outputs
+    secrets:
+      QUAY_USERNAME:
+        required: true
+      QUAY_PASSWORD:
+        required: true
+    outputs:
+      uniq_tag:
+        description: "The first output string"
+        value: ${{ jobs.build_universal_ubi8_image.outputs.output1 }}
 
 
 jobs:
@@ -20,10 +22,6 @@ jobs:
     name: Build and publish base ubi8 image to Quay.io
     runs-on: ubuntu-22.04
     steps:
-      - name: Secrets
-        run: |
-          echo "$QUAY_USERNAME"
-          echo "$QUAY_PASSWORD"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Docker meta
