@@ -28,7 +28,7 @@ jobs:
   build_image_runner:
     # reuse existing workflow
     uses: ./.github/workflows/ubi8-build.yaml
-     secrets:
+    secrets:
       QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
       QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
   workspace-api-tests-on-minikube:
