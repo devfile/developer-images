@@ -19,7 +19,7 @@ on:
       - '.github/workflows/empty-worksapce-smoke-test-on-minikube-2.yaml'
 
 env:
-   USERSTORY: CloneGitRepoAPI
+   USERSTORY: EmptyWorkspaceAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
    DEPLOYMENT_TIMEOUT: 90s
 
@@ -50,9 +50,10 @@ jobs:
     - name: Checkout tests codebase
       uses: actions/checkout@master
       with:
+        ref: api-test-with-clone-project-without-generating
         repository: eclipse/che
         path: che
- 
+
     - name: Install NodeJs
       uses: actions/setup-node@v3
 
