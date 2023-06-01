@@ -20,7 +20,7 @@ on:
 
 
 env:
-   USERSTORY: CloneGitRepoAPI
+   USERSTORY: EmptyWorkspaceAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
    DEPLOYMENT_TIMEOUT: 90s
 
