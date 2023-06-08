@@ -72,6 +72,9 @@ ENV NODEJS_HOME_12=$NVM_DIR/versions/node/v$NODEJS_12_VERSION
 ENV NODEJS_HOME_14=$NVM_DIR/versions/node/v$NODEJS_14_VERSION
 ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
 
+# kube
+ENV KUBECONFIG=/home/user/.kube/config
+
 USER 0
 
 # Required packages for AWT
@@ -153,12 +156,17 @@ ENV KAMEL_VERSION 1.11.0
 RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-64bit.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/kamel
 
+# git completion
+RUN echo "source /usr/share/bash-completion/completions/git" >> /home/user/.bashrc
+
 # Cloud
 
-# oc
+# oc client and completion
 ENV OC_VERSION=4.6
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSION}/linux/oc.tar.gz | tar -C /usr/local/bin -xz \
-    && chmod +x /usr/local/bin/oc
+    && chmod +x /usr/local/bin/oc  \
+    && oc completion bash > /usr/share/bash-completion/completions/oc \
+    && echo "source /usr/share/bash-completion/completions/oc" >> /home/user/.bashrc
 
 ## podman buildah skopeo
 RUN dnf -y module enable container-tools:rhel8 && \ 
