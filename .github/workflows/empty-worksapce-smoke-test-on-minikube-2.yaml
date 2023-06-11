@@ -86,4 +86,3 @@ jobs:
         cd che/tests/e2e
         npm i
         npm run driver-less-test
-
