@@ -19,7 +19,7 @@ on:
       - '.github/workflows/empty-worksapce-smoke-test-on-minikube-2.yaml'
 
 env:
-   USERSTORY: EmptyWorkspaceAPI
+   USERSTORY: CloneGitRepoAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
    DEPLOYMENT_TIMEOUT: 90s
 
