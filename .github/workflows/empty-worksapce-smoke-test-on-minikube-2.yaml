@@ -10,7 +10,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-name: Empty workspace API test
+name: Empty workspace API testv2
 on:
   push:
     branches:
@@ -24,23 +24,18 @@ env:
    DEPLOYMENT_TIMEOUT: 90s
 
 jobs:
-  build_image_runner:
-    # reuse existing workflow
-    uses: ./.github/workflows/ubi8-build.yaml
-    secrets:
-      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-
   workspace-api-tests-on-minikube:
     runs-on: ubuntu-22.04
-    needs: build_image_runner
-    env:
-      imageTag: ${{ needs.build_image_runner.outputs.uniq_tag }}
     steps:
-    - name: Read artifact
-      run: |
-        echo ${{ env.imageTag }}
 
+    - name: Checkout
+      uses: actions/checkout@master
+      with:
+        ref: investigate-passing-secrets-workflow-problem
+
+    - name: Build base image
+      run: |
+        cd base/ubi8 && docker buildx build --platform linux/amd64 --load -t quay.io/devfile/base-developer-image:ubi8-latest .
     - name: Checkout WTO
       uses: actions/checkout@master
       with:
@@ -86,3 +81,4 @@ jobs:
         cd che/tests/e2e
         npm i
         npm run driver-less-test
+
