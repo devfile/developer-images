@@ -102,6 +102,8 @@ RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra g
 # gopls 0.10+ - installed to /home/user/go/bin/gopls and /home/user/go/pkg/mod/
 RUN dnf install -y go-toolset && \
     GO111MODULE=on go install -v golang.org/x/tools/gopls@latest
+ENV GOBIN="/home/user/go/bin/"
+ENV PATH="$GOBIN:$PATH"
 
 # Python
 RUN dnf -y module enable python39:3.9 && \
