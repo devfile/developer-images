@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3-labs
 
 # https://registry.access.redhat.com/ubi9/ubi
-FROM registry.access.redhat.com/ubi9/ubi:9.2-489
+FROM registry.access.redhat.com/ubi9/ubi:9.2-696
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-base-container"
