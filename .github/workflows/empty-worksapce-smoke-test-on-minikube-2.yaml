@@ -47,11 +47,11 @@ jobs:
     - name: Build universal image
       run: |
         echo "${GITHUB_SHA::6}"
-        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${GITHUB_SHA::6} .
+        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:ubi8-${GITHUB_SHA::6} .
 
     - name: Push universal base image
       run: |
-        docker push quay.io/devfile/universal-developer-image:${GITHUB_SHA::6}
+        docker push quay.io/devfile/universal-developer-image:ubi8-${GITHUB_SHA::6}
 
     - name: Start minikube cluster
       id: run-minikube
@@ -92,6 +92,7 @@ jobs:
       run: |
         cd devworkspace-operator
         make install
+        sleep  30
 
     - name: Run Empty workspace smoke test
       run: |
