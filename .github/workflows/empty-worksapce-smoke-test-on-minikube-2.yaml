@@ -33,63 +33,71 @@ jobs:
       with:
         ref: investigate-passing-secrets-workflow-problem
 
+    - name: Login to Quay
+      uses: docker/login-action@v1
+      with:
+        registry: quay.io
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+
     - name: Build base image
       run: |
         cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:ubi8-latest .
-        docker login -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_PASSWORD }} quay.io
 
-    # - name: Start minikube cluster
-    #   id: run-minikube
-    #   uses: che-incubator/setup-minikube-action@next
-    #   with:
-    #     minikube-version: v1.23.2
+    - name: Build universal image
+      run: |
+        echo "${GITHUB_SHA::6}"
+        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${GITHUB_SHA::6} .
 
-    # - name: Build universal image
-    #   run: |
-    #     echo "${GITHUB_SHA::6}"
-    #     eval $(minikube -p minikube docker-env)
-    #     cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${GITHUB_SHA::6} .
+    - name: Push universal base image
+      run: |
+        docker push quay.io/devfile/universal-developer-image:${GITHUB_SHA::6}
 
-    # - name: Checkout WTO
-    #   uses: actions/checkout@master
-    #   with:
-    #     repository: devfile/devworkspace-operator
-    #     path: devworkspace-operator
+    - name: Start minikube cluster
+      id: run-minikube
+      uses: che-incubator/setup-minikube-action@next
+      with:
+        minikube-version: v1.23.2
 
-    # - name: Checkout tests codebase
-    #   uses: actions/checkout@master
-    #   with:
-    #     ref: api-test-with-clone-project-without-generating
-    #     repository: eclipse/che
-    #     path: che
+    - name: Checkout WTO
+      uses: actions/checkout@master
+      with:
+        repository: devfile/devworkspace-operator
+        path: devworkspace-operator
 
-    # - name: Install NodeJs
-    #   uses: actions/setup-node@v3
+    - name: Checkout tests codebase
+      uses: actions/checkout@master
+      with:
+        ref: api-test-with-clone-project-without-generating
+        repository: eclipse/che
+        path: che
 
-
-    # - name: Pre-pull image on minikube
-    #   run: |
-    #     minikube image ls
-
-    # - name: Setup cert manager
-    #   run: |
-    #     cd devworkspace-operator
-    #     make install_cert_manager
-    #     kubectl wait deployment -n cert-manager cert-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
-    #     kubectl wait deployment -n cert-manager cert-manager-cainjector --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
-    #     kubectl wait deployment -n cert-manager cert-manager-webhook --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
-
-    # - name: Setup DWO
-    #   run: |
-    #     cd devworkspace-operator
-    #     make install
+    - name: Install NodeJs
+      uses: actions/setup-node@v3
 
 
+    - name: Pre-pull image on minikube
+      run: |
+        minikube image ls
 
-    # - name: Run Empty workspace smoke test
-    #   run: |
-    #     export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:ubi8-${GITHUB_SHA::6}
-    #     cd che/tests/e2e
-    #     npm i
-    #     npm run driver-less-test
+    - name: Setup cert manager
+      run: |
+        cd devworkspace-operator
+        make install_cert_manager
+        kubectl wait deployment -n cert-manager cert-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+        kubectl wait deployment -n cert-manager cert-manager-cainjector --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+        kubectl wait deployment -n cert-manager cert-manager-webhook --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+
+    - name: Setup DWO
+      run: |
+        cd devworkspace-operator
+        make install
+
+    - name: Run Empty workspace smoke test
+      run: |
+        export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:ubi8-${GITHUB_SHA::6}
+        export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/latest/devfile.yaml
+        cd che/tests/e2e
+        npm i
+        npm run driver-less-test
 
