@@ -78,7 +78,7 @@ jobs:
 
     - name: Pre-pull image on minikube
       run: |
-        minikube image ls
+        minikube ssh "docker pull quay.io/devfile/universal-developer-image:ubi8-${GITHUB_SHA::6}"
 
     - name: Setup cert manager
       run: |
