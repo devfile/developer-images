@@ -95,6 +95,8 @@ jobs:
       run: |
         cd devworkspace-operator
         make install
+        kubectl rollout status deployment -n devworkspace-controller devworkspace-controller-manager --timeout=$DEPLOYMENT_TIMEOUT
+        kubectl rollout status deployment -n devworkspace-controller devworkspace-webhook-server --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
 
