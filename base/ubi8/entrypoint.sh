@@ -19,3 +19,5 @@ if ! whoami &> /dev/null; then
 fi
 
 exec "$@"
+
+
