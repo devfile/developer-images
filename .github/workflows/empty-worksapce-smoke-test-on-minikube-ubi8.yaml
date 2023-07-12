@@ -18,6 +18,7 @@ on:
       - .devfile.yaml
       - LICENSE
       - '.rebase/*'
+      - 'base/ubi9/**'
 
 env:
    USERSTORY: CloneGitRepoAPI
@@ -40,6 +41,11 @@ jobs:
         pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
         echo ">>>>>>>>>>>$pr_number"
+
+    - name: Cleanup build-in images
+      run: |
+        # remove build-in images from the VM becqause it is not used
+        docker rmi -f $(docker images -aq)
 
     - name: Start minikube cluster
       id: run-minikube
@@ -85,6 +91,8 @@ jobs:
 
     - name: Check that UDI is presen in the image list
       run: |
+        # we used it for previous building and do not need it anymore. It saves the disk space
+        minikube image rm quay.io/devfile/base-developer-image:ubi8-latest
         minikube image list --format table
 
     - name: Install NodeJs
