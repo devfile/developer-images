@@ -32,12 +32,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-    - name: Login to Quay
-      uses: docker/login-action@v1
-      with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
+    # - name: Login to Quay
+    #   uses: docker/login-action@v1
+    #   with:
+    #     registry: quay.io
+    #     username: ${{ secrets.QUAY_USERNAME }}
+    #     password: ${{ secrets.QUAY_PASSWORD }}
+
+
 
     - name: Get PR number
       id: get_pr_number
@@ -53,9 +55,13 @@ jobs:
       run: |
         cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
 
-    - name: Push universal base image
+    - name: Archive base image to tar
       run: |
-        docker push quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+        docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+        docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+        docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
+
+
 
     - name: Start minikube cluster
       id: run-minikube
@@ -68,20 +74,6 @@ jobs:
       with:
         repository: devfile/devworkspace-operator
         path: devworkspace-operator
-
-    - name: Checkout tests codebase
-      uses: actions/checkout@master
-      with:
-        ref: api-test-with-clone-project-without-generating
-        repository: eclipse/che
-        path: che
-
-    - name: Install NodeJs
-      uses: actions/setup-node@v3
-
-    - name: Pre-pull image on minikube
-      run: |
-        minikube ssh "docker pull quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}"
 
     - name: Setup cert manager
       run: |
@@ -99,6 +91,20 @@ jobs:
         kubectl rollout status deployment -n devworkspace-controller devworkspace-webhook-server --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+
+    - name: Pre-pull image on minikube
+      run: |
+        minikube image load universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+        rm universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+    - name: Install NodeJs
+      uses: actions/setup-node@v3
+
+    - name: Checkout tests codebase
+      uses: actions/checkout@master
+      with:
+        ref: api-test-with-clone-project-without-generating
+        repository: eclipse/che
+        path: che
 
     - name: Run Empty workspace smoke test
       run: |
