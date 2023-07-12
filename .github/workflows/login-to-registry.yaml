@@ -1,0 +1,29 @@
+#
+# Copyright (c) 2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+name: Publish Image PR check
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+              description: 'release version in format 7.y.z'
+              required: true
+    push:
+jobs:
+  publish-image-pull-request:
+    name: publish image from the pull request
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Login to Quay.io
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
