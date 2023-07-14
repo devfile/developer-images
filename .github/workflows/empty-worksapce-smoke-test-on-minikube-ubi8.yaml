@@ -64,7 +64,7 @@ jobs:
       run: |
         docker pull quay.io/devfile/universal-developer-image:93
         docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
-
+    
     - name: Start minikube cluster
       id: run-minikube
       uses: che-incubator/setup-minikube-action@next
@@ -103,10 +103,12 @@ jobs:
 
     - name: Pre-pull image on minikube
       run: |
-        minikube image load myimage_latest.tar.gz
-        sleep 30
+        minikube image load universal-developer-image.tar.gz
+        sleep 20
         minikube image list
-        sleep 30
+        sleep 20
+        minikube image list
+
 
     - name: Install NodeJs
       uses: actions/setup-node@v3
