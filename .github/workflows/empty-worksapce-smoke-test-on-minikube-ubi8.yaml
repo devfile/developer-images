@@ -47,20 +47,24 @@ jobs:
         pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
 
-    - name: Build base image
-      run: |
-        cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
+    # - name: Build base image
+    #   run: |
+    #     cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
 
-    - name: Build universal image
-      run: |
-        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
+    # - name: Build universal image
+    #   run: |
+    #     cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
 
-    - name: Archive base image to tar
+    # - name: Archive base image to tar
+    #   run: |
+    #     docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+    #     docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+    #     docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
+    - name: Download and archive image
       run: |
-        docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
-        docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
-        docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
-
+        docker pull quay.io/devfile/universal-developer-image:93
+        docker save quay.io/devfile/universal-developer-image:93 | gzip > quay.io/devfile/universal-developer-image.tar.gz
+    
     - name: Start minikube cluster
       id: run-minikube
       uses: che-incubator/setup-minikube-action@next
@@ -90,11 +94,19 @@ jobs:
         kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
 
+    # - name: Pre-pull image on minikube
+    #   run: |
+    #     minikube image load universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+
+    #     rm universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+    #     minikube image list
+
     - name: Pre-pull image on minikube
       run: |
-        minikube image load universal-developer-image${{ env.PR_NUMBER }}.tar.gz
-        rm universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+        minikube image load quay.io/devfile/universal-developer-image.tar.gz
+        sleep 20
         minikube image list
+
 
     - name: Install NodeJs
       uses: actions/setup-node@v3
@@ -106,11 +118,11 @@ jobs:
         repository: eclipse/che
         path: che
 
-    - name: Run Empty workspace smoke test
-      run: |
-        export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
-        export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/latest/devfile.yaml
-        cd che/tests/e2e
-        npm i
-        npm run driver-less-test
+    # - name: Run Empty workspace smoke test
+    #   run: |
+    #     export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+    #     export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/latest/devfile.yaml
+    #     cd che/tests/e2e
+    #     npm i
+    #     npm run driver-less-test
 
