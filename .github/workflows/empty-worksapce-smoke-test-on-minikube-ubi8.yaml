@@ -61,8 +61,6 @@ jobs:
         docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
         docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
 
-
-
     - name: Start minikube cluster
       id: run-minikube
       uses: che-incubator/setup-minikube-action@next
@@ -96,6 +94,8 @@ jobs:
       run: |
         minikube image load universal-developer-image${{ env.PR_NUMBER }}.tar.gz
         rm universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+        minikube image list
+
     - name: Install NodeJs
       uses: actions/setup-node@v3
 
