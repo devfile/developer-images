@@ -60,39 +60,42 @@ jobs:
     #     docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
     #     docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
     #     docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
-    - name: Download and archive image
-      run: |
-        docker pull quay.io/devfile/universal-developer-image:93
-        docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
 
-    - name: Start minikube cluster
-      id: run-minikube
-      uses: che-incubator/setup-minikube-action@next
-      with:
-        minikube-version: v1.30.1
+    # - name: Download and archive image
+    #   run: |
+    #     docker pull quay.io/devfile/universal-developer-image:93
+    #     docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
+    #     docker rmi quay.io/devfile/universal-developer-image:93
 
-    - name: Checkout DWO
-      uses: actions/checkout@master
-      with:
-        repository: devfile/devworkspace-operator
-        path: devworkspace-operator
 
-    - name: Setup cert manager
-      run: |
-        cd devworkspace-operator
-        make install_cert_manager
-        kubectl wait deployment -n cert-manager cert-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
-        kubectl wait deployment -n cert-manager cert-manager-cainjector --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
-        kubectl wait deployment -n cert-manager cert-manager-webhook --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+    # - name: Start minikube cluster
+    #   id: run-minikube
+    #   uses: che-incubator/setup-minikube-action@next
+    #   with:
+    #     minikube-version: v1.30.1
 
-    - name: Setup DWO
-      run: |
-        cd devworkspace-operator
-        make install
-        kubectl rollout status deployment -n devworkspace-controller devworkspace-controller-manager --timeout=$DEPLOYMENT_TIMEOUT
-        kubectl rollout status deployment -n devworkspace-controller devworkspace-webhook-server --timeout=$DEPLOYMENT_TIMEOUT
-        kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
-        kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+    # - name: Checkout DWO
+    #   uses: actions/checkout@master
+    #   with:
+    #     repository: devfile/devworkspace-operator
+    #     path: devworkspace-operator
+
+    # - name: Setup cert manager
+    #   run: |
+    #     cd devworkspace-operator
+    #     make install_cert_manager
+    #     kubectl wait deployment -n cert-manager cert-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+    #     kubectl wait deployment -n cert-manager cert-manager-cainjector --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+    #     kubectl wait deployment -n cert-manager cert-manager-webhook --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+
+    # - name: Setup DWO
+    #   run: |
+    #     cd devworkspace-operator
+    #     make install
+    #     kubectl rollout status deployment -n devworkspace-controller devworkspace-controller-manager --timeout=$DEPLOYMENT_TIMEOUT
+    #     kubectl rollout status deployment -n devworkspace-controller devworkspace-webhook-server --timeout=$DEPLOYMENT_TIMEOUT
+    #     kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
+    #     kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
 
     # - name: Pre-pull image on minikube
     #   run: |
@@ -101,22 +104,27 @@ jobs:
     #     rm universal-developer-image${{ env.PR_NUMBER }}.tar.gz
     #     minikube image list
 
-    - name: Pre-pull image on minikube
-      run: |
-        minikube image load myimage_latest.tar.gz
-        sleep 30
-        minikube image list
-        sleep 30
+    # - name: Pre-pull image on minikube
+    #   run: |
+    #     df -H --output=size,used,avail
+    #     minikube image load universal-developer-image.tar.gz
+    #     sleep 20
+    #     rm universal-developer-image.tar.gz
+    #     minikube stop
+    #     minikube start
+    #     minikube image list --format table
 
-    - name: Install NodeJs
-      uses: actions/setup-node@v3
 
-    - name: Checkout tests codebase
-      uses: actions/checkout@master
-      with:
-        ref: api-test-with-clone-project-without-generating
-        repository: eclipse/che
-        path: che
+
+    # - name: Install NodeJs
+    #   uses: actions/setup-node@v3
+
+    # - name: Checkout tests codebase
+    #   uses: actions/checkout@master
+    #   with:
+    #     ref: api-test-with-clone-project-without-generating
+    #     repository: eclipse/che
+    #     path: che
 
     # - name: Run Empty workspace smoke test
     #   run: |
