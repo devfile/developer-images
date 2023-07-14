@@ -62,9 +62,8 @@ jobs:
     #     docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
     - name: Download and archive image
       run: |
-        # docker pull quay.io/devfile/universal-developer-image:93
-        # docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
-        wget https://p-lux3.pcloud.com/cBZ74uMaqZ7ZZZMS6yykZ2ZZGb5ZkZRbdu6VZLFZBLZG5ZS0ZQ7ZXFZ2kZPpZ6ZhLZfpZqJZn0ZvHZnk7AVZMLG65OeDQCRFE054FyQ2P7VRGMAV/myimage_latest.tar.gz
+        docker pull quay.io/devfile/universal-developer-image:93
+        docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
 
     - name: Start minikube cluster
       id: run-minikube
@@ -108,8 +107,6 @@ jobs:
         sleep 30
         minikube image list
         sleep 30
-        minikube image list
-
 
     - name: Install NodeJs
       uses: actions/setup-node@v3
