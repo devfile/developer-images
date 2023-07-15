@@ -106,7 +106,8 @@ jobs:
       run: |
         docker pull busybox
         docker tag busybox:latest  busybox:expereimental
-        minikube image load busybox:expereimental
+        docker save busybox:expereimental | gzip > busybox.tar.gz
+        minikube image load busybox.tar.gz
         minikube image list --format table
 
     - name: Install NodeJs
