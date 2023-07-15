@@ -60,11 +60,11 @@ jobs:
     #     docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
     #     docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
     #     docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
-    - name: Download and archive image
-      run: |
-        docker pull quay.io/devfile/universal-developer-image:93
-        docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
-        docker rmi quay.io/devfile/universal-developer-image:93
+    # - name: Download and archive image
+    #   run: |
+    #     docker pull quay.io/devfile/universal-developer-image:93
+    #     docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
+    #     docker rmi quay.io/devfile/universal-developer-image:93
 
     - name: Start minikube cluster
       id: run-minikube
@@ -104,13 +104,10 @@ jobs:
 
     - name: Pre-pull image on minikube
       run: |
-        ls -lh --sort=size
-        minikube cache add universal-developer-image.tar.gz
-        sleep 60
-        minikube ssh 'docker images'
-        minikube cache reload
+        docker pull busybox
+        docker tag busybox:latest  busybox:expereimental
+        minikube image load busybox:expereimental
         minikube image list --format table
-        sleep 60
 
     - name: Install NodeJs
       uses: actions/setup-node@v3
