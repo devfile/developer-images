@@ -47,24 +47,26 @@ jobs:
         pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
 
-    # - name: Build base image
-    #   run: |
-    #     cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
+    - name: Build base image
+      run: |
+        cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
 
-    # - name: Build universal image
-    #   run: |
-    #     cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
+    - name: Build universal image
+      run: |
+        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
 
-    # - name: Archive base image to tar
-    #   run: |
-    #     docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
-    #     docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
-    #     docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
-    # - name: Download and archive image
-    #   run: |
-    #     docker pull quay.io/devfile/universal-developer-image:93
-    #     docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
-    #     docker rmi quay.io/devfile/universal-developer-image:93
+    - name: Archive base image to tar
+      run: |
+        docker save quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} | gzip > universal-developer-image${{ env.PR_NUMBER }}.tar.gz
+        docker rmi quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+        docker rmi quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
+
+    - name: Download and archive image
+      run: |
+        docker pull quay.io/devfile/universal-developer-image:93
+        docker save quay.io/devfile/universal-developer-image:93 | gzip > universal-developer-image.tar.gz
+        docker rmi quay.io/devfile/universal-developer-image:93
+        docker rmi quay.io/devfile/base-developer-image:93
 
     - name: Start minikube cluster
       id: run-minikube
@@ -104,11 +106,13 @@ jobs:
 
     - name: Pre-pull image on minikube
       run: |
-        docker pull busybox
-        docker tag busybox:latest  busybox:expereimental
-        docker save busybox:expereimental | gzip > busybox.tar.gz
-        minikube image load busybox.tar.gz
+        df -H --output=size,used,avail
+        minikube image load universal-developer-image.tar.gz
+        sleep 20
         minikube image list --format table
+        sleep 20
+        minikube image list --format table
+
 
     - name: Install NodeJs
       uses: actions/setup-node@v3
