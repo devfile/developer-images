@@ -109,8 +109,9 @@ jobs:
         df -H --output=size,used,avail
         minikube image load universal-developer-image.tar.gz
         sleep 20
-        minikube image load universal-developer-image.tar.gz
-        sleep 20
+        rm universal-developer-image.tar.gz
+        minikube stop
+        minikube start
         minikube image list --format table
 
 
