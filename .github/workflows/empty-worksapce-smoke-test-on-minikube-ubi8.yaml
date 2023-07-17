@@ -18,6 +18,8 @@ on:
       - .devfile.yaml
       - LICENSE
       - '.rebase/*'
+    branches:
+      - "CHE-22364"
 
 env:
    USERSTORY: CloneGitRepoAPI
