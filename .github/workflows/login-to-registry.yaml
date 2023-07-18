@@ -14,8 +14,7 @@ on:
     workflows: ["Empty workspace smoke test on udi8"]
     types:
       - completed
-    branches:
-        - 'CHE-22364/**'
+
 jobs:
   publish-image-pull-request:
     name: publish image from the pull request
