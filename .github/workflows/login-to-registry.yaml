@@ -11,7 +11,7 @@ name: Publish Image PR check
 
 on:
   workflow_run:
-    workflows: ["Empty workspace smoke test on udi8"]
+    workflows: [Empty workspace smoke test on udi8]
     types:
       - completed
 
