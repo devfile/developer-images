@@ -10,10 +10,10 @@
 name: Publish Image PR check
 
 on:
-  workflow_run:
-    workflows: [Empty workspace smoke test on udi8]
-    types:
-      - completed
+    workflow_dispatch:
+    # workflows: [Empty workspace smoke test on udi8]
+    # types:
+    #   - completed
 
 jobs:
   publish-image-pull-request:
