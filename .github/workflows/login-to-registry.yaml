@@ -11,10 +11,11 @@ name: Publish Image PR check
 
 on:
     workflow_dispatch:
-    # workflows: [Empty workspace smoke test on udi8]
-    # types:
-    #   - completed
-
+        inputs:
+            version:
+              description: 'release version in format 7.y.z'
+              required: true
+    push:
 jobs:
   publish-image-pull-request:
     name: publish image from the pull request
