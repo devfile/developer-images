@@ -17,7 +17,7 @@ on:
               required: true
     # workflows: [Empty workspace smoke test on udi8]
     # types:
-    #   - completed
+    #   - completed 
 
 jobs:
   publish-image-pull-request:
