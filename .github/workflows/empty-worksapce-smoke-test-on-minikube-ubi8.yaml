@@ -40,8 +40,6 @@ jobs:
     #     username: ${{ secrets.QUAY_USERNAME }}
     #     password: ${{ secrets.QUAY_PASSWORD }}
 
-
-
     - name: Get PR number
       id: get_pr_number
       run: |
