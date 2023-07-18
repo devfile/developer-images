@@ -11,6 +11,10 @@ name: Publish Image PR check
 
 on:
     workflow_dispatch:
+        inputs:
+            version:
+              description: 'release version in format 7.y.z'
+              required: true
     # workflows: [Empty workspace smoke test on udi8]
     # types:
     #   - completed
