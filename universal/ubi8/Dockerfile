@@ -213,7 +213,10 @@ EOF2
 
 dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
+kubectl completion bash > /usr/share/bash-completion/completions/kubectl
+
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/user/.bashrc
+echo "source /usr/share/bash-completion/completions/kubectl" >> /home/user/.bashrc
 EOF
 
 ## shellcheck
