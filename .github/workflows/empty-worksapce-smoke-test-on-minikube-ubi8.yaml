@@ -53,12 +53,12 @@ jobs:
     - name: Build base image
       run: |
        eval $(minikube docker-env)
-       cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
+       cd base/ubi8 && docker build -t quay.io/devfile/base-developer-image:ubi8-latest .
 
     - name: Build universal image
       run: |
         eval $(minikube docker-env)
-        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
+        cd universal/ubi8 && docker build -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
 
     - name: Checkout DWO
       uses: actions/checkout@master
