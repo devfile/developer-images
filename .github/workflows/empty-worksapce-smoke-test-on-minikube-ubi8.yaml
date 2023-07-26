@@ -19,7 +19,6 @@ on:
       - LICENSE
       - '.rebase/*'
 
-
 env:
    USERSTORY: CloneGitRepoAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
