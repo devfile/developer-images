@@ -23,6 +23,7 @@ env:
    USERSTORY: CloneGitRepoAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
    DEPLOYMENT_TIMEOUT: 90s
+   PULL_POLICY: IfNotPresent
 
 jobs:
   workspace-api-tests-on-minikube:
@@ -32,56 +33,38 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
 
-    - name: Login to Quay
-      uses: docker/login-action@v2
-      with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
-
+      # obtain the PR number for tegging the image
     - name: Get PR number
       id: get_pr_number
       run: |
         pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-
-    - name: Build base image
-      run: |
-        cd base/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
-
-    - name: Build universal image
-      run: |
-        cd universal/ubi8 && docker buildx build --platform linux/amd64 -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
-
-    - name: Push universal base image
-      run: |
-        docker push quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+        echo ">>>>>>>>>>>$pr_number"
 
     - name: Start minikube cluster
       id: run-minikube
       uses: che-incubator/setup-minikube-action@next
       with:
-        minikube-version: v1.30.1
+        minikube-version: v1.31.0
+
+     # connect with docker daemon in the minikube and build an image there
+     # we need to build the image in the minikube because we have just 14 GB of space on the runner
+     # the UBI have more than 9 GB size this approach saves the disk space
+    - name: Build base image
+      run: |
+       eval $(minikube docker-env)
+       cd base/ubi8 && docker build -t quay.io/devfile/base-developer-image:ubi8-latest .
+
+    - name: Build universal image
+      run: |
+        eval $(minikube docker-env)
+        cd universal/ubi8 && docker build -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
 
     - name: Checkout DWO
       uses: actions/checkout@master
       with:
         repository: devfile/devworkspace-operator
         path: devworkspace-operator
-
-    - name: Checkout tests codebase
-      uses: actions/checkout@master
-      with:
-        ref: api-test-with-clone-project-without-generating
-        repository: eclipse/che
-        path: che
-
-    - name: Install NodeJs
-      uses: actions/setup-node@v3
-
-    - name: Pre-pull image on minikube
-      run: |
-        minikube ssh "docker pull quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}"
 
     - name: Setup cert manager
       run: |
@@ -100,10 +83,23 @@ jobs:
         kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
 
+    - name: Check that UDI is presen in the image list
+      run: |
+        minikube image list --format table
+
+    - name: Install NodeJs
+      uses: actions/setup-node@v3
+
+    - name: Checkout tests codebase
+      uses: actions/checkout@master
+      with:
+        ref: api-test-with-clone-project-without-generating
+        repository: eclipse/che
+        path: che
+
     - name: Run Empty workspace smoke test
       run: |
         export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
-        export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/latest/devfile.yaml
         cd che/tests/e2e
         npm i
         npm run driver-less-test
