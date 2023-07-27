@@ -58,7 +58,7 @@ jobs:
     - name: Build universal image
       run: |
         eval $(minikube docker-env)
-        cd universal/ubi8 && docker build -t quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }} .
+        cd universal/ubi8 && docker build -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
 
     - name: Checkout DWO
       uses: actions/checkout@master
@@ -99,7 +99,7 @@ jobs:
 
     - name: Run Empty workspace smoke test
       run: |
-        export TS_API_TEST_UDI_IMAGE=quay.io/devfile/base-developer-image:${{ env.PR_NUMBER }}
+        export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
         cd che/tests/e2e
         npm i
         npm run driver-less-test
