@@ -162,17 +162,12 @@ ENV KAMEL_VERSION 1.11.0
 RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-64bit.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/kamel
 
-# git completion
-RUN echo "source /usr/share/bash-completion/completions/git" >> /home/user/.bashrc
-
 # Cloud
 
-# oc client and completion
+# oc client
 ENV OC_VERSION=4.6
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSION}/linux/oc.tar.gz | tar -C /usr/local/bin -xz \
-    && chmod +x /usr/local/bin/oc  \
-    && oc completion bash > /usr/share/bash-completion/completions/oc \
-    && echo "source /usr/share/bash-completion/completions/oc" >> /home/user/.bashrc
+    && chmod +x /usr/local/bin/oc
 
 ## podman buildah skopeo
 RUN dnf -y module enable container-tools:rhel8 && \
@@ -228,10 +223,6 @@ dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/user/.bashrc
 EOF
-
-# kubectl completion
-RUN kubectl completion bash > /usr/share/bash-completion/completions/kubectl \
-    && echo "source /usr/share/bash-completion/completions/kubectl" >> /home/user/.bashrc
 
 ## shellcheck
 RUN <<EOF
@@ -444,6 +435,16 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+# Bash completions
+RUN dnf -y install bash-completion \
+    && dnf clean all \
+    && rm -rf /var/cache/yum
+
+RUN <<EOF
+echo "source /etc/profile.d/bash_completion.sh" >> /home/user/.bashrc
+oc completion bash > /usr/share/bash-completion/completions/oc 
+kubectl completion bash > /usr/share/bash-completion/completions/kubectl
+EOF
 
 # Add sdkman's init script launcher to the end of the .bashrc since we are not adding it on sdkman install
 # NOTE: all modifications to the .bashrc must happen BEFORE this step in order for sdkman to function correctly
