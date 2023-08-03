@@ -20,7 +20,7 @@ LABEL io.openshift.expose-services=""
 USER 10001
 
 # Java
-RUN curl -fsSL "https://get.sdkman.io" | bash \
+RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
     && bash -c ". /home/user/.sdkman/bin/sdkman-init.sh \
              && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/user/.sdkman/etc/config \
 	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/user/.sdkman/etc/config \
@@ -443,6 +443,12 @@ make install-libs
 cd -
 rm -rf "${TEMP_DIR}"
 EOF
+
+
+# Add sdkman's init script launcher to the end of the .bashrc since we are not adding it on sdkman install
+# NOTE: all modifications to the .bashrc must happen BEFORE this step in order for sdkman to function correctly
+RUN echo 'export SDKMAN_DIR="/home/user/.sdkman"' >> /home/user/.bashrc
+RUN echo '[[ -s "/home/user/.sdkman/bin/sdkman-init.sh" ]] && source "/home/user/.sdkman/bin/sdkman-init.sh"' >> /home/user/.bashrc
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 RUN mkdir -p /home/user && chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
