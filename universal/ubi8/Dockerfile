@@ -67,7 +67,10 @@ ENV NODEJS_20_VERSION=20.7.0
 # note that 18.18.0 is the latest but 18.16.1 is the supported version downstream and in ubi8
 ENV NODEJS_18_VERSION=18.16.1
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && source /home/user/.bashrc && \
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | PROFILE=/dev/null bash
+RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/user/.bashrc \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/user/.bashrc
+RUN source /home/user/.bashrc && \
     nvm install v${NODEJS_20_VERSION} && \
     nvm install v${NODEJS_18_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
@@ -414,6 +417,7 @@ RUN <<EOF
 echo "source /etc/profile.d/bash_completion.sh" >> /home/user/.bashrc
 oc completion bash > /usr/share/bash-completion/completions/oc 
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
+cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
 # Add sdkman's init script launcher to the end of the .bashrc since we are not adding it on sdkman install
