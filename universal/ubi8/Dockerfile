@@ -66,9 +66,11 @@ ENV NVM_DIR="/home/user/.nvm"
 ENV NODEJS_VERSION=16.14.0
 ENV NODEJS_12_VERSION=12.22.10
 ENV NODEJS_14_VERSION=14.19.0
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash &&\
-    source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17 &&\
-    chgrp -R 0 /home/user && chmod -R g=u /home/user
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | PROFILE=/dev/null bash
+RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/user/.bashrc \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/user/.bashrc
+RUN source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17 \
+    && chgrp -R 0 /home/user && chmod -R g=u /home/user
 ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
 ENV NODEJS_HOME_12=$NVM_DIR/versions/node/v$NODEJS_12_VERSION
 ENV NODEJS_HOME_14=$NVM_DIR/versions/node/v$NODEJS_14_VERSION
@@ -444,6 +446,7 @@ RUN <<EOF
 echo "source /etc/profile.d/bash_completion.sh" >> /home/user/.bashrc
 oc completion bash > /usr/share/bash-completion/completions/oc 
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
+cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
 # Add sdkman's init script launcher to the end of the .bashrc since we are not adding it on sdkman install
