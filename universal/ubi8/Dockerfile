@@ -19,11 +19,19 @@ LABEL io.openshift.expose-services=""
 
 USER 10001
 
+# We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
+RUN mkdir -p /home/tooling/
+ENV HOME=/home/tooling
+
+RUN cp /home/user/.bashrc /home/tooling/.bashrc
+# /home/user/.bashrc will be replaced with the a symlink from /home/tooling/.bashrc
+RUN rm /home/user/.bashrc    
+
 # Java
 RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
-    && bash -c ". /home/user/.sdkman/bin/sdkman-init.sh \
-             && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/user/.sdkman/etc/config \
-	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/user/.sdkman/etc/config \
+    && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
+             && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
+	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
              && sdk install java 8.0.332-tem \
              && sdk install java 11.0.15-tem \
              && sdk install java 17.0.3-tem \
@@ -34,53 +42,55 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install jbang \
              && sdk flush archives \
              && sdk flush temp" \
-    && chgrp -R 0 /home/user && chmod -R g=u /home/user
+    && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # sdk home java <version>
-ENV JAVA_HOME_8=/home/user/.sdkman/candidates/java/8.0.332-tem
-ENV JAVA_HOME_11=/home/user/.sdkman/candidates/java/11.0.15-tem
-ENV JAVA_HOME_17=/home/user/.sdkman/candidates/java/17.0.3-tem
+ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.332-tem
+ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.15-tem
+ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.3-tem
 
-# Java-related environment variables are described and set by /home/user/.bashrc
+# Java-related environment variables are described and set by /home/tooling/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
 ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
-ENV SDKMAN_CANDIDATES_DIR="/home/user/.sdkman/candidates"
-ENV SDKMAN_DIR="/home/user/.sdkman"
+ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
+ENV SDKMAN_DIR="/home/tooling/.sdkman"
 ENV SDKMAN_PLATFORM="linuxx64"
 ENV SDKMAN_VERSION="5.13.0"
 
-ENV GRADLE_HOME="/home/user/.sdkman/candidates/gradle/current"
-ENV JAVA_HOME="/home/user/.sdkman/candidates/java/current"
-ENV MAVEN_HOME="/home/user/.sdkman/candidates/maven/current"
+ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
+ENV JAVA_HOME="/home/tooling/.sdkman/candidates/java/current"
+ENV MAVEN_HOME="/home/tooling/.sdkman/candidates/maven/current"
 
-ENV GRAALVM_HOME=/home/user/.sdkman/candidates/java/22.1.0.0.r17-mandrel
+ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/22.1.0.0.r17-mandrel
 
-ENV PATH="/home/user/.krew/bin:$PATH"
-ENV PATH="/home/user/.sdkman/candidates/maven/current/bin:$PATH"
-ENV PATH="/home/user/.sdkman/candidates/java/current/bin:$PATH"
-ENV PATH="/home/user/.sdkman/candidates/gradle/current/bin:$PATH"
-ENV PATH="/home/user/.local/share/coursier/bin:$PATH"
+ENV PATH="/home/tooling/.krew/bin:$PATH"
+ENV PATH="/home/tooling/.sdkman/candidates/maven/current/bin:$PATH"
+ENV PATH="/home/tooling/.sdkman/candidates/java/current/bin:$PATH"
+ENV PATH="/home/tooling/.sdkman/candidates/gradle/current/bin:$PATH"
+ENV PATH="/home/tooling/.local/share/coursier/bin:$PATH"
 
 # NodeJS
-ENV NVM_DIR="/home/user/.nvm"
+RUN mkdir -p /home/tooling/.nvm/
+ENV NVM_DIR="/home/tooling/.nvm"
 ENV NODEJS_20_VERSION=20.7.0
 # note that 18.18.0 is the latest but 18.16.1 is the supported version downstream and in ubi8
 ENV NODEJS_18_VERSION=18.16.1
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | PROFILE=/dev/null bash
-RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/user/.bashrc \
-    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/user/.bashrc
-RUN source /home/user/.bashrc && \
+RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/tooling/.bashrc \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/tooling/.bashrc
+RUN source /home/tooling/.bashrc && \
     nvm install v${NODEJS_20_VERSION} && \
     nvm install v${NODEJS_18_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
     npm install --global yarn@v1.22.17 &&\
-    chgrp -R 0 /home/user && chmod -R g=u /home/user
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
 ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
 ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
 
 # kube
+# The Che User Dashboard creates the kube config in /home/user/ and not /home/tooling/
 ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
@@ -112,11 +122,11 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
 # Go 1.18+    - installed to /usr/bin/go
-# gopls 0.10+ - installed to /home/user/go/bin/gopls and /home/user/go/pkg/mod/
+# gopls 0.10+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
 RUN dnf install -y go-toolset && \
     GO111MODULE=on go install -v golang.org/x/tools/gopls@latest && \
-    chgrp -R 0 /home/user && chmod -R g=u /home/user
-ENV GOBIN="/home/user/go/bin/"
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
 # Python
@@ -159,14 +169,14 @@ ENV DOTNET_RPM_VERSION=6.0
 RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
 
 # rust
-ENV CARGO_HOME=/home/user/.cargo \
-    RUSTUP_HOME=/home/user/.rustup \
-    PATH=/home/user/.cargo/bin:${PATH}
+ENV CARGO_HOME=/home/tooling/.cargo \
+    RUSTUP_HOME=/home/tooling/.rustup \
+    PATH=/home/tooling/.cargo/bin:${PATH}
 RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     chmod +x rustup && \
     mv rustup /usr/bin/ && \
     rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
-    chgrp -R 0 /home/user && chmod -R g=u /home/user
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # camel-k
 ENV KAMEL_VERSION 1.11.0
@@ -233,7 +243,7 @@ EOF2
 
 dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
-echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/user/.bashrc
+echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/tooling/.bashrc
 EOF
 
 ## shellcheck
@@ -273,7 +283,7 @@ sha256sum -c "${KREW_TGZ}.sha256" 2>&1 | grep OK
 
 tar -zxvf "${KREW_TGZ}"
 ./"krew-${KREW_ARCH}" install krew
-echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> /home/user/.bashrc
+echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> /home/tooling/.bashrc
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 # kubens and kubectx
 kubectl krew install ns
@@ -414,7 +424,7 @@ RUN dnf -y install bash-completion \
     && rm -rf /var/cache/yum
 
 RUN <<EOF
-echo "source /etc/profile.d/bash_completion.sh" >> /home/user/.bashrc
+echo "source /etc/profile.d/bash_completion.sh" >> /home/tooling/.bashrc
 oc completion bash > /usr/share/bash-completion/completions/oc 
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
@@ -422,11 +432,18 @@ EOF
 
 # Add sdkman's init script launcher to the end of the .bashrc since we are not adding it on sdkman install
 # NOTE: all modifications to the .bashrc must happen BEFORE this step in order for sdkman to function correctly
-RUN echo 'export SDKMAN_DIR="/home/user/.sdkman"' >> /home/user/.bashrc
-RUN echo '[[ -s "/home/user/.sdkman/bin/sdkman-init.sh" ]] && source "/home/user/.sdkman/bin/sdkman-init.sh"' >> /home/user/.bashrc
+RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> /home/tooling/.bashrc
+RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> /home/tooling/.bashrc
 
 # Set permissions on /etc/passwd and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
+
+# Create symbolic links from /home/tooling/ -> /home/user/
+RUN dnf -y install stow \
+    && dnf clean all \
+    && rm -rf /var/cache/yum \
+    &&  stow . -t /home/user/ -d /home/tooling/ --no-folding
+
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
@@ -434,3 +451,5 @@ RUN dnf -y clean all --enablerepo='*'
 COPY --chown=0:0 entrypoint.sh /
 
 USER 10001
+
+ENV HOME=/home/user
