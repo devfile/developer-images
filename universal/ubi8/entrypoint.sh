@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# /home/user/ will be mounted to by a PVC if persistUserHome is enabled
+if mountpoint -q /home/user/; then
+    # Create symbolic links from /home/tooling/ -> /home/user/
+    stow . -t /home/user/ -d /home/tooling/ --no-folding
+fi
+
 # Kubedock
 if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
     echo
