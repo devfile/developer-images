@@ -69,7 +69,6 @@ ENV NODEJS_14_VERSION=14.19.0
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash &&\
     source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17 &&\
     chgrp -R 0 /home/user && chmod -R g=u /home/user
-ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
 ENV NODEJS_HOME_12=$NVM_DIR/versions/node/v$NODEJS_12_VERSION
 ENV NODEJS_HOME_14=$NVM_DIR/versions/node/v$NODEJS_14_VERSION
 ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
