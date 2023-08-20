@@ -92,7 +92,7 @@ jobs:
 
     - name: Run Empty Workspace API test
       run: |
-           cd tests/e2e
+           cd che/tests/e2e
            npm ci
            export TS_PLATFORM=kubernetes
            export TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL=kubectl
