@@ -39,7 +39,7 @@ jobs:
       run: |
         pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
-        echo ">>>>>>>>>>>$pr_number"
+        echo ">>>>>>>>>>>>$pr_number"
 
     - name: Start minikube cluster
       id: run-minikube
