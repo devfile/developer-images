@@ -90,6 +90,12 @@ jobs:
              --patch '{"config": {"workspace": {"imagePullPolicy": "IfNotPresent"}}}' \
              --type merge
 
+    - name: Checkout tests codebase
+      uses: actions/checkout@master
+      with:
+        repository: eclipse/che
+        path: che
+
     - name: Run Empty Workspace API test
       run: |
            cd che/tests/e2e
