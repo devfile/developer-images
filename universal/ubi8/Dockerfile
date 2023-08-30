@@ -20,12 +20,7 @@ LABEL io.openshift.expose-services=""
 USER 10001
 
 # We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
-RUN mkdir -p /home/tooling/
 ENV HOME=/home/tooling
-
-RUN cp /home/user/.bashrc /home/tooling/.bashrc
-# /home/user/.bashrc will be replaced with the a symlink from /home/tooling/.bashrc
-RUN rm /home/user/.bashrc    
 
 # Java
 RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
@@ -439,10 +434,7 @@ RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/s
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 # Create symbolic links from /home/tooling/ -> /home/user/
-RUN dnf -y install stow \
-    && dnf clean all \
-    && rm -rf /var/cache/yum \
-    &&  stow . -t /home/user/ -d /home/tooling/ --no-folding
+RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
 
 # cleanup dnf cache

@@ -19,10 +19,13 @@ LABEL io.openshift.expose-services=""
 
 USER 0
 
+ENV HOME=/home/tooling
+RUN mkdir -p /home/tooling/
+
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm && \
     dnf update -y && \
     dnf install -y bash curl diffutils git git-lfs iproute jq less lsof man nano procps p7zip p7zip-plugins \
-                   perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip && \
+                   perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip stow && \
                    dnf clean all
 
 ## gh-cli
@@ -92,16 +95,22 @@ COPY --chown=0:0 entrypoint.sh /
 RUN \
     # add user and configure it
     useradd -u 10001 -G wheel,root -d /home/user --shell /bin/bash -m user && \
+    # useradd will give us our default .bashrc
+    cp /home/user/.bashrc /home/tooling/.bashrc && \
+    # /home/user/.bashrc will be replaced with the a symlink from /home/tooling/.bashrc
+    rm /home/user/.bashrc  && \
     # Setup $PS1 for a consistent and reasonable prompt
-    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /home/user/.bashrc && \
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> ${HOME}/.bashrc && \
     # Copy the global git configuration to user config as global /etc/gitconfig
     #  file may be overwritten by a mounted file at runtime
-    cp /etc/gitconfig /home/user/.gitconfig && \
-    chown 10001 /home/user/.gitconfig && \
+    cp /etc/gitconfig ${HOME}/.gitconfig && \
+    chown -R 10001 ${HOME}/ && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
     chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
-    chmod +x /entrypoint.sh
+    chmod +x /entrypoint.sh && \
+    # Create symbolic links from /home/tooling/ -> /home/user/
+    stow . -t /home/user/ -d /home/tooling/ --no-folding
 
 USER 10001
 ENV HOME=/home/user
