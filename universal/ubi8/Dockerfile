@@ -33,7 +33,8 @@ RUN curl -fsSL "https://get.sdkman.io" | bash \
              && sdk install maven \
              && sdk install jbang \
              && sdk flush archives \
-             && sdk flush temp"
+             && sdk flush temp" \
+    && chgrp -R 0 /home/user && chmod -R g=u /home/user
 
 # sdk home java <version>
 ENV JAVA_HOME_8=/home/user/.sdkman/candidates/java/8.0.332-tem
@@ -65,8 +66,9 @@ ENV NVM_DIR="/home/user/.nvm"
 ENV NODEJS_VERSION=16.14.0
 ENV NODEJS_12_VERSION=12.22.10
 ENV NODEJS_14_VERSION=14.19.0
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-RUN source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash &&\
+    source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17 &&\
+    chgrp -R 0 /home/user && chmod -R g=u /home/user
 ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
 ENV NODEJS_HOME_12=$NVM_DIR/versions/node/v$NODEJS_12_VERSION
 ENV NODEJS_HOME_14=$NVM_DIR/versions/node/v$NODEJS_14_VERSION
@@ -94,14 +96,15 @@ RUN curl -fLo sbt https://raw.githubusercontent.com/dwijnand/sbt-extras/master/s
 RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
     chmod +x mill && \
     mv mill /usr/local/bin/
-    
+
 # C/CPP
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
 # Go 1.18+    - installed to /usr/bin/go
 # gopls 0.10+ - installed to /home/user/go/bin/gopls and /home/user/go/pkg/mod/
 RUN dnf install -y go-toolset && \
-    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest
+    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest && \
+    chgrp -R 0 /home/user && chmod -R g=u /home/user
 ENV GOBIN="/home/user/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
@@ -151,7 +154,8 @@ ENV CARGO_HOME=/home/user/.cargo \
 RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     chmod +x rustup && \
     mv rustup /usr/bin/ && \
-    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls
+    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
+    chgrp -R 0 /home/user && chmod -R g=u /home/user
 
 # camel-k
 ENV KAMEL_VERSION 1.11.0
@@ -171,7 +175,7 @@ RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSIO
     && echo "source /usr/share/bash-completion/completions/oc" >> /home/user/.bashrc
 
 ## podman buildah skopeo
-RUN dnf -y module enable container-tools:rhel8 && \ 
+RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y update && \
     dnf -y reinstall shadow-utils && \
     dnf -y install podman buildah skopeo fuse-overlayfs
@@ -344,8 +348,8 @@ KN_CHEKSUMS_URL="https://github.com/knative/client/releases/download/v${KN_VERSI
 curl -sSLO "${KN_BIN_URL}"
 curl -sSLO "${KN_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
-mv "${KN_BIN}" kn 
-chmod +x kn 
+mv "${KN_BIN}" kn
+chmod +x kn
 mv kn /usr/local/bin
 cd -
 rm -rf "${TEMP_DIR}"
@@ -365,7 +369,7 @@ curl -sSLO "${TF_ZIP_URL}"
 curl -sSLO "${TF_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "terraform_${TF_VERSION}_SHA256SUMS" 2>&1 | grep OK
 unzip ${TF_ZIP}
-chmod +x terraform 
+chmod +x terraform
 mv terraform /usr/local/bin
 cd -
 rm -rf "${TEMP_DIR}"
