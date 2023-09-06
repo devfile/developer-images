@@ -79,7 +79,7 @@ ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
 
-# Define user direcotry for binaries
+# Define user directory for binaries
 RUN mkdir -p /home/user/.local/bin && \
     chgrp -R 0 /home && chmod -R g=u /home
 ENV PATH="/home/user/.local/bin:$PATH"
