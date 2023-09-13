@@ -423,6 +423,10 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+## skaffold
+RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+    install skaffold /usr/local/bin/
+
 # e2fsprogs setup
 # Since e2fsprogs-static package has removed RHEL 8 distribution, it is not possible to install from the repository
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#removed-packages_changes-to-packages
