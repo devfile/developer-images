@@ -4,6 +4,8 @@
 if mountpoint -q /home/user/; then
     # Create symbolic links from /home/tooling/ -> /home/user/
     stow . -t /home/user/ -d /home/tooling/ --no-folding
+    # A symbolic link for .viminfo is not created for security reasons, so manually copy it
+    cp /home/tooling/.viminfo /home/user/.viminfo
 fi
 
 # Kubedock
