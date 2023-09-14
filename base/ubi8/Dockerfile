@@ -92,6 +92,7 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 COPY --chown=0:0 entrypoint.sh /
+COPY --chown=0:0 .stow-local-ignore /home/tooling/
 RUN \
     # add user and configure it
     useradd -u 10001 -G wheel,root -d /home/user --shell /bin/bash -m user && \
@@ -110,7 +111,9 @@ RUN \
     chmod -R g=u /etc/passwd /etc/group /home && \
     chmod +x /entrypoint.sh && \
     # Create symbolic links from /home/tooling/ -> /home/user/
-    stow . -t /home/user/ -d /home/tooling/ --no-folding
+    stow . -t /home/user/ -d /home/tooling/ --no-folding && \
+    # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
+    cp /home/tooling/.viminfo /home/user/.viminfo
 
 USER 10001
 ENV HOME=/home/user
