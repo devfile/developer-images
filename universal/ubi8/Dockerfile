@@ -85,15 +85,15 @@ ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
 ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
 
 # kube
-# The Che User Dashboard creates the kube config in /home/user/ and not /home/tooling/
 ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
 
 # Define user directory for binaries
-RUN mkdir -p /home/user/.local/bin && \
+RUN mkdir -p /home/tooling/.local/bin && \
     chgrp -R 0 /home && chmod -R g=u /home
 ENV PATH="/home/user/.local/bin:$PATH"
+ENV PATH="/home/tooling/.local/bin:$PATH"
 
 # Required packages for AWT
 RUN dnf install -y libXext libXrender libXtst libXi
@@ -430,12 +430,12 @@ EOF
 RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> /home/tooling/.bashrc
 RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> /home/tooling/.bashrc
 
-# Set permissions on /etc/passwd and /home to allow arbitrary users to write
-RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 # Create symbolic links from /home/tooling/ -> /home/user/
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
+# Set permissions on /etc/passwd and /home to allow arbitrary users to write
+RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
