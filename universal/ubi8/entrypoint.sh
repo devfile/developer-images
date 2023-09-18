@@ -1,20 +1,12 @@
 #!/bin/bash
 
-# /home/user/ will be mounted to by a PVC if persistUserHome is enabled
-if mountpoint -q /home/user/; then
-    # Create symbolic links from /home/tooling/ -> /home/user/
-    stow . -t /home/user/ -d /home/tooling/ --no-folding
-    # A symbolic link for .viminfo is not created for security reasons, so manually copy it
-    cp /home/tooling/.viminfo /home/user/.viminfo
-fi
-
 # Kubedock
 if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
     echo
     echo "Kubedock is enabled (env variable KUBEDOCK_ENABLED is set to true)."
 
     SECONDS=0
-    until [ -f /home/user/.kube/config ]; do
+    until [ -f $KUBECONFIG ]; do
         if (( SECONDS > 10 )); then
             echo "Giving up..."
             exit 1
@@ -24,7 +16,7 @@ if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
     done
     echo "Kubeconfig found."
 
-    KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy"}
+    KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy --kubeconfig $KUBECONFIG"}
 
     echo "Starting kubedock with params \"${KUBEDOCK_PARAMS}\"..."
     
@@ -34,7 +26,7 @@ if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
 
     echo "Replacing podman with podman-wrapper..."
 
-    ln -f -s /usr/bin/podman.wrapper /home/user/.local/bin/podman
+    ln -f -s /usr/bin/podman.wrapper /home/tooling/.local/bin/podman
 
     export TESTCONTAINERS_RYUK_DISABLED="true"
     export TESTCONTAINERS_CHECKS_DISABLE="true"
@@ -46,7 +38,15 @@ else
     echo "Kubedock is disabled. It can be enabled with the env variable \"KUBEDOCK_ENABLED=true\""
     echo "set in the workspace Devfile or in a Kubernetes ConfigMap in the developer namespace."
     echo
-    ln -f -s /usr/bin/podman.orig /home/user/.local/bin/podman
+    ln -f -s /usr/bin/podman.orig /home/tooling/.local/bin/podman
+fi
+
+# /home/user/ will be mounted to by a PVC if persistUserHome is enabled
+if mountpoint -q /home/user/; then
+    # Create symbolic links from /home/tooling/ -> /home/user/
+    stow . -t /home/user/ -d /home/tooling/ --no-folding
+    # Vim does not permit .viminfo to be a symbolic link for security reasons, so manually copy it
+    cp /home/tooling/.viminfo /home/user/.viminfo
 fi
 
 exec "$@"

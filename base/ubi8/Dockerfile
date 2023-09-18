@@ -111,7 +111,7 @@ RUN \
     chmod -R g=u /etc/passwd /etc/group /home && \
     chmod +x /entrypoint.sh && \
     # Create symbolic links from /home/tooling/ -> /home/user/
-    stow . -t /home/user/ -d /home/tooling/ --no-folding && \
+    stow . -t /home/user/ -d /home/tooling/ && \
     # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
     cp /home/tooling/.viminfo /home/user/.viminfo
 
