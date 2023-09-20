@@ -44,7 +44,7 @@ jobs:
 
     - name: Cleanup build-in images
       run: |
-        # remove build-in images from the VM becqause it is not used
+        # remove build-in images from the VM because it is not used
         docker rmi -f $(docker images -aq)
 
     - name: Start minikube cluster
