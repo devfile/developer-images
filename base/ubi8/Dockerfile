@@ -96,14 +96,12 @@ COPY --chown=0:0 .stow-local-ignore /home/tooling/
 RUN \
     # add user and configure it
     useradd -u 10001 -G wheel,root -d /home/user --shell /bin/bash -m user && \
-    # useradd will give us our default .bashrc
-    cp /home/user/.bashrc /home/tooling/.bashrc && \
-    # /home/user/.bashrc will be replaced with the a symlink from /home/tooling/.bashrc
-    rm /home/user/.bashrc  && \
     # Setup $PS1 for a consistent and reasonable prompt
-    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> ${HOME}/.bashrc && \
+    touch /etc/profile.d/udi_prompt.sh && \
+    chown 10001 /etc/profile.d/udi_prompt.sh && \
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /etc/profile.d/udi_prompt.sh && \
     # Copy the global git configuration to user config as global /etc/gitconfig
-    #  file may be overwritten by a mounted file at runtime
+    # file may be overwritten by a mounted file at runtime
     cp /etc/gitconfig ${HOME}/.gitconfig && \
     chown -R 10001 ${HOME}/ && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write

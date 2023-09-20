@@ -17,6 +17,12 @@ LABEL description="Image with developers tools. Languages SDK and runtimes inclu
 LABEL io.k8s.display-name="devfile-developer-universal"
 LABEL io.openshift.expose-services=""
 
+USER 0
+
+# $PROFILE_EXT contains all additions made to the bash environment
+ENV PROFILE_EXT=/etc/profile.d/udi_environment.sh
+RUN touch ${PROFILE_EXT} & chown 10001 ${PROFILE_EXT}
+
 USER 10001
 
 # We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
@@ -44,7 +50,7 @@ ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.332-tem
 ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.15-tem
 ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.3-tem
 
-# Java-related environment variables are described and set by /home/tooling/.bashrc
+# Java-related environment variables are described and set by ${PROFILE_EXT}, which will be loaded by ~/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
 ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
 ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
@@ -72,9 +78,9 @@ ENV NODEJS_20_VERSION=20.7.0
 ENV NODEJS_18_VERSION=18.16.1
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | PROFILE=/dev/null bash
-RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /home/tooling/.bashrc \
-    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /home/tooling/.bashrc
-RUN source /home/tooling/.bashrc && \
+RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
+RUN source /home/user/.bashrc && \
     nvm install v${NODEJS_20_VERSION} && \
     nvm install v${NODEJS_18_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
@@ -190,7 +196,7 @@ RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y update && \
     dnf -y reinstall shadow-utils && \
     dnf -y install podman buildah skopeo fuse-overlayfs
-RUN echo 'alias docker=podman' >> /home/user/.bashrc
+RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
 
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to
@@ -238,7 +244,7 @@ EOF2
 
 dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
-echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> /home/tooling/.bashrc
+echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
 EOF
 
 ## shellcheck
@@ -278,7 +284,7 @@ sha256sum -c "${KREW_TGZ}.sha256" 2>&1 | grep OK
 
 tar -zxvf "${KREW_TGZ}"
 ./"krew-${KREW_ARCH}" install krew
-echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> /home/tooling/.bashrc
+echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> ${PROFILE_EXT}
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 # kubens and kubectx
 kubectl krew install ns
@@ -419,16 +425,15 @@ RUN dnf -y install bash-completion \
     && rm -rf /var/cache/yum
 
 RUN <<EOF
-echo "source /etc/profile.d/bash_completion.sh" >> /home/tooling/.bashrc
 oc completion bash > /usr/share/bash-completion/completions/oc 
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
-# Add sdkman's init script launcher to the end of the .bashrc since we are not adding it on sdkman install
-# NOTE: all modifications to the .bashrc must happen BEFORE this step in order for sdkman to function correctly
-RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> /home/tooling/.bashrc
-RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> /home/tooling/.bashrc
+## Add sdkman's init script launcher to the end of ${PROFILE_EXT} since we are not adding it on sdkman install
+## NOTE: all modifications to ${PROFILE_EXT} must happen BEFORE this step in order for sdkman to function correctly
+RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> ${PROFILE_EXT}
+RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> ${PROFILE_EXT}
 
 
 # Create symbolic links from /home/tooling/ -> /home/user/
