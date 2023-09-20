@@ -91,7 +91,7 @@ jobs:
 
     - name: Check that UDI is presen in the image list
       run: |
-        # we used it for previous building and do not need it anymore. It saves the disk space
+        # we used it for the build above and do not need it anymore. It saves the disk space
         minikube image rm quay.io/devfile/base-developer-image:ubi8-latest
         minikube image list --format table
 
