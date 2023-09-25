@@ -20,7 +20,7 @@ if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
 
     echo "Starting kubedock with params \"${KUBEDOCK_PARAMS}\"..."
     
-    kubedock server "${KUBEDOCK_PARAMS}" > /tmp/kubedock.log 2>&1 &
+    kubedock server ${KUBEDOCK_PARAMS} > /tmp/kubedock.log 2>&1 &
     
     echo "Done."
 
