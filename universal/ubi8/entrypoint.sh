@@ -8,31 +8,36 @@ if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
     SECONDS=0
     until [ -f $KUBECONFIG ]; do
         if (( SECONDS > 10 )); then
-            echo "Giving up..."
-            exit 1
+            break 
         fi
         echo "Kubeconfig doesn't exist yet. Waiting..."
         sleep 1
     done
-    echo "Kubeconfig found."
 
-    KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy --kubeconfig $KUBECONFIG"}
+    if [ -f $KUBECONFIG ]; then 
+        echo "Kubeconfig found."
 
-    echo "Starting kubedock with params \"${KUBEDOCK_PARAMS}\"..."
-    
-    kubedock server ${KUBEDOCK_PARAMS} > /tmp/kubedock.log 2>&1 &
-    
-    echo "Done."
+        KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy --kubeconfig $KUBECONFIG"}
 
-    echo "Replacing podman with podman-wrapper..."
+        echo "Starting kubedock with params \"${KUBEDOCK_PARAMS}\"..."
+        
+        kubedock server ${KUBEDOCK_PARAMS} > /tmp/kubedock.log 2>&1 &
+        
+        echo "Done."
 
-    ln -f -s /usr/bin/podman.wrapper /home/tooling/.local/bin/podman
+        echo "Replacing podman with podman-wrapper..."
 
-    export TESTCONTAINERS_RYUK_DISABLED="true"
-    export TESTCONTAINERS_CHECKS_DISABLE="true"
+        ln -f -s /usr/bin/podman.wrapper /home/tooling/.local/bin/podman
 
-    echo "Done."
-    echo
+        export TESTCONTAINERS_RYUK_DISABLED="true"
+        export TESTCONTAINERS_CHECKS_DISABLE="true"
+
+        echo "Done."
+        echo
+    else 
+        echo "Could not find Kubeconfig at $KUBECONFIG"
+        echo "Giving up..."
+    fi
 else
     echo
     echo "Kubedock is disabled. It can be enabled with the env variable \"KUBEDOCK_ENABLED=true\""
