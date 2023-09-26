@@ -394,8 +394,6 @@ tar -zxvf "${DOCKER_TGZ}"
 mv docker/docker-proxy \
     docker/containerd \
     docker/dockerd \
-# Remove docker from UDI https://github.com/eclipse/che/issues/22374
-#    docker/docker \
     docker/containerd-shim-runc-v2 \
     docker/ctr \
     docker/docker-init \
