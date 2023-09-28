@@ -383,49 +383,6 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-## docker
-RUN <<EOF
-set -euf -o pipefail
-TEMP_DIR="$(mktemp -d)"
-cd "${TEMP_DIR}"
-DOCKER_VERSION="20.10.8"
-DOCKER_ARCH="x86_64"
-DOCKER_TGZ="docker-${DOCKER_VERSION}.tgz"
-DOCKER_TGZ_URL="https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/${DOCKER_TGZ}"
-curl -sSLO "${DOCKER_TGZ_URL}"
-tar -zxvf "${DOCKER_TGZ}"
-mv docker/docker-proxy \
-    docker/containerd \
-    docker/dockerd \
-    docker/docker \
-    docker/containerd-shim-runc-v2 \
-    docker/ctr \
-    docker/docker-init \
-    docker/runc \
-    docker/containerd-shim \
-    /usr/local/bin/
-cd -
-rm -rf "${TEMP_DIR}"
-EOF
-
-## compose
-RUN <<EOF
-set -euf -o pipefail
-TEMP_DIR="$(mktemp -d)"
-cd "${TEMP_DIR}"
-COMPOSE_VERSION="1.29.2"
-COMPOSE_ARCH="Linux-x86_64"
-COMPOSE_BIN="docker-compose-${COMPOSE_ARCH}"
-COMPOSE_BIN_URL="https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/${COMPOSE_BIN}"
-curl -sSLO "${COMPOSE_BIN_URL}"
-curl -sSLO "${COMPOSE_BIN_URL}.sha256"
-sha256sum -c "${COMPOSE_BIN}.sha256" 2>&1 | grep OK
-chmod +x "${COMPOSE_BIN}"
-mv "${COMPOSE_BIN}" /usr/local/bin/docker-compose
-cd -
-rm -rf "${TEMP_DIR}"
-EOF
-
 ## skaffold
 RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
     install skaffold /usr/local/bin/
