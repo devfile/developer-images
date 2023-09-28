@@ -219,7 +219,7 @@ RUN mv /usr/bin/podman /usr/bin/podman.orig
 RUN <<EOF
 set -euf -o pipefail
 
-cat <<EOF2 > /etc/yum.repos.d/kubernetes.repo
+echo " 
 [kubernetes]
 name=Kubernetes
 baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
@@ -227,7 +227,7 @@ enabled=1
 gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-EOF2
+" > /etc/yum.repos.d/kubernetes.repo
 
 dnf install -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
