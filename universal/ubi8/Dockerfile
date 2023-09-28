@@ -63,16 +63,19 @@ ENV PATH="/home/user/.local/share/coursier/bin:$PATH"
 
 # NodeJS
 ENV NVM_DIR="/home/user/.nvm"
-ENV NODEJS_VERSION=16.14.0
-ENV NODEJS_12_VERSION=12.22.10
-ENV NODEJS_14_VERSION=14.19.0
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash &&\
-    source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm install v${NODEJS_14_VERSION} && nvm install v${NODEJS_12_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17 &&\
+ENV NODEJS_20_VERSION=20.7.0
+# note that 18.18.0 is the latest but 18.16.1 is the supported version downstream and in ubi8
+ENV NODEJS_18_VERSION=18.16.1
+ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && source /home/user/.bashrc && \
+    nvm install v${NODEJS_20_VERSION} && \
+    nvm install v${NODEJS_18_VERSION} && \
+    nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
+    npm install --global yarn@v1.22.17 &&\
     chgrp -R 0 /home/user && chmod -R g=u /home/user
-ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
-ENV NODEJS_HOME_12=$NVM_DIR/versions/node/v$NODEJS_12_VERSION
-ENV NODEJS_HOME_14=$NVM_DIR/versions/node/v$NODEJS_14_VERSION
-ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
+ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
+ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
+ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
 
 # kube
 ENV KUBECONFIG=/home/user/.kube/config
@@ -376,49 +379,6 @@ sha256sum --ignore-missing -c "terraform_${TF_VERSION}_SHA256SUMS" 2>&1 | grep O
 unzip ${TF_ZIP}
 chmod +x terraform
 mv terraform /usr/local/bin
-cd -
-rm -rf "${TEMP_DIR}"
-EOF
-
-## docker
-RUN <<EOF
-set -euf -o pipefail
-TEMP_DIR="$(mktemp -d)"
-cd "${TEMP_DIR}"
-DOCKER_VERSION="20.10.8"
-DOCKER_ARCH="x86_64"
-DOCKER_TGZ="docker-${DOCKER_VERSION}.tgz"
-DOCKER_TGZ_URL="https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/${DOCKER_TGZ}"
-curl -sSLO "${DOCKER_TGZ_URL}"
-tar -zxvf "${DOCKER_TGZ}"
-mv docker/docker-proxy \
-    docker/containerd \
-    docker/dockerd \
-    docker/docker \
-    docker/containerd-shim-runc-v2 \
-    docker/ctr \
-    docker/docker-init \
-    docker/runc \
-    docker/containerd-shim \
-    /usr/local/bin/
-cd -
-rm -rf "${TEMP_DIR}"
-EOF
-
-## compose
-RUN <<EOF
-set -euf -o pipefail
-TEMP_DIR="$(mktemp -d)"
-cd "${TEMP_DIR}"
-COMPOSE_VERSION="1.29.2"
-COMPOSE_ARCH="Linux-x86_64"
-COMPOSE_BIN="docker-compose-${COMPOSE_ARCH}"
-COMPOSE_BIN_URL="https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/${COMPOSE_BIN}"
-curl -sSLO "${COMPOSE_BIN_URL}"
-curl -sSLO "${COMPOSE_BIN_URL}.sha256"
-sha256sum -c "${COMPOSE_BIN}.sha256" 2>&1 | grep OK
-chmod +x "${COMPOSE_BIN}"
-mv "${COMPOSE_BIN}" /usr/local/bin/docker-compose
 cd -
 rm -rf "${TEMP_DIR}"
 EOF
