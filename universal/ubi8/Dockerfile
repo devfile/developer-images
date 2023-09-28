@@ -67,7 +67,7 @@ ENV NODEJS_20_VERSION=20.7.0
 # note that 18.18.0 is the latest but 18.16.1 is the supported version downstream and in ubi8
 ENV NODEJS_18_VERSION=18.16.1
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && source /home/user/.bashrc && \
+RUN curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && source /home/user/.bashrc && \
     nvm install v${NODEJS_20_VERSION} && \
     nvm install v${NODEJS_18_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
@@ -92,16 +92,16 @@ RUN dnf install -y libXext libXrender libXtst libXi
 
 # Lombok
 ENV LOMBOK_VERSION=1.18.18
-RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+RUN curl -sL https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar -o /usr/local/lib/lombok.jar
 
 # Scala
-RUN curl -fLo cs https://git.io/coursier-cli && \
+RUN curl -sfLo cs https://git.io/coursier-cli && \
     chmod +x cs && \
     mv cs /usr/local/bin/
-RUN curl -fLo sbt https://raw.githubusercontent.com/dwijnand/sbt-extras/master/sbt && \
+RUN curl -sfLo sbt https://raw.githubusercontent.com/dwijnand/sbt-extras/master/sbt && \
     chmod +x sbt && \
     mv sbt /usr/local/bin/
-RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
+RUN curl -sfLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
     chmod +x mill && \
     mv mill /usr/local/bin/
 
@@ -137,7 +137,7 @@ RUN dnf -y module enable php:$PHP_VERSION && \
                 php-pear php-zlib php-mysqli php-curl php-xml php-devel\
                 php-process php-soap php-opcache php-fpm ca-certificates \
                 php-gmp php-pecl-xdebug php-pecl-zip mod_ssl hostname && \
-    wget https://getcomposer.org/installer -O /tmp/composer-installer.php && \
+    curl -sL https://getcomposer.org/installer -o /tmp/composer-installer.php && \
     php /tmp/composer-installer.php --filename=composer --install-dir=/usr/local/bin
 
 ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
@@ -167,7 +167,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
 
 # camel-k
 ENV KAMEL_VERSION 1.11.0
-RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-64bit.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -sL https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-64bit.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/kamel
 
 # git completion
@@ -177,7 +177,7 @@ RUN echo "source /usr/share/bash-completion/completions/git" >> /home/user/.bash
 
 # oc client and completion
 ENV OC_VERSION=4.6
-RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSION}/linux/oc.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSION}/linux/oc.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/oc  \
     && oc completion bash > /usr/share/bash-completion/completions/oc \
     && echo "source /usr/share/bash-completion/completions/oc" >> /home/user/.bashrc
@@ -211,7 +211,7 @@ RUN mkdir -p "${HOME}"/.config/containers && \
 
 # Install kubedock
 ENV KUBEDOCK_VERSION 0.13.0
-RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -sL https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/kubedock
 
 # Configure the podman wrapper
@@ -384,7 +384,7 @@ rm -rf "${TEMP_DIR}"
 EOF
 
 ## skaffold
-RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+RUN curl -sLo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
     install skaffold /usr/local/bin/
 
 # e2fsprogs setup
