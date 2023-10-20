@@ -10,7 +10,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-name: Empty workspace smoke test on udi8
+name: Devfile acceptance tests on udi8
 on:
   pull_request:
     paths-ignore:
@@ -94,6 +94,7 @@ jobs:
       uses: actions/checkout@master
       with:
         repository: eclipse/che
+        ref: fix-commandline-executor2
         path: che
 
     - name: Run Empty Workspace API test
@@ -103,10 +104,9 @@ jobs:
            export TS_PLATFORM=kubernetes
            export TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL=kubectl
            export TS_SELENIUM_VALUE_OPENSHIFT_OAUTH=false
-           export TS_SELENIUM_BASE_URL=https://$(kubectl get ingress che -n eclipse-che -o jsonpath='{.spec.rules[0].host}') && 
+           export TS_SELENIUM_BASE_URL=https://$(kubectl get ingress che -n eclipse-che -o jsonpath='{.spec.rules[0].host}') &&
            export NODE_TLS_REJECT_UNAUTHORIZED=0
            export TS_SELENIUM_LOG_LEVEL=TRACE
-           export TS_SELENIUM_DEFAULT_ATTEMPTS=2
-           export USERSTORY=EmptyWorkspaceAPI
+           export TS_SELENIUM_DEFAULT_ATTEMPTS=1
            export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
            npm run devfile-acceptance-test-suite
