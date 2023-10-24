@@ -184,6 +184,17 @@ ENV KAMEL_VERSION 1.11.0
 RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-64bit.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/kamel
 
+# Config directories
+RUN mkdir -p /home/tooling/.m2 && \
+    mkdir -p /home/tooling/.gradle && \
+    mkdir -p /home/tooling/.config/pip && \
+    mkdir -p /home/tooling/.sbt/1.0 && \
+    mkdir -p /home/tooling/.cargo && \
+    mkdir -p /home/tooling/certs && \
+    mkdir -p /home/tooling/.composer && \
+    mkdir -p /home/tooling/.nuget && \
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+
 # Cloud
 
 # oc client
