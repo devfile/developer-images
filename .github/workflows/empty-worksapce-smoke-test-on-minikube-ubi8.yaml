@@ -96,7 +96,7 @@ jobs:
         minikube image list --format table
 
     - name: Install NodeJs
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
 
     - name: Checkout tests codebase
       uses: actions/checkout@master
