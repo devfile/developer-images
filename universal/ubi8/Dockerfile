@@ -219,14 +219,8 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
 RUN mkdir -p "${HOME}"/.config/containers && \
    (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
-# Create `/etc/containers/containers.conf` configuration file
-# to increase amount of opened files
-#
-# [containers]
-# default_ulimits = [
-#  "nofile=65535:65535",
-# ]
-RUN (echo '[containers]'; echo 'default_ulimits = ['; echo ' "nofile=65535:65535",'; echo ']') >> /etc/containers/containers.conf
+# Configure container engine
+COPY --chown=0:0 containers.conf /etc/containers/containers.conf
 
 # Install kubedock
 ENV KUBEDOCK_VERSION 0.13.0
