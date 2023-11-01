@@ -219,6 +219,9 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
 RUN mkdir -p "${HOME}"/.config/containers && \
    (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
+# Configure container engine
+COPY --chown=0:0 containers.conf /etc/containers/containers.conf
+
 # Install kubedock
 ENV KUBEDOCK_VERSION 0.13.0
 RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
