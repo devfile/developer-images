@@ -94,14 +94,15 @@ jobs:
       uses: actions/checkout@master
       with:
         repository: eclipse/che
-        ref: fix-commandline-executor2
+        ref: CRW-5023
         path: che
 
-    - name: Run Empty Workspace API test
+    - name: Run Devfile acceptance Workspace API test
       run: |
            cd che/tests/e2e
            npm ci
            export TS_PLATFORM=kubernetes
+           export MOCHA_DIRECTORY=api
            export TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL=kubectl
            export TS_SELENIUM_VALUE_OPENSHIFT_OAUTH=false
            export TS_SELENIUM_BASE_URL=https://$(kubectl get ingress che -n eclipse-che -o jsonpath='{.spec.rules[0].host}') &&
@@ -109,4 +110,5 @@ jobs:
            export TS_SELENIUM_LOG_LEVEL=TRACE
            export TS_SELENIUM_DEFAULT_ATTEMPTS=1
            export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
-           npm run devfile-acceptance-test-suite
+           export USERSTORY=InbuiltApplicationDevWorkspacesAPI
+           npm run delayed-test
