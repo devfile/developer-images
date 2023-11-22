@@ -20,7 +20,6 @@ on:
       - '.rebase/*'
 
 env:
-   USERSTORY: CloneGitRepoAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
    DEPLOYMENT_TIMEOUT: 90s
    PULL_POLICY: IfNotPresent
@@ -40,6 +39,10 @@ jobs:
         pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
         echo ">>>>>>>>>>>>$pr_number"
+
+    - name: prune unused images
+      run: |
+       docker rmi -f $(docker images -aq)
 
     - name: Start minikube cluster
       id: run-minikube
@@ -67,7 +70,7 @@ jobs:
            # load Che-Code image into minikube
            #
            minikube image load quay.io/che-incubator/che-code:next
-           minikube image list
+           minikube image list --format table
 
            # get patch file to set up resources
            wget https://raw.githubusercontent.com/che-incubator/che-code/main/build/test/github-minikube-checluster-patch.yaml -P /tmp
