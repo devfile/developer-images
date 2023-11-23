@@ -37,7 +37,7 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install java 11.0.15-tem \
              && sdk install java 17.0.3-tem \
              && sdk install java 22.1.0.0.r17-mandrel \
-             && sdk default java 11.0.15-tem \
+             && sdk default java 17.0.3-tem \
              && sdk install gradle \
              && sdk install maven \
              && sdk install jbang \
