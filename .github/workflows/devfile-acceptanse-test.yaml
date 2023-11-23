@@ -69,7 +69,6 @@ jobs:
            #
            # load Che-Code image into minikube
            #
-           minikube image load quay.io/che-incubator/che-code:next
            minikube image load quay.io/eclipse/che-plugin-registry:next
            minikube image list --format table
 
