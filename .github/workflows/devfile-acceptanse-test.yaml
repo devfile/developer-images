@@ -106,7 +106,7 @@ jobs:
            kubectl config set-context --current --namespace=eclipse-che-test
            cd che/tests/e2e
            npm ci
-           export TEST_NAMESPACE=che
+           export TEST_NAMESPACE=eclipse-che-test
            export TS_PLATFORM=kubernetes
            export MOCHA_DIRECTORY=api
            export TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL=kubectl
