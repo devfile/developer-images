@@ -69,7 +69,6 @@ jobs:
            #
            # load Che-Code image into minikube
            #
-           minikube image load quay.io/eclipse/che-plugin-registry:next
            minikube image list --format table
 
            # get patch file to set up resources
@@ -81,8 +80,9 @@ jobs:
            chectl server:deploy \
              --batch \
              --platform minikube \
-             --k8spodwaittimeout=120000 \
-             --k8spodreadytimeout=120000 \
+             --k8spoddownloadimagetimeout=300000 \
+             --k8spodwaittimeout=240000 \
+             --k8spodreadytimeout=240000 \
              --che-operator-cr-patch-yaml "/tmp/github-minikube-checluster-patch.yaml"
 
            #
@@ -102,8 +102,11 @@ jobs:
 
     - name: Run Devfile acceptance Workspace API test
       run: |
+           kubectl create namespace eclipse-che-test
+           kubectl config set-context --current --namespace=eclipse-che-test
            cd che/tests/e2e
            npm ci
+           export TEST_NAMESPACE=che
            export TS_PLATFORM=kubernetes
            export MOCHA_DIRECTORY=api
            export TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL=kubectl
