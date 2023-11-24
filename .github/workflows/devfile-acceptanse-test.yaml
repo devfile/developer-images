@@ -97,7 +97,7 @@ jobs:
       uses: actions/checkout@master
       with:
         repository: eclipse/che
-        ref: CRW-5023
+        ref: rework-api-constants
         path: che
 
     - name: Run Devfile acceptance Workspace API test
