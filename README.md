@@ -107,9 +107,9 @@ docker run -ti --rm \
 |--------.NET---------|-------------------------------------|
 | `dotnet`            |`dotnet-sdk-6.0`                     |
 |------PYTHON---------|-------------------------------------|
-| `python`            |`python39`                           |
-| `setuptools`        |`python39-setuptools`                |
-| `pip`               |`python39-pip`                       |
+| `python`            |`python3.11`                           |
+| `setuptools`        |`python3.11-setuptools`                |
+| `pip`               |`python3.11-pip`                       |
 | `pylint`            |`<via pip>`                          |
 | `yq`                |`<via pip>`                          |
 |--------RUST---------|-------------------------------------|
