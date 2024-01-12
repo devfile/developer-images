@@ -1,0 +1,7 @@
+# CLOMonitor metadata file
+# This file must be located at the root of the repository
+
+# Checks exemptions
+exemptions:
+  - check: recent_release # Check identifier (see https://github.com/cncf/clomonitor/blob/main/docs/checks.md#exemptions)
+    reason: "There are no releases planned for GitHub. Releases for images are done on a rolling basis to quay.io."
