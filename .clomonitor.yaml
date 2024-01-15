@@ -4,4 +4,4 @@
 # Checks exemptions
 exemptions:
   - check: recent_release # Check identifier (see https://github.com/cncf/clomonitor/blob/main/docs/checks.md#exemptions)
-    reason: "There are no releases planned for GitHub. Releases for images are done on a rolling basis to quay.io."
+    reason: "There are no releases planned for GitHub. Releases for images are done on a rolling basis to quay.io at quay.io/devfile/base-developer-image and quay.io/devfile/universal-developer-image."
