@@ -200,6 +200,11 @@ ENV OC_VERSION=4.6
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSION}/linux/oc.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/oc
 
+# OS Pipelines CLI (tkn)
+ENV TKN_VERSION=1.13.0
+RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz \
+    && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
+ 
 ## podman buildah skopeo
 RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y update && \
@@ -437,7 +442,8 @@ RUN dnf -y install bash-completion \
     && rm -rf /var/cache/yum
 
 RUN <<EOF
-oc completion bash > /usr/share/bash-completion/completions/oc 
+oc completion bash > /usr/share/bash-completion/completions/oc
+tkn completion bash > /usr/share/bash-completion/completions/tkn 
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF

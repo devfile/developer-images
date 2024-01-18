@@ -78,13 +78,13 @@ docker run -ti --rm \
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
 | `sdk`               |`<https://get.sdkman.io>`            |
-| `java`              |`<8.0.332-tem via sdkman>`          |
-| `java`              |`<11.0.15-tem via sdkman>/default`  |
-| `java`              |`<17.0.3-tem via sdkman>`           |
+| `java`              |`<8.0.332-tem via sdkman>`           |
+| `java`              |`<11.0.15-tem via sdkman>/default`   |
+| `java`              |`<17.0.3-tem via sdkman>`            |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
 | `mandrel`           |`<22.1.0.0.r17-mandrel via sdkman>`  |
-| `jbang`             |`<via sdkman>`                    |
+| `jbang`             |`<via sdkman>`                       |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |
@@ -107,9 +107,9 @@ docker run -ti --rm \
 |--------.NET---------|-------------------------------------|
 | `dotnet`            |`dotnet-sdk-6.0`                     |
 |------PYTHON---------|-------------------------------------|
-| `python`            |`python3.11`                           |
-| `setuptools`        |`python3.11-setuptools`                |
-| `pip`               |`python3.11-pip`                       |
+| `python`            |`python3.11`                         |
+| `setuptools`        |`python3.11-setuptools`              |
+| `pip`               |`python3.11-pip`                     |
 | `pylint`            |`<via pip>`                          |
 | `yq`                |`<via pip>`                          |
 |--------RUST---------|-------------------------------------|
@@ -120,6 +120,7 @@ docker run -ti --rm \
 | `camel-k`           |`<gh release>`                       |
 |------CLOUD----------|-------------------------------------|
 | `oc`                |`mirror.openshift.com`               |
+| `tkn`               |`mirror.openshift.com`               |
 | `podman`            |`container-tools:rhel8`              |
 | `buildah`           |`container-tools:rhel8`              |
 | `skopeo`            |`container-tools:rhel8`              |
@@ -132,7 +133,7 @@ docker run -ti --rm \
 | `terraform`         |`<releases.hashicorp.com>`           |
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
-| `kamel`            |`<gh release>`                     |
+| `kamel`             |`<gh release>`                       |
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
 ### Included libraries
