@@ -245,6 +245,7 @@ RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_
 COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman /usr/bin/podman.orig
 
+ENV K8S_VERSION=1.28
 ## kubectl
 RUN <<EOF
 set -euf -o pipefail
@@ -252,11 +253,10 @@ set -euf -o pipefail
 cat <<EOF2 > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+baseurl=https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/rpm/
 enabled=1
 gpgcheck=1
-repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+gpgkey=https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/rpm/repodata/repomd.xml.key
 EOF2
 
 dnf install -y kubectl
