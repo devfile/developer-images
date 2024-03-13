@@ -33,7 +33,9 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@master
-
+    - name: Free runner space
+      run:
+        sudo rm -rf /usr/local/lib/android
       # obtain the PR number for tegging the image
     - name: Get PR number
       id: get_pr_number
