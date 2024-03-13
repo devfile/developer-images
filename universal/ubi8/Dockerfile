@@ -56,7 +56,7 @@ ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
 ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
 ENV SDKMAN_DIR="/home/tooling/.sdkman"
 ENV SDKMAN_PLATFORM="linuxx64"
-ENV SDKMAN_VERSION="5.13.0"
+ENV SDKMAN_VERSION="5.18.2"
 
 ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
 ENV JAVA_HOME="/home/tooling/.sdkman/candidates/java/current"
