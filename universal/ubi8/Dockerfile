@@ -33,11 +33,11 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
     && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
              && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
 	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
-             && sdk install java 8.0.332-tem \
-             && sdk install java 11.0.15-tem \
-             && sdk install java 17.0.3-tem \
+             && sdk install java 8.0.402-tem \
+             && sdk install java 11.0.22-tem \
+             && sdk install java 17.0.10-tem \
              && sdk install java 22.1.0.0.r17-mandrel \
-             && sdk default java 17.0.3-tem \
+             && sdk default java 17.0.10-tem \
              && sdk install gradle \
              && sdk install maven \
              && sdk install jbang \
@@ -46,9 +46,9 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
     && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # sdk home java <version>
-ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.332-tem
-ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.15-tem
-ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.3-tem
+ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.402-tem
+ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.22-tem
+ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.10-tem
 
 # Java-related environment variables are described and set by ${PROFILE_EXT}, which will be loaded by ~/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
