@@ -201,7 +201,7 @@ RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/oc/${OC_VERSIO
     && chmod +x /usr/local/bin/oc
 
 # OS Pipelines CLI (tkn)
-ENV TKN_VERSION=1.13.0
+ENV TKN_VERSION=1.14.0
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
  
