@@ -32,7 +32,7 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.n
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    GH_VERSION="2.0.0"; \
+    GH_VERSION="2.45.0"; \
     GH_ARCH="linux_amd64"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
