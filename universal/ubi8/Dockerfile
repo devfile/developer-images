@@ -315,7 +315,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-HELM_VERSION="3.7.0"
+HELM_VERSION="3.14.3"
 HELM_ARCH="linux-amd64"
 HELM_TGZ="helm-v${HELM_VERSION}-${HELM_ARCH}.tar.gz"
 HELM_TGZ_URL="https://get.helm.sh/${HELM_TGZ}"
