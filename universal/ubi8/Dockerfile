@@ -391,7 +391,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-TF_VERSION="1.0.7"
+TF_VERSION="1.7.5"
 TF_ARCH="linux_amd64"
 TF_ZIP="terraform_${TF_VERSION}_${TF_ARCH}.zip"
 TF_ZIP_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/${TF_ZIP}"
