@@ -36,7 +36,7 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install java 8.0.402-tem \
              && sdk install java 11.0.22-tem \
              && sdk install java 17.0.10-tem \
-             && sdk install java 22.1.0.0.r17-mandrel \
+             && sdk install java 23.1.2.r21-mandrel \
              && sdk default java 17.0.10-tem \
              && sdk install gradle \
              && sdk install maven \
@@ -62,7 +62,7 @@ ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
 ENV JAVA_HOME="/home/tooling/.sdkman/candidates/java/current"
 ENV MAVEN_HOME="/home/tooling/.sdkman/candidates/maven/current"
 
-ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/22.1.0.0.r17-mandrel
+ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/23.1.2.r21-mandrel
 
 ENV PATH="/home/tooling/.krew/bin:$PATH"
 ENV PATH="/home/tooling/.sdkman/candidates/maven/current/bin:$PATH"
