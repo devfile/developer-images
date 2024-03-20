@@ -81,6 +81,7 @@ docker run -ti --rm \
 | `java`              |`<8.0.402-tem via sdkman>`           |
 | `java`              |`<11.0.22-tem via sdkman>`           |
 | `java`              |`<17.0.10-tem via sdkman>/default`   |
+| `java`              |`<21.0.2-tem via sdkman>`   |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
 | `mandrel`           |`<22.1.0.0.r17-mandrel via sdkman>`  |
@@ -143,7 +144,7 @@ docker run -ti --rm \
 ### Environment Variables
 
 #### Java
-JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17
+JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
 
 # Builds
 

@@ -36,6 +36,7 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install java 8.0.402-tem \
              && sdk install java 11.0.22-tem \
              && sdk install java 17.0.10-tem \
+             && sdk install java 21.0.2-tem \
              && sdk install java 23.1.2.r21-mandrel \
              && sdk default java 17.0.10-tem \
              && sdk install gradle \
@@ -49,6 +50,7 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
 ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.402-tem
 ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.22-tem
 ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.10-tem
+ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.2-tem
 
 # Java-related environment variables are described and set by ${PROFILE_EXT}, which will be loaded by ~/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
