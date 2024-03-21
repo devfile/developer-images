@@ -373,11 +373,11 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-KN_VERSION="0.26.0"
+KN_VERSION="1.13.0"
 KN_ARCH="linux-amd64"
 KN_BIN="kn-${KN_ARCH}"
-KN_BIN_URL="https://github.com/knative/client/releases/download/v${KN_VERSION}/${KN_BIN}"
-KN_CHEKSUMS_URL="https://github.com/knative/client/releases/download/v${KN_VERSION}/checksums.txt"
+KN_BIN_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/${KN_BIN}"
+KN_CHEKSUMS_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/checksums.txt"
 curl -sSLO "${KN_BIN_URL}"
 curl -sSLO "${KN_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
