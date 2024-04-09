@@ -76,8 +76,7 @@ ENV PATH="/home/tooling/.local/share/coursier/bin:$PATH"
 RUN mkdir -p /home/tooling/.nvm/
 ENV NVM_DIR="/home/tooling/.nvm"
 ENV NODEJS_20_VERSION=20.7.0
-# note that 18.18.0 is the latest but 18.16.1 is the supported version downstream and in ubi8
-ENV NODEJS_18_VERSION=18.16.1
+ENV NODEJS_18_VERSION=18.19.1
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | PROFILE=/dev/null bash
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
