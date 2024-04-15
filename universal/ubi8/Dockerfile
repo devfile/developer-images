@@ -180,7 +180,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
 
 # camel-k
 ENV KAMEL_VERSION 2.2.0
-RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/kamel
 
 # Config directories
@@ -198,12 +198,12 @@ RUN mkdir -p /home/tooling/.m2 && \
 
 # oc client
 ENV OC_VERSION=4.15
-RUN curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/oc
 
 # OS Pipelines CLI (tkn)
 ENV TKN_VERSION=1.14.0
-RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
  
 ## podman buildah skopeo
@@ -239,7 +239,7 @@ COPY --chown=0:0 containers.conf /etc/containers/containers.conf
 
 # Install kubedock
 ENV KUBEDOCK_VERSION 0.15.5
-RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz \
+RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/kubedock
 
 # Configure the podman wrapper
@@ -276,7 +276,7 @@ SHELL_CHECK_ARCH="x86_64"
 SHELL_CHECK_TGZ="shellcheck-v${SHELL_CHECK_VERSION}.linux.${SHELL_CHECK_ARCH}.tar.xz"
 SHELL_CHECK_TGZ_URL="https://github.com/koalaman/shellcheck/releases/download/v${SHELL_CHECK_VERSION}/${SHELL_CHECK_TGZ}"
 curl -sSLO "${SHELL_CHECK_TGZ_URL}"
-tar -xvf "${SHELL_CHECK_TGZ}"
+tar -xv --no-same-owner -f "${SHELL_CHECK_TGZ}"
 mv "${TEMP_DIR}"/shellcheck-v${SHELL_CHECK_VERSION}/shellcheck /bin/shellcheck
 cd -
 rm -rf "${TEMP_DIR}"
@@ -300,7 +300,7 @@ echo "$(cat ${KREW_TGZ}.sha256)  ${KREW_TGZ}" > "${KREW_TGZ}.sha256"
 
 sha256sum -c "${KREW_TGZ}.sha256" 2>&1 | grep OK
 
-tar -zxvf "${KREW_TGZ}"
+tar -zxv --no-same-owner -f "${KREW_TGZ}"
 ./"krew-${KREW_ARCH}" install krew
 echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> ${PROFILE_EXT}
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
@@ -323,7 +323,7 @@ HELM_TGZ_URL="https://get.helm.sh/${HELM_TGZ}"
 curl -sSLO "${HELM_TGZ_URL}"
 curl -sSLO "${HELM_TGZ_URL}.sha256sum"
 sha256sum -c "${HELM_TGZ}.sha256sum" 2>&1 | grep OK
-tar -zxvf "${HELM_TGZ}"
+tar -zxv --no-same-owner -f "${HELM_TGZ}"
 mv "${HELM_ARCH}"/helm /usr/local/bin/helm
 cd -
 rm -rf "${TEMP_DIR}"
@@ -342,7 +342,7 @@ KUSTOMIZE_CHEKSUMS_URL="https://github.com/kubernetes-sigs/kustomize/releases/do
 curl -sSLO "${KUSTOMIZE_TGZ_URL}"
 curl -sSLO "${KUSTOMIZE_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
-tar -zxvf "${KUSTOMIZE_TGZ}"
+tar -zxv --no-same-owner -f "${KUSTOMIZE_TGZ}"
 mv kustomize /usr/local/bin/
 cd -
 rm -rf "${TEMP_DIR}"
@@ -361,7 +361,7 @@ TKN_CHEKSUMS_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSI
 curl -sSLO "${TKN_TGZ_URL}"
 curl -sSLO "${TKN_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
-tar -zxvf "${TKN_TGZ}"
+tar -zxv --no-same-owner -f "${TKN_TGZ}"
 mv tkn /usr/local/bin/
 cd -
 rm -rf "${TEMP_DIR}"
@@ -425,7 +425,7 @@ E2FSPROGS_CHEKSUMS_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/
 curl -sSLO "${E2FSPROGS_TGZ_URL}"
 curl -sSLO "${E2FSPROGS_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "sha256sums.asc" 2>&1 | grep OK
-tar -zxvf "${E2FSPROGS_TGZ}"
+tar -zxv --no-same-owner -f "${E2FSPROGS_TGZ}"
 cd "e2fsprogs-${E2FSPROGS_VERSION}"
 mkdir build
 cd build
