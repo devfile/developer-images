@@ -165,7 +165,7 @@ ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
     HTTPD_VAR_PATH=/var
 
 # .NET
-ENV DOTNET_RPM_VERSION=6.0
+ENV DOTNET_RPM_VERSION=8.0
 RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
 
 # rust
