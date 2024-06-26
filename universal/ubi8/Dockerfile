@@ -91,9 +91,6 @@ ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
 ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
 ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
 
-# kube
-ENV KUBECONFIG=/home/user/.kube/config
-
 USER 0
 
 # Define user directory for binaries
