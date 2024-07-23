@@ -91,6 +91,30 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
+
+# Define user directory for binaries
+RUN mkdir -p /home/tooling/.local/bin && \
+    chgrp -R 0 /home && chmod -R g=u /home
+ENV PATH="/home/user/.local/bin:$PATH"
+ENV PATH="/home/tooling/.local/bin:$PATH"
+
+# Add kubedock
+ENV KUBEDOCK_VERSION 0.15.5
+ENV KUBECONFIG=/home/user/.kube/config
+
+# Add wrapper env variables
+ENV DNF_PATH=/usr/bin/dnf
+ENV DNF_WRAPPER_PATH=/usr/bin/dnf.wrapper
+ENV DNF_ORIGINAL_PATH=/usr/bin/dnf.orig
+ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper
+ENV PODMAN_ORIGINAL_PATH=/usr/bin/podman.orig
+
+# Add dnf and podman wrappers
+COPY --chown=0:0 podman-wrapper.sh "${PODMAN_WRAPPER_PATH}"
+COPY --chown=0:0 dnf-wrapper.sh "${DNF_WRAPPER_PATH}"
+RUN mv "${DNF_PATH}" "${DNF_ORIGINAL_PATH}"
+RUN ln -f -s "${DNF_WRAPPER_PATH}" "${DNF_PATH}"
+
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/
 RUN \
