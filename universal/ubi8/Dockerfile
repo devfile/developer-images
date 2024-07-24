@@ -43,8 +43,7 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install maven \
              && sdk install jbang \
              && sdk flush archives \
-             && sdk flush temp" \
-    && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+             && sdk flush temp"
 
 # sdk home java <version>
 ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.402-tem
@@ -85,8 +84,7 @@ RUN source /home/user/.bashrc && \
     nvm install v${NODEJS_20_VERSION} && \
     nvm install v${NODEJS_18_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
-    npm install --global yarn@v1.22.17 &&\
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+    npm install --global yarn@v1.22.17
 ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
 ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
 ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
@@ -95,12 +93,6 @@ ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
 ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
-
-# Define user directory for binaries
-RUN mkdir -p /home/tooling/.local/bin && \
-    chgrp -R 0 /home && chmod -R g=u /home
-ENV PATH="/home/user/.local/bin:$PATH"
-ENV PATH="/home/tooling/.local/bin:$PATH"
 
 # Required packages for AWT
 RUN dnf install -y libXext libXrender libXtst libXi
@@ -126,8 +118,7 @@ RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra g
 # Go 1.18+    - installed to /usr/bin/go
 # gopls 0.10+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
 RUN dnf install -y go-toolset && \
-    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest && \
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest
 ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
@@ -175,8 +166,7 @@ ENV CARGO_HOME=/home/tooling/.cargo \
 RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     chmod +x rustup && \
     mv rustup /usr/bin/ && \
-    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls
 
 # camel-k
 ENV KAMEL_VERSION 2.2.0
@@ -236,15 +226,6 @@ RUN mkdir -p "${HOME}"/.config/containers && \
 
 # Configure container engine
 COPY --chown=0:0 containers.conf /etc/containers/containers.conf
-
-# Install kubedock
-ENV KUBEDOCK_VERSION 0.15.5
-RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-    && chmod +x /usr/local/bin/kubedock
-
-# Configure the podman wrapper
-COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
-RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 ENV K8S_VERSION=1.28
 ## kubectl
