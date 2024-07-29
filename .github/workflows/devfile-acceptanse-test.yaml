@@ -1,0 +1,120 @@
+#
+# Copyright (c) 2019-2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+name: Devfile acceptance tests on udi8
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - .devfile.yaml
+      - LICENSE
+      - '.rebase/*'
+
+env:
+   TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
+   DEPLOYMENT_TIMEOUT: 90s
+   PULL_POLICY: IfNotPresent
+
+jobs:
+  workspace-api-tests-on-minikube:
+    runs-on: ubuntu-22.04
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+      # obtain the PR number for tegging the image
+    - name: Get PR number
+      id: get_pr_number
+      run: |
+        pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
+        echo ">>>>>>>>>>>>$pr_number"
+
+    - name: prune unused images
+      run: |
+       docker rmi -f $(docker images -aq)
+
+    - name: Start minikube cluster
+      id: run-minikube
+      uses: che-incubator/setup-minikube-action@next
+      with:
+        minikube-version: v1.31.0
+
+    - name: Build base image
+      run: |
+         eval $(minikube docker-env)
+         cd base/ubi8 && docker build -t quay.io/devfile/base-developer-image:ubi8-latest .
+
+
+    - name: Build universal image
+      run: |
+           eval $(minikube docker-env)
+           cd universal/ubi8 && docker build -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
+
+    - name: Install chectl
+      run: bash <(curl -sL https://www.eclipse.org/che/chectl/) --channel=next
+
+    - name: Deploy Che
+      run: |
+           #
+           # load Che-Code image into minikube
+           #
+           minikube image list --format table
+
+           # get patch file to set up resources
+           wget https://raw.githubusercontent.com/che-incubator/che-code/main/build/test/github-minikube-checluster-patch.yaml -P /tmp
+
+           #
+           # deploy Che
+           #
+           chectl server:deploy \
+             --batch \
+             --platform minikube \
+             --k8spoddownloadimagetimeout=300000 \
+             --k8spodwaittimeout=240000 \
+             --k8spodreadytimeout=240000 \
+             --che-operator-cr-patch-yaml "/tmp/github-minikube-checluster-patch.yaml"
+
+           #
+           # apply patch
+           #
+           kubectl patch devworkspaceoperatorconfigs \
+             -n eclipse-che devworkspace-config \
+             --patch '{"config": {"workspace": {"imagePullPolicy": "IfNotPresent"}}}' \
+             --type merge
+
+    - name: Checkout tests codebase
+      uses: actions/checkout@master
+      with:
+        repository: eclipse/che
+        ref: rework-api-constants
+        path: che
+
+    - name: Run Devfile acceptance Workspace API test
+      run: |
+           kubectl create namespace eclipse-che-test
+           kubectl config set-context --current --namespace=eclipse-che-test
+           cd che/tests/e2e
+           npm ci
+           export TEST_NAMESPACE=eclipse-che-test
+           export TS_PLATFORM=kubernetes
+           export MOCHA_DIRECTORY=api
+           export TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL=kubectl
+           export TS_SELENIUM_VALUE_OPENSHIFT_OAUTH=false
+           export TS_SELENIUM_BASE_URL=https://$(kubectl get ingress che -n eclipse-che -o jsonpath='{.spec.rules[0].host}') &&
+           export NODE_TLS_REJECT_UNAUTHORIZED=0
+           export TS_SELENIUM_LOG_LEVEL=TRACE
+           export TS_SELENIUM_DEFAULT_ATTEMPTS=1
+           export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+           export USERSTORY=InbuiltApplicationDevWorkspacesAPI
+           npm run delayed-test
