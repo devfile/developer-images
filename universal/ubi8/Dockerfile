@@ -84,7 +84,8 @@ RUN source /home/user/.bashrc && \
     nvm install v${NODEJS_20_VERSION} && \
     nvm install v${NODEJS_18_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
-    npm install --global yarn@v1.22.17
+    npm install --global yarn@v1.22.17 &&\
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
 ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
 ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
@@ -118,7 +119,8 @@ RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra g
 # Go 1.18+    - installed to /usr/bin/go
 # gopls 0.10+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
 RUN dnf install -y go-toolset && \
-    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest
+    GO111MODULE=on go install -v golang.org/x/tools/gopls@latest && \
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
@@ -166,7 +168,8 @@ ENV CARGO_HOME=/home/tooling/.cargo \
 RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     chmod +x rustup && \
     mv rustup /usr/bin/ && \
-    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls
+    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # camel-k
 ENV KAMEL_VERSION 2.2.0
@@ -196,33 +199,7 @@ ENV TKN_VERSION=1.14.0
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
  
-## podman buildah skopeo
-RUN dnf -y module enable container-tools:rhel8 && \
-    dnf -y update && \
-    dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs
 RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
-
-# Set up environment variables to note that this is
-# not starting with usernamespace and default to
-# isolate the filesystem with chroot.
-ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
-
-# Tweaks to make rootless buildah work
-RUN touch /etc/subgid /etc/subuid  && \
-    chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
-    echo user:10000:65536 > /etc/subuid  && \
-    echo user:10000:65536 > /etc/subgid
-
-# Adjust storage.conf to enable Fuse storage.
-RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
-RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
-    touch /var/lib/shared/overlay-images/images.lock; \
-    touch /var/lib/shared/overlay-layers/layers.lock
-
-# But use VFS since we were not able to make Fuse work yet...
-RUN mkdir -p "${HOME}"/.config/containers && \
-   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
 # Configure container engine
 COPY --chown=0:0 containers.conf /etc/containers/containers.conf
