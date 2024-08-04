@@ -121,7 +121,7 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-images/images.lock; \
     touch /var/lib/shared/overlay-layers/layers.lock
 
-# But use VFS since we were not able to make Fuse work yet...
+# But use VFS since not all environments support overlay with Fuse backend
 RUN mkdir -p "${HOME}"/.config/containers && \
    (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
    chown -R 10001 "${HOME}"/.config

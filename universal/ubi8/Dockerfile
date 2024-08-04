@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3-labs
 
 # updateBaseImages.sh can't operate on SHA-based tags as they're not date-based or semver-sequential, and therefore cannot be ordered
-FROM quay.io/devfile/base-developer-image:ubi8-latest
+FROM quay.io/dkwon17/developer-images:base-image
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-universal-container"
@@ -43,7 +43,8 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install maven \
              && sdk install jbang \
              && sdk flush archives \
-             && sdk flush temp"
+             && sdk flush temp" \
+         && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # sdk home java <version>
 ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.402-tem
