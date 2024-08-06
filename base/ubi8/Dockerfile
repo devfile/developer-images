@@ -28,6 +28,12 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.n
                    perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip stow && \
                    dnf clean all
 
+## podman buildah skopeo
+RUN dnf -y module enable container-tools:rhel8 && \
+    dnf -y update && \
+    dnf -y reinstall shadow-utils && \
+    dnf -y install podman buildah skopeo fuse-overlayfs
+
 ## gh-cli
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
@@ -97,12 +103,6 @@ RUN mkdir -p /home/tooling/.local/bin && \
     chgrp -R 0 /home && chmod -R g=u /home && chown -R 10001 /home/tooling
 ENV PATH="/home/user/.local/bin:$PATH"
 ENV PATH="/home/tooling/.local/bin:$PATH"
-
-## podman buildah skopeo
-RUN dnf -y module enable container-tools:rhel8 && \
-    dnf -y update && \
-    dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs
 
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to

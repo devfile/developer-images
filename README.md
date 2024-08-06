@@ -15,12 +15,13 @@ $ docker run -ti --rm \
        quay.io/devfile/base-developer-image:ubi8-latest \
        bash
 ```
-### Included Developement Tools
+### Included Development Tools
 
 | Tool                | ubi8 based image                    |
 |---------------------|-------------------------------------|
 | `bash`              |`bash`                               |
 | `bat`               |`<gh releases>`                      |
+| `buildah`           |`buildah`                            |
 | `curl`              |`curl`                               |
 | `ps`                |`ps`                                 |
 | `diff`              |`diffutils`                          |
@@ -32,6 +33,7 @@ $ docker run -ti --rm \
 | `ip`                |`iproute`                            |
 | `jq`                |`jq`                                 |
 | `htop`              |`NOT AVAILABLE (fedora only)`        |
+| `kubedock`          |`<gh releases>`                      |
 | `less`              |`less`                               |
 | `lsof`              |`lsof`                               |
 | `man`               |`man`                                |
@@ -39,6 +41,7 @@ $ docker run -ti --rm \
 | `netcat`            |`NOT AVAILABLE`                      |
 | `netstat`           |`net-tools`                          |
 | `openssh-client`    |`openssh-clients`                    |
+| `podman`            |`podman`                             |
 | `7z`                |`p7zip-plugins`                      |
 | `ripgrep`           |`<gh releases>`                      |
 | `rsync`             |`rsync`                              |
@@ -50,6 +53,7 @@ $ docker run -ti --rm \
 | `sudo`              |`sudo`                               |
 | `ss`                |`NOT AVAILABLE`                      |
 | `ssl-cert`          |`NOT AVAILABLE`                      |
+| `stow`              |`stow`                               |
 | `tail`              |`<built in>`                         |
 | `tar`               |`tar`                                |
 | `time`              |`time`                               |
@@ -59,7 +63,25 @@ $ docker run -ti --rm \
 | `wget`              |`wget`                               |
 | `zip`               |`zip`                                |
 | `zsh`               |`NOT AVAILABLE (fedora only)`        |
-| **TOTAL SIZE**      | **412MB** (143MB compressed)        |
+| **TOTAL SIZE**      | **903MB** (341MB compressed)        |
+
+### Extending the base image
+When extending the base image, `source kubedock_setup` should be called in the new image's entrypoint to set up kubedock support. This sets up a wrapper for podman to use kubedock for the following podman commands if the `KUBEDOCK_ENABLED` env variable is set to `true`:
+```
+podman run
+podman ps
+podman exec
+podman cp
+podman logs
+podman inspect
+podman kill
+podman rm
+podman wait
+podman stop
+podman start
+```
+
+An example is available in the Universal Developer Image dockerfile [here](https://github.com/devfile/developer-images/blob/main/universal/ubi8/entrypoint.sh#L3).
 
 ## Developer Universal Image
 

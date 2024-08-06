@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Kubedock setup script mean to be run from the entrypoint script.
+# Kubedock setup script meant to be run from the entrypoint script.
 
 if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
   echo
