@@ -28,6 +28,12 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.n
                    perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip stow && \
                    dnf clean all
 
+## podman buildah skopeo
+RUN dnf -y module enable container-tools:rhel8 && \
+    dnf -y update && \
+    dnf -y reinstall shadow-utils && \
+    dnf -y install podman buildah skopeo fuse-overlayfs
+
 ## gh-cli
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
@@ -90,6 +96,50 @@ RUN \
     mv "fd-v${FD_VERSION}-${FD_ARCH}"/fd.1 /usr/local/share/man/man1 && \
     cd - && \
     rm -rf "${TEMP_DIR}"
+
+
+# Define user directory for binaries
+RUN mkdir -p /home/tooling/.local/bin && \
+    chgrp -R 0 /home && chmod -R g=u /home && chown -R 10001 /home/tooling
+ENV PATH="/home/user/.local/bin:$PATH"
+ENV PATH="/home/tooling/.local/bin:$PATH"
+
+# Set up environment variables to note that this is
+# not starting with usernamespace and default to
+# isolate the filesystem with chroot.
+ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
+
+# Tweaks to make rootless buildah work
+RUN touch /etc/subgid /etc/subuid  && \
+    chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
+    echo user:10000:65536 > /etc/subuid  && \
+    echo user:10000:65536 > /etc/subgid
+
+# Adjust storage.conf to enable Fuse storage.
+RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
+RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
+    touch /var/lib/shared/overlay-images/images.lock; \
+    touch /var/lib/shared/overlay-layers/layers.lock
+
+# But use VFS since not all environments support overlay with Fuse backend
+RUN mkdir -p "${HOME}"/.config/containers && \
+   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
+   chown -R 10001 "${HOME}"/.config
+
+# Add kubedock
+ENV KUBEDOCK_VERSION 0.15.5
+ENV KUBECONFIG=/home/user/.kube/config
+RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+    && chmod +x /usr/local/bin/kubedock
+COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
+
+# Configure Podman wrapper
+ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper
+ENV PODMAN_ORIGINAL_PATH=/usr/bin/podman.orig
+COPY --chown=0:0 podman-wrapper.sh "${PODMAN_WRAPPER_PATH}"
+
+COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
+RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/

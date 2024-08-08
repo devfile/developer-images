@@ -44,7 +44,7 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install jbang \
              && sdk flush archives \
              && sdk flush temp" \
-    && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+         && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # sdk home java <version>
 ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.402-tem
@@ -95,12 +95,6 @@ ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
 ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
-
-# Define user directory for binaries
-RUN mkdir -p /home/tooling/.local/bin && \
-    chgrp -R 0 /home && chmod -R g=u /home
-ENV PATH="/home/user/.local/bin:$PATH"
-ENV PATH="/home/tooling/.local/bin:$PATH"
 
 # Required packages for AWT
 RUN dnf install -y libXext libXrender libXtst libXi
@@ -206,45 +200,10 @@ ENV TKN_VERSION=1.14.0
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
  
-## podman buildah skopeo
-RUN dnf -y module enable container-tools:rhel8 && \
-    dnf -y update && \
-    dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs
 RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
-
-# Set up environment variables to note that this is
-# not starting with usernamespace and default to
-# isolate the filesystem with chroot.
-ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
-
-# Tweaks to make rootless buildah work
-RUN touch /etc/subgid /etc/subuid  && \
-    chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
-    echo user:10000:65536 > /etc/subuid  && \
-    echo user:10000:65536 > /etc/subgid
-
-# Adjust storage.conf to enable Fuse storage.
-RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
-RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
-    touch /var/lib/shared/overlay-images/images.lock; \
-    touch /var/lib/shared/overlay-layers/layers.lock
-
-# But use VFS since we were not able to make Fuse work yet...
-RUN mkdir -p "${HOME}"/.config/containers && \
-   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
 # Configure container engine
 COPY --chown=0:0 containers.conf /etc/containers/containers.conf
-
-# Install kubedock
-ENV KUBEDOCK_VERSION 0.15.5
-RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-    && chmod +x /usr/local/bin/kubedock
-
-# Configure the podman wrapper
-COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
-RUN mv /usr/bin/podman /usr/bin/podman.orig
 
 ENV K8S_VERSION=1.28
 ## kubectl
