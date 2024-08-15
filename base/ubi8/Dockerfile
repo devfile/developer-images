@@ -32,7 +32,8 @@ RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.n
 RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y update && \
     dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs
+    dnf -y install podman buildah skopeo fuse-overlayfs && \
+    dnf clean all
 
 ## gh-cli
 RUN \
@@ -97,12 +98,8 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
-
 # Define user directory for binaries
-RUN mkdir -p /home/tooling/.local/bin && \
-    chgrp -R 0 /home && chmod -R g=u /home && chown -R 10001 /home/tooling
 ENV PATH="/home/user/.local/bin:$PATH"
-ENV PATH="/home/tooling/.local/bin:$PATH"
 
 # Set up environment variables to note that this is
 # not starting with usernamespace and default to
@@ -135,11 +132,11 @@ COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
 
 # Configure Podman wrapper
 ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper
-ENV PODMAN_ORIGINAL_PATH=/usr/bin/podman.orig
+ENV ORIGINAL_PODMAN_PATH=/usr/bin/podman.orig
 COPY --chown=0:0 podman-wrapper.sh "${PODMAN_WRAPPER_PATH}"
 
 COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
-RUN mv /usr/bin/podman /usr/bin/podman.orig
+RUN mv /usr/bin/podman "${ORIGINAL_PODMAN_PATH}"
 
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/

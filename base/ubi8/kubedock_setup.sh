@@ -2,6 +2,12 @@
 
 # Kubedock setup script meant to be run from the entrypoint script.
 
+LOCAL_BIN=/home/user/.local/bin
+ORIGINAL_PODMAN_PATH=${ORIGINAL_PODMAN_PATH:-"/usr/bin/podman.orig"}
+PODMAN_WRAPPER_PATH=${PODMAN_WRAPPER_PATH:-"/usr/bin/podman.wrapper"}
+
+mkdir -p "${LOCAL_BIN}"
+
 if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
   echo
   echo "Kubedock is enabled (env variable KUBEDOCK_ENABLED is set to true)."
@@ -29,7 +35,7 @@ if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
 
     echo "Replacing podman with podman-wrapper..."
 
-    ln -f -s /usr/bin/podman.wrapper /home/tooling/.local/bin/podman
+    ln -f -s "${PODMAN_WRAPPER_PATH}" "${LOCAL_BIN}/podman"
 
     export TESTCONTAINERS_RYUK_DISABLED="true"
     export TESTCONTAINERS_CHECKS_DISABLE="true"
@@ -45,5 +51,5 @@ else
   echo "Kubedock is disabled. It can be enabled with the env variable \"KUBEDOCK_ENABLED=true\""
   echo "set in the workspace Devfile or in a Kubernetes ConfigMap in the developer namespace."
   echo
-  ln -f -s /usr/bin/podman.orig /home/tooling/.local/bin/podman
+  ln -f -s "${ORIGINAL_PODMAN_PATH}" "${LOCAL_BIN}/podman"
 fi
