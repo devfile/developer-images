@@ -2,8 +2,9 @@
 name: Build of UBI 9 based Developer Images
 
 on:
-  push:
-    branches: [ main ]
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build_base_ubi9_image:
@@ -20,7 +21,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            quay.io/devfile/base-developer-image
+            quay.io/abazko/base-developer-image
           flavor: |
             latest=true
             prefix=ubi9-,onlatest=true
@@ -39,11 +40,11 @@ jobs:
       - name: Docker Build & Push Base
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           provenance: false
           context: base/ubi9
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64,linux/ppc64le,linux/arm64
           tags: |
-            quay.io/devfile/base-developer-image:ubi9-latest
+            quay.io/abazko/base-developer-image:ubi9-latest
             ${{ steps.meta.outputs.tags }}
 

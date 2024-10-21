@@ -1,8 +1,9 @@
 name: Build of UBI 8 based Developer Images
 
 on:
-  push:
-    branches: [ main ]
+  pull_request:
+    branches:
+      - main
 
   workflow_call:
     # Map the workflow outputs to job outputs
@@ -32,7 +33,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            quay.io/devfile/base-developer-image
+            quay.io/abazko/base-developer-image
           flavor: |
             latest=true
             prefix=ubi8-,onlatest=true
@@ -54,8 +55,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           provenance: false
           context: base/ubi8
+          platforms: linux/amd64,linux/ppc64le,linux/arm64
           tags: |
-            quay.io/devfile/base-developer-image:latest
+            quay.io/abazko/base-developer-image:latest
             ${{ steps.meta.outputs.tags }}
 
   build_universal_ubi8_image:
@@ -95,9 +97,10 @@ jobs:
       - name: Docker Build & Push Universal
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           provenance: false
           context: universal/ubi8
+          platforms: linux/amd64,linux/ppc64le,linux/arm64
           tags: |
             quay.io/devfile/universal-developer-image:latest
             ${{ steps.meta.outputs.tags }}
