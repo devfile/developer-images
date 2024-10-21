@@ -42,7 +42,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           provenance: false
           context: base/ubi9
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64,linux/ppc64le,linux/arm64
           tags: |
             quay.io/devfile/base-developer-image:ubi9-latest
             ${{ steps.meta.outputs.tags }}

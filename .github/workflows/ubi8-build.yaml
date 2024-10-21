@@ -54,6 +54,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           provenance: false
           context: base/ubi8
+          platforms: linux/amd64,linux/ppc64le,linux/arm64
           tags: |
             quay.io/devfile/base-developer-image:latest
             ${{ steps.meta.outputs.tags }}
@@ -98,6 +99,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           provenance: false
           context: universal/ubi8
+          platforms: linux/amd64,linux/ppc64le,linux/arm64
           tags: |
             quay.io/devfile/universal-developer-image:latest
             ${{ steps.meta.outputs.tags }}
