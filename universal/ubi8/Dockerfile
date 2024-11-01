@@ -75,7 +75,7 @@ ENV PATH="/home/tooling/.local/share/coursier/bin:$PATH"
 # NodeJS
 RUN mkdir -p /home/tooling/.nvm/
 ENV NVM_DIR="/home/tooling/.nvm"
-ENV NODEJS_20_VERSION=20.7.0
+ENV NODEJS_20_VERSION=20.18.0
 ENV NODEJS_18_VERSION=18.19.1
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | PROFILE=/dev/null bash
