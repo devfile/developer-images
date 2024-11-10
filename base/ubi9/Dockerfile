@@ -19,17 +19,26 @@ LABEL io.openshift.expose-services=""
 
 USER 0
 
+ENV HOME=/home/tooling
+RUN mkdir -p /home/tooling/
+
 # Removed because of vulnerabilities: git-lfs
-RUN dnf install -y diffutils git iproute jq less lsof man nano procps \
-    perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip && \
+RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+    dnf install -y diffutils git git-lfs iproute jq less lsof man nano procps p7zip p7zip-plugins \
+        perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip stow && \
     dnf update -y && \
+    dnf clean all
+
+## podman buildah skopeo
+RUN dnf -y reinstall shadow-utils && \
+    dnf -y install podman buildah skopeo fuse-overlayfs && \
     dnf clean all
 
 ## gh-cli
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    GH_VERSION="2.23.0"; \
+    GH_VERSION="2.45.0"; \
     GH_ARCH="linux_amd64"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
@@ -88,16 +97,71 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
+    # Define user directory for binaries
+ENV PATH="/home/user/.local/bin:$PATH"
+
+# Set up environment variables to note that this is
+# not starting with usernamespace and default to
+# isolate the filesystem with chroot.
+ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
+
+# Tweaks to make rootless buildah work
+RUN touch /etc/subgid /etc/subuid  && \
+    chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
+    echo user:10000:65536 > /etc/subuid  && \
+    echo user:10000:65536 > /etc/subgid
+
+# Adjust storage.conf to enable Fuse storage.
+RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
+RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
+    touch /var/lib/shared/overlay-images/images.lock; \
+    touch /var/lib/shared/overlay-layers/layers.lock
+
+# But use VFS since not all environments support overlay with Fuse backend
+RUN mkdir -p "${HOME}"/.config/containers && \
+   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf && \
+   chown -R 10001 "${HOME}"/.config
+
+# Add kubedock
+ENV KUBEDOCK_VERSION 0.15.5
+ENV KUBECONFIG=/home/user/.kube/config
+RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+    && chmod +x /usr/local/bin/kubedock
+COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
+
+# Configure Podman wrapper
+ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper
+ENV ORIGINAL_PODMAN_PATH=/usr/bin/podman.orig
+COPY --chown=0:0 podman-wrapper.sh "${PODMAN_WRAPPER_PATH}"
+
+COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
+RUN mv /usr/bin/podman "${ORIGINAL_PODMAN_PATH}"
+
 COPY --chown=0:0 entrypoint.sh /
+COPY --chown=0:0 .stow-local-ignore /home/tooling/
 RUN \
     # add user and configure it
     useradd -u 10001 -G wheel,root -d /home/user --shell /bin/bash -m user && \
     # Setup $PS1 for a consistent and reasonable prompt
-    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /home/user/.bashrc && \
+    touch /etc/profile.d/udi_prompt.sh && \
+    chown 10001 /etc/profile.d/udi_prompt.sh && \
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> /etc/profile.d/udi_prompt.sh && \
+    # Copy the global git configuration to user config as global /etc/gitconfig
+    # file may be overwritten by a mounted file at runtime
+    cp /etc/gitconfig ${HOME}/.gitconfig && \
+    chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
     chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
-    chmod +x /entrypoint.sh
+    chmod +x /entrypoint.sh && \
+    # Create symbolic links from /home/tooling/ -> /home/user/
+    stow . -t /home/user/ -d /home/tooling/ && \
+    # .viminfo cannot be a symbolic link for security reasons, so copy it to /home/user/
+    cp /home/tooling/.viminfo /home/user/.viminfo && \
+    # Bash-related files are backed up to /home/tooling/ incase they are deleted when persistUserHome is enabled.
+    cp /home/user/.bashrc /home/tooling/.bashrc && \
+    cp /home/user/.bash_profile /home/tooling/.bash_profile && \
+    chown 10001 /home/tooling/.bashrc /home/tooling/.bash_profile
 
 USER 10001
 ENV HOME=/home/user

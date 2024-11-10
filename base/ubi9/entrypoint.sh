@@ -18,4 +18,6 @@ if ! whoami &> /dev/null; then
   fi
 fi
 
+source kubedock_setup
+
 exec "$@"
