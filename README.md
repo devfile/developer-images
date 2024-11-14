@@ -17,7 +17,7 @@ $ docker run -ti --rm \
 ```
 ### Included Development Tools
 
-| Tool                | ubi8 based image                    |
+| Tool                | ubi9 based image                    |
 |---------------------|-------------------------------------|
 | `bash`              |`bash`                               |
 | `bat`               |`<gh releases>`                      |
@@ -96,7 +96,7 @@ docker run -ti --rm \
 ```
 ### Included Development Tools
 
-| Tool or language    | ubi8 based image                    |
+| Tool or language    | ubi9 based image                    |
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
 | `sdk`               |`<https://get.sdkman.io>`            |
@@ -106,7 +106,7 @@ docker run -ti --rm \
 | `java`              |`<21.0.2-tem via sdkman>`   |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-| `mandrel`           |`<22.1.0.0.r17-mandrel via sdkman>`  |
+| `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`  |
 | `jbang`             |`<via sdkman>`                       |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
