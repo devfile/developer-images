@@ -123,7 +123,7 @@ RUN mkdir -p "${HOME}"/.config/containers && \
    chown -R 10001 "${HOME}"/.config
 
 # Add kubedock
-ENV KUBEDOCK_VERSION 0.15.5
+ENV KUBEDOCK_VERSION 0.17.0
 ENV KUBECONFIG=/home/user/.kube/config
 RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/kubedock

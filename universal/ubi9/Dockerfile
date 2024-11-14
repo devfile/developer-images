@@ -137,7 +137,7 @@ RUN cd /usr/bin \
 RUN pip install pylint yq
 
 # PHP
-ENV PHP_VERSION=8.1
+ENV PHP_VERSION=8.2
 RUN dnf -y module enable php:$PHP_VERSION && \
     dnf install -y --setopt=tsflags=nodocs php php-mysqlnd php-pgsql php-bcmath \
                 php-gd php-intl php-json php-ldap php-mbstring php-pdo \
