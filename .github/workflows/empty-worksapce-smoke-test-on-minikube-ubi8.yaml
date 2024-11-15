@@ -17,7 +17,6 @@ on:
       - '**/*.md'
       - .devfile.yaml
       - LICENSE
-      - '.rebase/*'
       - 'base/ubi9/**'
       - 'universal/ubi9/**'
 
