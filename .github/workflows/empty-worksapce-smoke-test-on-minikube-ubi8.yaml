@@ -19,6 +19,7 @@ on:
       - LICENSE
       - '.rebase/*'
       - 'base/ubi9/**'
+      - 'universal/ubi9/**'
 
 env:
    USERSTORY: CloneGitRepoAPI
