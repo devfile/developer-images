@@ -6,7 +6,7 @@ LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-universal-container"
 LABEL name="devfile/universal-developer-image"
-LABEL version="ubi8"
+LABEL version="ubi9"
 
 #label for EULA
 LABEL com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
