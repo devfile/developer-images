@@ -22,7 +22,7 @@ USER 0
 ENV HOME=/home/tooling
 RUN mkdir -p /home/tooling/
 
-# Removed because of vulnerabilities: git-lfs
+## add epel repos so that p7zip p7zip-plugins stow can be found
 RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
     dnf install -y diffutils git git-lfs iproute jq less lsof man nano procps p7zip p7zip-plugins \
         perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip stow && \
@@ -133,8 +133,6 @@ COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
 ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper
 ENV ORIGINAL_PODMAN_PATH=/usr/bin/podman.orig
 COPY --chown=0:0 podman-wrapper.sh "${PODMAN_WRAPPER_PATH}"
-
-COPY --chown=0:0 podman-wrapper.sh /usr/bin/podman.wrapper
 RUN mv /usr/bin/podman "${ORIGINAL_PODMAN_PATH}"
 
 COPY --chown=0:0 entrypoint.sh /
