@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2021 Red Hat, Inc.
+# Copyright (c) 2019-2024 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -10,15 +10,15 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-name: Empty workspace smoke test on udi8
+name: Empty workspace smoke test on udi9
 on:
   pull_request:
     paths-ignore:
       - '**/*.md'
       - .devfile.yaml
       - LICENSE
-      - 'base/ubi9/**'
-      - 'universal/ubi9/**'
+      - 'base/ubi8/**'
+      - 'universal/ubi8/**'
 
 env:
    USERSTORY: CloneGitRepoAPI
@@ -61,12 +61,12 @@ jobs:
     - name: Build base image
       run: |
        eval $(minikube docker-env)
-       cd base/ubi8 && docker build -t quay.io/devfile/base-developer-image:ubi8-latest .
+       cd base/ubi9 && docker build -t quay.io/devfile/base-developer-image:ubi9-latest .
 
     - name: Build universal image
       run: |
         eval $(minikube docker-env)
-        cd universal/ubi8 && docker build -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
+        cd universal/ubi9 && docker build -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
 
     - name: Checkout DWO
       uses: actions/checkout@master
@@ -94,7 +94,7 @@ jobs:
     - name: Check that UDI is presen in the image list
       run: |
         # we used it for the build above and do not need it anymore. It saves the disk space
-        minikube image rm quay.io/devfile/base-developer-image:ubi8-latest
+        minikube image rm quay.io/devfile/base-developer-image:ubi9-latest
         minikube image list --format table
 
     - name: Install NodeJs
