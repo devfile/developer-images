@@ -15,7 +15,7 @@ on:
     outputs:
       uniq_tag:
         description: "The first output string"
-        value: ${{ jobs.build_universal_ubi8_image.outputs.output1 }}
+        value: ${{ jobs.build_universal_ubi9_image.outputs.output1 }}
 
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
           context: base/ubi9
           platforms: linux/amd64, linux/arm64
           tags: |
-            quay.io/devfile/base-developer-image:ubi9-latest
+            quay.io/devfile/base-developer-image:latest
             ${{ steps.meta.outputs.tags }}
 
   build_universal_ubi9_image:
@@ -81,9 +81,9 @@ jobs:
             quay.io/devfile/universal-developer-image
           flavor: |
             latest=true
-            prefix=ubi8-,onlatest=true
+            prefix=ubi9-,onlatest=true
           tags: |
-            type=sha,prefix=ubi8-,format=short
+            type=sha,prefix=ubi9-,format=short
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
