@@ -33,12 +33,12 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
     && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
              && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
 	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
-             && sdk install java 8.0.402-tem \
-             && sdk install java 11.0.22-tem \
-             && sdk install java 17.0.10-tem \
-             && sdk install java 21.0.2-tem \
-             && sdk install java 23.1.2.r21-mandrel \
-             && sdk default java 17.0.10-tem \
+             && sdk install java 8.0.432-tem \
+             && sdk install java 11.0.25-tem \
+             && sdk install java 17.0.13-tem \
+             && sdk install java 21.0.5-tem \
+             && sdk install java 23.1.5.r21-mandrel \
+             && sdk default java 17.0.13-tem \
              && sdk install gradle \
              && sdk install maven \
              && sdk install jbang \
@@ -47,10 +47,10 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
          && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # sdk home java <version>
-ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.402-tem
-ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.22-tem
-ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.10-tem
-ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.2-tem
+ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.432-tem
+ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.25-tem
+ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.13-tem
+ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.5-tem
 
 # Java-related environment variables are described and set by ${PROFILE_EXT}, which will be loaded by ~/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
@@ -64,7 +64,7 @@ ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
 ENV JAVA_HOME="/home/tooling/.sdkman/candidates/java/current"
 ENV MAVEN_HOME="/home/tooling/.sdkman/candidates/maven/current"
 
-ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/23.1.2.r21-mandrel
+ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/23.1.5.r21-mandrel
 
 ENV PATH="/home/tooling/.krew/bin:$PATH"
 ENV PATH="/home/tooling/.sdkman/candidates/maven/current/bin:$PATH"
