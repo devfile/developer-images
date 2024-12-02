@@ -100,10 +100,10 @@ docker run -ti --rm \
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
 | `sdk`               |`<https://get.sdkman.io>`            |
-| `java`              |`<8.0.402-tem via sdkman>`           |
-| `java`              |`<11.0.22-tem via sdkman>`           |
-| `java`              |`<17.0.10-tem via sdkman>/default`   |
-| `java`              |`<21.0.2-tem via sdkman>`   |
+| `java`              |`<8.0.432-tem via sdkman>`           |
+| `java`              |`<11.0.25-tem via sdkman>`           |
+| `java`              |`<17.0.13-tem via sdkman>/default`   |
+| `java`              |`<21.0.5-tem via sdkman>`   |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
 | `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`  |
