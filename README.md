@@ -1,18 +1,18 @@
 # Developer Images
 
-[![Build of UBI 8 based Developer Images](https://github.com/devfile/developer-images/actions/workflows/ubi8-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi8-build.yaml)
+[![Build of UBI 9 based Developer Images](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
 
 Containers images with tools for developers 👨‍💻👩‍💻
 
 ## Developer Base Image
 
-### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/base-developer-image:ubi8-latest](https://quay.io/repository/devfile/base-developer-image))
+### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image))
 
 Run the following command to test it with Docker:
 
 ```bash
 $ docker run -ti --rm \
-       quay.io/devfile/base-developer-image:ubi8-latest \
+       quay.io/devfile/base-developer-image:ubi9-latest \
        bash
 ```
 ### Included Development Tools
@@ -81,17 +81,17 @@ podman stop
 podman start
 ```
 
-An example is available in the Universal Developer Image dockerfile [here](https://github.com/devfile/developer-images/blob/main/universal/ubi8/entrypoint.sh#L3).
+An example is available in the Universal Developer Image dockerfile [here](https://github.com/devfile/developer-images/blob/main/universal/ubi9/entrypoint.sh#L3).
 
 ## Developer Universal Image
 
-### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi8-latest](https://quay.io/repository/devfile/universal-developer-image))
+### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi9-latest](https://quay.io/repository/devfile/universal-developer-image))
 
 Run the following command to test it with Docker: 
 
 ```bash
 docker run -ti --rm \
-       quay.io/devfile/universal-developer-image:ubi8-latest \
+       quay.io/devfile/universal-developer-image:ubi9-latest \
        bash
 ```
 ### Included Development Tools
@@ -171,7 +171,7 @@ JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
 # Builds
 
 This repo contains [actions](https://github.com/eclipse-che/che-operator/actions), including:
-* [![release latest stable](https://github.com/devfile/developer-images/actions/workflows/ubi8-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi8-build.yaml)
+* [![release latest stable](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
 
 Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
 
