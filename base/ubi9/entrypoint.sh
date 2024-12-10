@@ -5,6 +5,13 @@ if [ ! -d "${HOME}" ]; then
   mkdir -p "${HOME}"
 fi
 
+# Configure container builds to use vfs
+if [ ! -d "${HOME}/.config/containers" ]
+then
+  mkdir -p ${HOME}/.config/containers
+  (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
+fi
+
 # Setup $PS1 for a consistent and reasonable prompt
 if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
   echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc
