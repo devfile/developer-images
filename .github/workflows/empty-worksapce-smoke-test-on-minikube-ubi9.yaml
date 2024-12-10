@@ -17,8 +17,6 @@ on:
       - '**/*.md'
       - .devfile.yaml
       - LICENSE
-      - 'base/ubi8/**'
-      - 'universal/ubi8/**'
 
 env:
    USERSTORY: CloneGitRepoAPI
