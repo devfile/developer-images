@@ -6,11 +6,9 @@ if [ ! -d "${HOME}" ]; then
 fi
 
 # Configure container builds to use vfs or fuse-overlayfs
-if [ ! -d "${HOME}/.config/containers" ]
-then
+if [ ! -d "${HOME}/.config/containers" ]; then
   mkdir -p ${HOME}/.config/containers
-  if [ -c "/dev/fuse" ] && [ -f "/usr/bin/fuse-overlayfs" ]
-  then
+  if [ -c "/dev/fuse" ] && [ -f "/usr/bin/fuse-overlayfs" ]; then
     (echo '[storage]';echo 'driver = "overlay"';echo '[storage.options.overlay]';echo 'mount_program = "/usr/bin/fuse-overlayfs"') > ${HOME}/.config/containers/storage.conf
   else
     (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
