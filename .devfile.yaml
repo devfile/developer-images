@@ -1,4 +1,4 @@
-schemaVersion: 2.1.0
+schemaVersion: 2.3.0
 metadata:
   name: developer-images
 attributes:
@@ -7,6 +7,6 @@ attributes:
 components:
   - name: devtools
     container:
-      image: quay.io/devfile/universal-developer-image:ubi8-latest
+      image: quay.io/devfile/universal-developer-image:ubi9-latest
       memoryLimit: 2Gi
       memoryRequest: 256Mi
