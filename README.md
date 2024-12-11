@@ -1,3 +1,6 @@
+[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://workspaces.openshift.com#https://github.com/devfile/developer-images)
+[![Dev](https://img.shields.io/static/v1?label=Open%20in&message=Che%20dogfooding%20server%20(with%20VS%20Code)&logo=eclipseche&color=FDB940&labelColor=525C86)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com/#https://github.com/devfile/developer-images)
+
 # Developer Images
 
 [![Build of UBI 9 based Developer Images](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
