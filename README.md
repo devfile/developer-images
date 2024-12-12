@@ -129,7 +129,7 @@ docker run -ti --rm \
 | `yarn`              |`<via npm>`                          |
 |--------GO-----------|-------------------------------------|
 | `go`                |`go-toolset`                         |
-| `gopls`             |`golang.org/x/tools/gopls`           |
+| `gopls`             |`golang.org/x/tools/gopls v0.16.2`   |
 |--------.NET---------|-------------------------------------|
 | `dotnet`            |`dotnet-sdk-8.0`                     |
 |------PYTHON---------|-------------------------------------|
