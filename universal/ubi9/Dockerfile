@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1.3-labs
 
 # updateBaseImages.sh can't operate on SHA-based tags as they're not date-based or semver-sequential, and therefore cannot be ordered
-FROM quay.io/devfile/base-developer-image:ubi9-latest
+# FROM quay.io/devfile/base-developer-image:ubi9-latest
+FROM quay.io/cgruver0/che/base-developer-image:latest
 
 LABEL maintainer="Red Hat, Inc."
 
@@ -413,6 +414,9 @@ EOF
 ## NOTE: all modifications to ${PROFILE_EXT} must happen BEFORE this step in order for sdkman to function correctly
 RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> ${PROFILE_EXT}
 RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> ${PROFILE_EXT}
+
+# Create symbolic links from /home/tooling/ -> /home/user/
+RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
 # Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
