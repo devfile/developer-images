@@ -2,6 +2,7 @@
 
 # updateBaseImages.sh can't operate on SHA-based tags as they're not date-based or semver-sequential, and therefore cannot be ordered
 FROM quay.io/devfile/base-developer-image:ubi9-latest
+
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-universal-container"
@@ -413,17 +414,11 @@ EOF
 RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> ${PROFILE_EXT}
 RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> ${PROFILE_EXT}
 
-
-# Create symbolic links from /home/tooling/ -> /home/user/
-RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
-
 # Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
-
-COPY --chown=0:0 entrypoint.sh /
 
 USER 10001
 
