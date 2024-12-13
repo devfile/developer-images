@@ -129,7 +129,7 @@ docker run -ti --rm \
 | `yarn`              |`<via npm>`                          |
 |--------GO-----------|-------------------------------------|
 | `go`                |`go-toolset`                         |
-| `gopls`             |`golang.org/x/tools/gopls`           |
+| `gopls`             |`golang.org/x/tools/gopls v0.16.2`   |
 |--------.NET---------|-------------------------------------|
 | `dotnet`            |`dotnet-sdk-8.0`                     |
 |------PYTHON---------|-------------------------------------|
@@ -173,7 +173,7 @@ JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
 
 # Builds
 
-This repo contains [actions](https://github.com/eclipse-che/che-operator/actions), including:
+This repo contains [actions](https://github.com/devfile/developer-images/actions), including:
 * [![release latest stable](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
 
 Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
