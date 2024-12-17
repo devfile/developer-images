@@ -423,8 +423,6 @@ RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
 
-COPY --chown=0:0 entrypoint.sh /
-
 USER 10001
 
 ENV HOME=/home/user

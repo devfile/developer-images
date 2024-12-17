@@ -10,3 +10,6 @@
 \.krew
 \.sdkman
 \.local/bin/podman
+
+# Ignore files under .config directory
+\.config
