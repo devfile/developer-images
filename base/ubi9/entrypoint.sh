@@ -37,9 +37,6 @@ fi
 
 source kubedock_setup
 
-#!/bin/bash
-
-source kubedock_setup
 
 # Stow
 ## Required for https://github.com/eclipse/che/issues/22412
