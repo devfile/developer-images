@@ -100,6 +100,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           provenance: false
           context: universal/ubi9
+          platforms: linux/amd64, linux/arm64
           tags: |
             quay.io/devfile/universal-developer-image:latest
             ${{ steps.meta.outputs.tags }}
