@@ -22,3 +22,13 @@ Build with Docker buildkit:
 $ cd universal/ubi9
 $ DOCKER_BUILDKIT=1 docker image build --progress=plain -t quay.io/devfile/universal-developer-image:ubi9-latest .
 ```
+
+To build for a specific architecture:
+
+```bash
+# amd64
+$ DOCKER_BUILDKIT=1 docker image build --platform linux/amd64 --progress=plain -t quay.io/devfile/universal-developer-image:ubi9-latest .
+
+# arm64
+$ DOCKER_BUILDKIT=1 docker image build --platform linux/arm64 --progress=plain -t quay.io/devfile/universal-developer-image:ubi9-latest .
+```
