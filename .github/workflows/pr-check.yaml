@@ -13,8 +13,8 @@ name: Pull Request Check
 on: [pull_request]
 
 jobs:
-  build_base_ubi9_image:
-    name: Build BDI9
+  build-base-image:
+    name: Build base image
     strategy:
       fail-fast: false
       matrix:
@@ -34,7 +34,7 @@ jobs:
         run: sudo rm -rf /usr/local/lib/android
       - name: Cleanup docker images
         run: docker system prune -af
-      - name: Docker BDI9 image
+      - name: Build base image
         run: |
             cd base/ubi9 && docker buildx build \
             --platform linux/${{env.arch}} \
@@ -50,14 +50,14 @@ jobs:
           name: base-developer-image-${{env.arch}}
           path: base-developer-image-${{env.arch}}.tgz
 
-  build_universal_ubi9_image:
-    name: Build UDI9 image
+  build-udi:
+    name: Build udi
     strategy:
       fail-fast: false
       matrix:
         runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
     runs-on: ${{matrix.runners}}
-    needs: build_base_ubi9_image
+    needs: build-base-image
     steps:
       - name: Set arch environment variable
         run: |
@@ -87,12 +87,12 @@ jobs:
       - name: Update UDI Dockerfile
         run: sed "s|quay.io/devfile/base-developer-image:ubi9-latest|base-developer-image-${{env.arch}}|" -i "universal/ubi9/Dockerfile"
       - name: Login to Quay.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
-      - name: Build UDI9 image
+      - name: Build udi
         run: |
           cd universal/ubi9 && docker buildx build \
             --platform linux/${{env.arch}} \
@@ -100,13 +100,13 @@ jobs:
             --push \
             -t quay.io/devfile/universal-developer-image:${{env.arch}}-pr-${{github.event.number}} .
 
-  publish-images:
-    name: publish image from the pull request
+  publish-udi:
+    name: Publish udi
     runs-on: ubuntu-22.04
-    needs: build_universal_ubi9_image
+    needs: build-udi
     steps:
       - name: Login to Quay.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
