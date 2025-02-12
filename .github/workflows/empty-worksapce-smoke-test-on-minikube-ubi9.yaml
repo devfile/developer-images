@@ -26,7 +26,11 @@ env:
 
 jobs:
   workspace-api-tests-on-minikube:
-    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
+    runs-on: ${{matrix.runners}}
     steps:
 
     - name: Checkout
@@ -47,11 +51,19 @@ jobs:
         # remove build-in images from the VM because it is not used
         docker rmi -f $(docker images -aq)
 
+    - name: Set arch environment variable
+      run: |
+        if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
+          echo arch="amd64" >> $GITHUB_ENV
+        else
+          echo arch="arm64" >> $GITHUB_ENV
+        fi
+
     - name: Start minikube cluster
-      id: run-minikube
-      uses: che-incubator/setup-minikube-action@next
-      with:
-        minikube-version: v1.31.0
+      run: |
+        curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-${{env.arch}}
+        install minikube-linux-${{env.arch}} /usr/local/bin/minikube && rm minikube-linux-${{env.arch}}
+        minikube start --vm-driver=docker --addons=ingress --cpus 2 --memory 6500
 
      # connect with docker daemon in the minikube and build an image there
      # we need to build the image in the minikube because we have just 14 GB of space on the runner
@@ -89,7 +101,7 @@ jobs:
         kubectl wait deployment -n devworkspace-controller devworkspace-webhook-server --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
         kubectl wait deployment -n devworkspace-controller devworkspace-controller-manager --for condition=Available=True --timeout=$DEPLOYMENT_TIMEOUT
 
-    - name: Check that UDI is presen in the image list
+    - name: Check that UDI is present in the image list
       run: |
         # we used it for the build above and do not need it anymore. It saves the disk space
         minikube image rm quay.io/devfile/base-developer-image:ubi9-latest
@@ -105,10 +117,134 @@ jobs:
         repository: eclipse/che
         path: che
 
+    # Host devfile locally.
+    # Use the insiders tag for the che-code image and the PR number for the universal-developer-image
+    - name: Host devfile locally
+      run: |
+        kubectl apply -f - <<EOF
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: devfile.yaml
+        data:
+          devfile.yaml: |
+            schemaVersion: 2.2.2
+            metadata:
+              name: che-code
+            commands:
+              - id: init-container-command
+                apply:
+                  component: che-code-injector
+              - id: init-che-code-command
+                exec:
+                  component: che-code-runtime-description
+                  commandLine: nohup /checode/entrypoint-volume.sh > /checode/entrypoint-logs.txt 2>&1 &
+            events:
+              preStart:
+                - init-container-command
+              postStart:
+                - init-che-code-command
+            components:
+              - name: che-code-injector
+                container:
+                  image: quay.io/che-incubator/che-code:insiders
+                  command:
+                    - /entrypoint-init-container.sh
+                  volumeMounts:
+                    - name: checode
+                      path: /checode
+                  memoryLimit: 256Mi
+                  memoryRequest: 32Mi
+                  cpuLimit: 500m
+                  cpuRequest: 30m
+              - name: che-code-runtime-description
+                container:
+                  image: quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+                  memoryLimit: 1024Mi
+                  memoryRequest: 256Mi
+                  cpuLimit: 500m
+                  cpuRequest: 30m
+                  volumeMounts:
+                    - name: checode
+                      path: /checode
+                  endpoints:
+                    - name: che-code
+                      attributes:
+                        type: main
+                        cookiesAuthEnabled: true
+                        discoverable: false
+                        urlRewriteSupported: true
+                      targetPort: 3100
+                      exposure: public
+                      secure: true
+                      protocol: https
+                    - name: code-redirect-1
+                      targetPort: 13131
+                      exposure: public
+                      protocol: https
+                      attributes:
+                        discoverable: false
+                        urlRewriteSupported: false
+                    - name: code-redirect-2
+                      targetPort: 13132
+                      exposure: public
+                      protocol: https
+                      attributes:
+                        discoverable: false
+                        urlRewriteSupported: false
+                    - name: code-redirect-3
+                      targetPort: 13133
+                      exposure: public
+                      protocol: https
+                      attributes:
+                        discoverable: false
+                        urlRewriteSupported: false
+                attributes:
+                  app.kubernetes.io/component: che-code-runtime
+                  app.kubernetes.io/part-of: che-code.eclipse.org
+                  controller.devfile.io/container-contribution: true
+              - name: checode
+                volume: {}
+        ---
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: file-server
+          labels:
+            app: file-server
+        spec:
+          containers:
+            - name: nginx-container
+              image: nginx
+              ports:
+                - containerPort: 80
+              volumeMounts:
+                - name: server-volume
+                  mountPath: /usr/share/nginx/html
+                  readOnly: true
+          volumes:
+            - name: server-volume
+              configMap:
+                name: devfile.yaml
+        ---        
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: file-service
+        spec:
+          selector:
+            app: file-server
+          ports:
+            - protocol: TCP
+              port: 80
+              targetPort: 80
+        EOF
+
     - name: Run Empty workspace smoke test
       run: |
         export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+        export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=http://file-service.default.svc:80/devfile.yaml
         cd che/tests/e2e
         npm i
         npm run driver-less-test
-
+        

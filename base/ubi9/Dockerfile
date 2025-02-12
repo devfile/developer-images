@@ -2,6 +2,8 @@
 
 # https://registry.access.redhat.com/ubi9/ubi
 FROM registry.access.redhat.com/ubi9/ubi:9.5-1736404036
+
+ARG TARGETARCH
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-base-container"
@@ -34,12 +36,13 @@ RUN dnf -y reinstall shadow-utils && \
     dnf -y install podman buildah skopeo fuse-overlayfs && \
     dnf clean all
 
-## gh-cli
+# Download and install gh-cli depending on the architecture.
+# See release page for details https://github.com/cli/cli/releases/tag/v2.45.0
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
     GH_VERSION="2.45.0"; \
-    GH_ARCH="linux_amd64"; \
+    GH_ARCH="linux_$TARGETARCH"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
     GH_CHEKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"; \
@@ -52,12 +55,17 @@ RUN \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
-## ripgrep
+# Download and install ripgrep depending on the architecture.
+# See release page for details https://github.com/BurntSushi/ripgrep/releases/tag/13.0.0
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
     RG_VERSION="13.0.0"; \
-    RG_ARCH="x86_64-unknown-linux-musl"; \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        RG_ARCH="arm-unknown-linux-gnueabihf"; \
+    else \
+        RG_ARCH="x86_64-unknown-linux-musl"; \
+    fi; \
     RG_TGZ="ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"; \
     RG_TGZ_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/${RG_TGZ}"; \
     curl -sSLO "${RG_TGZ_URL}"; \
@@ -67,12 +75,17 @@ RUN \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
-## bat
+# Download and install bat depending on the architecture.
+# See release page for details https://github.com/sharkdp/bat/releases/tag/v0.18.3
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
     BAT_VERSION="0.18.3"; \
-    BAT_ARCH="x86_64-unknown-linux-musl"; \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        BAT_ARCH="aarch64-unknown-linux-gnu"; \
+    else \
+        BAT_ARCH="x86_64-unknown-linux-musl"; \
+    fi; \
     BAT_TGZ="bat-v${BAT_VERSION}-${BAT_ARCH}.tar.gz"; \
     BAT_TGZ_URL="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/${BAT_TGZ}"; \
     curl -sSLO "${BAT_TGZ_URL}"; \
@@ -82,12 +95,17 @@ RUN \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
-## fd
+# Download and install fd depending on the architecture.
+# See release page for details https://github.com/sharkdp/fd/releases/tag/v8.7.0
 RUN \
     TEMP_DIR="$(mktemp -d)" && \
     cd "${TEMP_DIR}" && \
     FD_VERSION="8.7.0" && \
-    FD_ARCH="x86_64-unknown-linux-musl" &&\
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        FD_ARCH="aarch64-unknown-linux-gnu"; \
+    else \
+        FD_ARCH="x86_64-unknown-linux-musl"; \
+    fi && \
     FD_TGZ="fd-v${FD_VERSION}-${FD_ARCH}.tar.gz" && \
     FD_TGZ_URL="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/${FD_TGZ}" && \
     curl -sSLO "${FD_TGZ_URL}" && \
@@ -118,9 +136,11 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-layers/layers.lock
 
 # Add kubedock
+# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.17.0
 ENV KUBEDOCK_VERSION 0.17.0
 ENV KUBECONFIG=/home/user/.kube/config
-RUN curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_linux_amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+RUN KUBEDOCK_ARCH="linux_amd64" && \
+    curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/kubedock
 COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
 

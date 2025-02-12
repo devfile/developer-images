@@ -2,6 +2,8 @@
 
 # updateBaseImages.sh can't operate on SHA-based tags as they're not date-based or semver-sequential, and therefore cannot be ordered
 FROM quay.io/devfile/base-developer-image:ubi9-latest
+
+ARG TARGETARCH
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-universal-container"
@@ -21,7 +23,7 @@ USER 0
 
 # $PROFILE_EXT contains all additions made to the bash environment
 ENV PROFILE_EXT=/etc/profile.d/udi_environment.sh
-RUN touch ${PROFILE_EXT} & chown 10001 ${PROFILE_EXT}
+RUN touch ${PROFILE_EXT} && chown 10001 ${PROFILE_EXT}
 
 USER 10001
 
@@ -57,7 +59,12 @@ ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.5-tem
 ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
 ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
 ENV SDKMAN_DIR="/home/tooling/.sdkman"
-ENV SDKMAN_PLATFORM="linuxx64"
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        export SDKMAN_PLATFORM="linuxarm64"; \
+    else \
+        export SDKMAN_PLATFORM="linuxx64"; \
+    fi
+ENV SDKMAN_PLATFORM=${SDKMAN_PLATFORM}
 ENV SDKMAN_VERSION="5.18.2"
 
 ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
@@ -174,7 +181,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
 
 # camel-k
 ENV KAMEL_VERSION 2.2.0
-RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/kamel
 
 # Config directories
@@ -192,12 +199,16 @@ RUN mkdir -p /home/tooling/.m2 && \
 
 # oc client
 ENV OC_VERSION=4.15
-RUN curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-    && chmod +x /usr/local/bin/oc
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        curl -L https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
+    else \
+        curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
+    fi | tar -C /usr/local/bin -xz --no-same-owner && \
+    chmod +x /usr/local/bin/oc
 
 # OS Pipelines CLI (tkn)
 ENV TKN_VERSION=1.14.0
-RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-amd64.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
  
 RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
@@ -231,7 +242,11 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 SHELL_CHECK_VERSION="0.8.0"
-SHELL_CHECK_ARCH="x86_64"
+if [ "$TARGETARCH" = "arm64" ]; then
+    SHELL_CHECK_ARCH="aarch64"
+else
+    SHELL_CHECK_ARCH="x86_64"
+fi
 SHELL_CHECK_TGZ="shellcheck-v${SHELL_CHECK_VERSION}.linux.${SHELL_CHECK_ARCH}.tar.xz"
 SHELL_CHECK_TGZ_URL="https://github.com/koalaman/shellcheck/releases/download/v${SHELL_CHECK_VERSION}/${SHELL_CHECK_TGZ}"
 curl -sSLO "${SHELL_CHECK_TGZ_URL}"
@@ -247,7 +262,7 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 KREW_VERSION="0.4.2"
-KREW_ARCH="linux_amd64"
+KREW_ARCH="linux_${TARGETARCH}"
 KREW_TGZ="krew-${KREW_ARCH}.tar.gz"
 KREW_TGZ_URL="https://github.com/kubernetes-sigs/krew/releases/download/v${KREW_VERSION}/${KREW_TGZ}"
 curl -sSLO "${KREW_TGZ_URL}"
@@ -276,7 +291,7 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 HELM_VERSION="3.14.3"
-HELM_ARCH="linux-amd64"
+HELM_ARCH="linux-${TARGETARCH}"
 HELM_TGZ="helm-v${HELM_VERSION}-${HELM_ARCH}.tar.gz"
 HELM_TGZ_URL="https://get.helm.sh/${HELM_TGZ}"
 curl -sSLO "${HELM_TGZ_URL}"
@@ -294,7 +309,7 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 KUSTOMIZE_VERSION="5.3.0"
-KUSTOMIZE_ARCH="linux_amd64"
+KUSTOMIZE_ARCH="linux_${TARGETARCH}"
 KUSTOMIZE_TGZ="kustomize_v${KUSTOMIZE_VERSION}_${KUSTOMIZE_ARCH}.tar.gz"
 KUSTOMIZE_TGZ_URL="https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/${KUSTOMIZE_TGZ}"
 KUSTOMIZE_CHEKSUMS_URL="https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/checksums.txt"
@@ -313,7 +328,11 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 TKN_VERSION="0.20.0"
-TKN_ARCH="Linux_x86_64"
+if [ "$TARGETARCH" = "arm64" ]; then
+    TKN_ARCH="Linux_arm64"
+else
+    TKN_ARCH="Linux_x86_64"
+fi
 TKN_TGZ="tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz"
 TKN_TGZ_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/${TKN_TGZ}"
 TKN_CHEKSUMS_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/checksums.txt"
@@ -332,7 +351,7 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 KN_VERSION="1.13.0"
-KN_ARCH="linux-amd64"
+KN_ARCH="linux-${TARGETARCH}"
 KN_BIN="kn-${KN_ARCH}"
 KN_BIN_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/${KN_BIN}"
 KN_CHEKSUMS_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/checksums.txt"
@@ -352,7 +371,7 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 TF_VERSION="1.7.5"
-TF_ARCH="linux_amd64"
+TF_ARCH="linux_${TARGETARCH}"
 TF_ZIP="terraform_${TF_VERSION}_${TF_ARCH}.zip"
 TF_ZIP_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/${TF_ZIP}"
 TF_CHEKSUMS_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_SHA256SUMS"
@@ -367,7 +386,7 @@ rm -rf "${TEMP_DIR}"
 EOF
 
 ## skaffold
-RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
+RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${TARGETARCH} && \
     install skaffold /usr/local/bin/
 
 # e2fsprogs setup
