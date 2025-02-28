@@ -136,8 +136,8 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-layers/layers.lock
 
 # Add kubedock
-# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.17.0
-ENV KUBEDOCK_VERSION 0.17.0
+# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.1
+ENV KUBEDOCK_VERSION 0.18.1
 ENV KUBECONFIG=/home/user/.kube/config
 RUN KUBEDOCK_ARCH="linux_amd64" && \
     curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
