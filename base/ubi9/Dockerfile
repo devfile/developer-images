@@ -37,11 +37,11 @@ RUN dnf -y reinstall shadow-utils && \
     dnf clean all
 
 # Download and install gh-cli depending on the architecture.
-# See release page for details https://github.com/cli/cli/releases/tag/v2.45.0
+# See release page for details https://github.com/cli/cli/releases/tag/v2.67.0
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    GH_VERSION="2.45.0"; \
+    GH_VERSION="2.67.0"; \
     GH_ARCH="linux_$TARGETARCH"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
