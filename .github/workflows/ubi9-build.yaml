@@ -4,6 +4,7 @@ name: Build of UBI 9 based Developer Images
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
   workflow_call:
     # Map the workflow outputs to job outputs
