@@ -145,10 +145,15 @@ RUN KUBEDOCK_ARCH="linux_amd64" && \
 COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
 
 # Configure Podman wrapper
-ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper
-ENV ORIGINAL_PODMAN_PATH=/usr/bin/podman.orig
+COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
+ENV PODMAN_WRAPPER_PATH=/usr/bin/podman.wrapper \
+    ORIGINAL_PODMAN_PATH=/usr/bin/podman.orig
 COPY --chown=0:0 podman-wrapper.sh "${PODMAN_WRAPPER_PATH}"
+COPY --chown=0:0 podman-compose-down-wrapper.sh "/usr/bin/podman-compose-down-wrapper.sh"
+COPY --chown=0:0 podman-interactive-wrapper.sh "/usr/bin/podman-interactive-wrapper.sh"
+COPY --chown=0:0 podman-cp-wrapper.sh "/usr/bin/podman-cp-wrapper.sh"
 RUN mv /usr/bin/podman "${ORIGINAL_PODMAN_PATH}"
+COPY --chown=0:0 docker.sh "/usr/bin/docker"
 
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/
