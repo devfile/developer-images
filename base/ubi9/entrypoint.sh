@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Replace /home/tooling/* path to /home/user/* path
+replace_user_home() {
+  echo "$1" | sed "s|^/home/tooling|$HOME|"
+}
+
 # Ensure $HOME exists when starting
 if [ ! -d "${HOME}" ]; then
   mkdir -p "${HOME}"
@@ -15,11 +20,20 @@ if [ ! -d "${HOME}/.config/containers" ]; then
   fi
 fi
 
-# Create Sym Link for Composer Keys in /home/tooling/.config
-if [ -d /home/tooling/.config/composer ] && [ ! -d "${HOME}/.config/composer" ]; then
-  mkdir -p ${HOME}/.config/composer
-  ln -s /home/tooling/.config/composer/keys.dev.pub ${HOME}/.config/composer/keys.dev.pub
-  ln -s /home/tooling/.config/composer/keys.tags.pub ${HOME}/.config/composer/keys.tags.pub
+# Find files under /home/tooling/.config and create symlinks. The /home/tooling/.config folder
+# is ignored by stow with the .stow-local-ignore file
+if [ -d /home/tooling/.config ]; then
+  for file in $(find /home/tooling/.config -type f); do
+    tooling_dir=$(dirname "$file")
+
+    # Create dir in /home/user if it does not exist already
+    mkdir -p $(replace_user_home "$tooling_dir")
+
+    # Create symbolic link if it does not exist already
+    if [ ! -f $(replace_user_home $file) ]; then
+      ln -s $file $(replace_user_home $file)
+    fi
+  done
 fi
 
 # Setup $PS1 for a consistent and reasonable prompt
