@@ -1,6 +1,6 @@
 # This file contains a list directories or files to copy over from /home/tooling to /home/user in entrypoint.sh.
 #
-# For example, the follwing will copy /home/tooling/testfile to /home/user/testfile:
+# For example, the following will copy /home/tooling/testfile to /home/user/testfile:
 # ./testfile
 #
 # The goal of this file is to copy over files that cannot be used as symbolic links created by stow.
@@ -18,5 +18,3 @@
 # but we don't want them to be symbolic links (so that they persist on the PVC)
 .bashrc
 .bash_profile
-
-./foo
