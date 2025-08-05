@@ -73,7 +73,7 @@ jobs:
       - name: Cleanup docker images
         run: docker system prune -af
       - name: Download BDI artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: base-developer-image-*
           merge-multiple: true
