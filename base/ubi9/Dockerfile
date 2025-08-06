@@ -152,6 +152,7 @@ RUN mv /usr/bin/podman "${ORIGINAL_PODMAN_PATH}"
 
 COPY --chown=0:0 entrypoint.sh /
 COPY --chown=0:0 .stow-local-ignore /home/tooling/
+COPY --chown=0:0 .copy-files /home/tooling/
 RUN \
     # add user and configure it
     useradd -u 10001 -G wheel,root -d /home/user --shell /bin/bash -m user && \

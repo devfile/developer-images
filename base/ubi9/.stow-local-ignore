@@ -13,3 +13,5 @@
 
 # Ignore files under .config directory
 \.config
+
+\.copy-files
