@@ -163,7 +163,7 @@ RUN \
     # Copy the global git configuration to user config as global /etc/gitconfig
     # file may be overwritten by a mounted file at runtime
     cp /etc/gitconfig ${HOME}/.gitconfig && \
-    chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore && \
+    chown 10001 ${HOME}/ ${HOME}/.viminfo ${HOME}/.gitconfig ${HOME}/.stow-local-ignore ${HOME}/.copy-files && \
     # Set permissions on /etc/passwd and /home to allow arbitrary users to write
     chgrp -R 0 /home && \
     chmod -R g=u /etc/passwd /etc/group /home && \
