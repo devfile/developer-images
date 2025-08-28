@@ -20,22 +20,6 @@ if [ ! -d "${HOME}/.config/containers" ]; then
   fi
 fi
 
-# Find files under /home/tooling/.config and create symlinks. The /home/tooling/.config folder
-# is ignored by stow with the .stow-local-ignore file
-if [ -d /home/tooling/.config ]; then
-  for file in $(find /home/tooling/.config -type f); do
-    tooling_dir=$(dirname "$file")
-
-    # Create dir in /home/user if it does not exist already
-    mkdir -p $(replace_user_home "$tooling_dir")
-
-    # Create symbolic link if it does not exist already
-    if [ ! -f $(replace_user_home $file) ]; then
-      ln -s $file $(replace_user_home $file)
-    fi
-  done
-fi
-
 # Setup $PS1 for a consistent and reasonable prompt
 if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
   echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc
@@ -90,13 +74,86 @@ if [ $HOME_USER_MOUNTED -eq 0 ] && [ ! -f $STOW_COMPLETE ]; then
     #
     # Create symbolic links from /home/tooling/ -> /home/user/
     stow . -t /home/user/ -d /home/tooling/ --no-folding -v 2 > /tmp/stow.log 2>&1
-    # Vim does not permit .viminfo to be a symbolic link for security reasons, so manually copy it
-    cp /home/tooling/.viminfo /home/user/.viminfo
-    # We have to restore bash-related files back onto /home/user/ (since they will have been overwritten by the PVC)
-    # but we don't want them to be symbolic links (so that they persist on the PVC)
-    cp /home/tooling/.bashrc /home/user/.bashrc
-    cp /home/tooling/.bash_profile /home/user/.bash_profile
     touch $STOW_COMPLETE
+fi
+
+# Read .copy-files and copy files from /home/tooling to /home/user
+if [ -f "/home/tooling/.copy-files" ]; then
+    echo "Processing .copy-files..."
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty and commented lines
+        [[ -z "$line" || "$line" == \#* ]] && continue
+
+        if [ -e "/home/tooling/$line" ]; then
+            tooling_path=$(realpath "/home/tooling/$line")
+            
+            # Determine target path based on whether source is a directory
+            if [ -d "$tooling_path" ]; then
+                # For directories: copy to parent directory (e.g., dir1/dir2 -> /home/user/dir1/)
+                target_parent=$(dirname "${HOME}/${line}")
+                target_full="$target_parent/$(basename "$tooling_path")"
+                
+                # Skip if target directory already exists
+                if [ -d "$target_full" ]; then
+                    echo "Directory $target_full already exists, skipping..."
+                    continue
+                fi
+                
+                echo "Copying directory $tooling_path to $target_parent/"
+                mkdir -p "$target_parent"
+                cp --no-clobber -r "$tooling_path" "$target_parent/"
+            else
+                # For files: copy to exact target path
+                target_full="${HOME}/${line}"
+                target_parent=$(dirname "$target_full")
+
+                # Skip if target file already exists
+                if [ -e "$target_full" ]; then
+                    echo "File $target_full already exists, skipping..."
+                    continue
+                fi
+                
+                echo "Copying file $tooling_path to $target_full"
+                mkdir -p "$target_parent"
+                cp --no-clobber -r "$tooling_path" "$target_full"
+            fi
+        else
+            echo "Warning: /home/tooling/$line does not exist, skipping..."
+        fi
+    done < /home/tooling/.copy-files
+    echo "Finished processing .copy-files."
+else
+    echo "No .copy-files found, skipping copy operation."
+fi
+
+# Create symlinks from /home/tooling/.config to /home/user/.config
+# Only create symlinks for files that don't already exist in destination.
+# This is done because stow ignores the .config directory.
+if [ -d /home/tooling/.config ]; then
+    echo "Creating .config symlinks for files that don't already exist..."
+    
+    # Find all files recursively in /home/tooling/.config
+    find /home/tooling/.config -type f | while read -r file; do
+        # Get the relative path from /home/tooling/.config
+        relative_path="${file#/home/tooling/.config/}"
+        
+        # Determine target path in /home/user/.config
+        target_file="${HOME}/.config/${relative_path}"
+        target_dir=$(dirname "$target_file")
+        
+        # Only create symlink if target file doesn't exist
+        if [ ! -e "$target_file" ]; then
+            # Create target directory if it doesn't exist
+            mkdir -p "$target_dir"
+            # Create symbolic link
+            ln -s "$file" "$target_file"
+            echo "Created symlink: $target_file -> $file"
+        else
+            echo "File $target_file already exists, skipping..."
+        fi
+    done
+    
+    echo "Finished creating .config symlinks."
 fi
 
 exec "$@"
