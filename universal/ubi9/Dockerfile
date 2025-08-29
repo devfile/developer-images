@@ -84,7 +84,7 @@ RUN mkdir -p /home/tooling/.nvm/
 ENV NVM_DIR="/home/tooling/.nvm"
 ENV NODEJS_20_VERSION=20.18.1
 ENV NODEJS_18_VERSION=18.20.5
-ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
+ENV NODEJS_DEFAULT_VERSION=${NODEJS_20_VERSION}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | PROFILE=/dev/null bash
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
