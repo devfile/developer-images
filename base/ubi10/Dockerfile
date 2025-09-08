@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1.3-labs
 
-# https://catalog.redhat.com/en/software/containers/ubi9/618326f8c0d15aff4912fe0b
-FROM registry.access.redhat.com/ubi9/ubi:9.7-1763340522
+# https://catalog.redhat.com/en/software/containers/ubi10/ubi/66f2b46b122803e4937d11ae
+FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi10/ubi:10.0-1758186945
 
 ARG TARGETARCH
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-base-container"
 LABEL name="devfile/base-developer-image"
-LABEL version="ubi9"
+LABEL version="ubi10"
 
 #label for EULA
 LABEL com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
@@ -24,12 +24,27 @@ USER 0
 ENV HOME=/home/tooling
 RUN mkdir -p /home/tooling/
 
-## add epel repos so that p7zip p7zip-plugins stow can be found
-RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
+## install packages from epel 10
+RUN \
+    # Install the primary EPEL 10 repository
+    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm && \
+    \
+    # Install the main list of packages
     dnf install -y diffutils git git-lfs iproute jq less lsof man nano procps p7zip p7zip-plugins \
-        perl-Digest-SHA net-tools openssh-clients rsync socat sudo time vim wget zip stow && \
+    perl-Digest-SHA net-tools openssh-clients openssl ripgrep rsync socat sudo time vim wget zip && \
+    # Final update and cleanup
     dnf update -y && \
     dnf clean all
+
+# install stow from EPEL 9 as it is not yet available in EPEL 10
+RUN \
+    # Import EPEL 9 key and create the disabled repo file
+    rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9 && \
+    printf '[epel9]\nname=Extra Packages for Enterprise Linux 9 - $basearch\nmetalink=https://mirrors.fedoraproject.org/metalink?repo=epel-9&arch=$basearch\nenabled=0\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-9\n' > /etc/yum.repos.d/epel-9.repo && \
+    # Install stow using the temporarily enabled repo
+    dnf install -y --enablerepo=epel9 stow && \
+    dnf clean all && \
+    rm /etc/yum.repos.d/epel-9.repo
 
 ## podman buildah skopeo
 RUN dnf -y reinstall shadow-utils && \
@@ -37,11 +52,11 @@ RUN dnf -y reinstall shadow-utils && \
     dnf clean all
 
 # Download and install gh-cli depending on the architecture.
-# See release page for details https://github.com/cli/cli/releases/tag/v2.83.1
+# See release page for details https://github.com/cli/cli/releases/tag/v2.78.0
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    GH_VERSION="2.83.1"; \
+    GH_VERSION="2.78.0"; \
     GH_ARCH="linux_$TARGETARCH"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
@@ -56,11 +71,11 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 # Download and install ripgrep depending on the architecture.
-# See release page for details https://github.com/BurntSushi/ripgrep/releases/tag/15.1.0
+# See release page for details https://github.com/BurntSushi/ripgrep/releases/tag/13.0.0
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    RG_VERSION="15.1.0"; \
+    RG_VERSION="13.0.0"; \
     if [ "$TARGETARCH" = "arm64" ]; then \
         RG_ARCH="arm-unknown-linux-gnueabihf"; \
     else \
@@ -76,11 +91,11 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 # Download and install bat depending on the architecture.
-# See release page for details https://github.com/sharkdp/bat/releases/tag/v0.26.0
+# See release page for details https://github.com/sharkdp/bat/releases/tag/v0.18.3
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    BAT_VERSION="0.26.0"; \
+    BAT_VERSION="0.18.3"; \
     if [ "$TARGETARCH" = "arm64" ]; then \
         BAT_ARCH="aarch64-unknown-linux-gnu"; \
     else \
@@ -96,11 +111,11 @@ RUN \
     rm -rf "${TEMP_DIR}"
 
 # Download and install fd depending on the architecture.
-# See release page for details https://github.com/sharkdp/fd/releases/tag/v10.3.0
+# See release page for details https://github.com/sharkdp/fd/releases/tag/v8.7.0
 RUN \
     TEMP_DIR="$(mktemp -d)" && \
     cd "${TEMP_DIR}" && \
-    FD_VERSION="10.3.0" && \
+    FD_VERSION="8.7.0" && \
     if [ "$TARGETARCH" = "arm64" ]; then \
         FD_ARCH="aarch64-unknown-linux-gnu"; \
     else \
@@ -115,7 +130,7 @@ RUN \
     cd - && \
     rm -rf "${TEMP_DIR}"
 
-    # Define user directory for binaries
+# Define user directory for binaries
 ENV PATH="/home/user/.local/bin:$PATH"
 
 # Set up environment variables to note that this is
@@ -130,14 +145,14 @@ RUN touch /etc/subgid /etc/subuid  && \
     echo user:10000:65536 > /etc/subgid
 
 # Adjust storage.conf to enable Fuse storage.
-RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
+RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /usr/share/containers/storage.conf
 RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-images/images.lock; \
     touch /var/lib/shared/overlay-layers/layers.lock
 
 # Add kubedock
-# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.3
-ENV KUBEDOCK_VERSION 0.18.3
+# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.2
+ENV KUBEDOCK_VERSION 0.18.2
 ENV KUBECONFIG=/home/user/.kube/config
 RUN KUBEDOCK_ARCH="linux_amd64" && \
     curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \

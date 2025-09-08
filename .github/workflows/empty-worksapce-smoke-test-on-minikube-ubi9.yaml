@@ -19,6 +19,8 @@ on:
       - LICENSE
 
 env:
+   # Use repository variable if set, otherwise fallback to default registry
+   REGISTRY: ${{ vars.REGISTRY || 'quay.io/devfile' }}
    USERSTORY: CloneGitRepoAPI
    TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
    DEPLOYMENT_TIMEOUT: 90s
@@ -71,12 +73,12 @@ jobs:
     - name: Build base image
       run: |
        eval $(minikube docker-env)
-       cd base/ubi9 && docker build -t quay.io/devfile/base-developer-image:ubi9-latest .
+       cd base/ubi9 && docker build -t ${{ env.REGISTRY }}/base-developer-image:ubi9-latest .
 
     - name: Build universal image
       run: |
         eval $(minikube docker-env)
-        cd universal/ubi9 && docker build -t quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }} .
+        cd universal/ubi9 && docker build -t ${{ env.REGISTRY }}/universal-developer-image:${{ env.PR_NUMBER }} .
 
     - name: Checkout DWO
       uses: actions/checkout@master
@@ -104,7 +106,7 @@ jobs:
     - name: Check that UDI is present in the image list
       run: |
         # we used it for the build above and do not need it anymore. It saves the disk space
-        minikube image rm quay.io/devfile/base-developer-image:ubi9-latest
+        minikube image rm ${{ env.REGISTRY }}/base-developer-image:ubi9-latest
         minikube image list --format table
 
     - name: Install NodeJs
@@ -159,7 +161,7 @@ jobs:
                   cpuRequest: 30m
               - name: che-code-runtime-description
                 container:
-                  image: quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+                  image: ${{ env.REGISTRY }}/universal-developer-image:${{ env.PR_NUMBER }}
                   memoryLimit: 1024Mi
                   memoryRequest: 256Mi
                   cpuLimit: 500m
@@ -242,7 +244,7 @@ jobs:
 
     - name: Run Empty workspace smoke test
       run: |
-        export TS_API_TEST_UDI_IMAGE=quay.io/devfile/universal-developer-image:${{ env.PR_NUMBER }}
+        export TS_API_TEST_UDI_IMAGE=${{ env.REGISTRY }}/universal-developer-image:${{ env.PR_NUMBER }}
         export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=http://file-service.default.svc:80/devfile.yaml
         cd che/tests/e2e
         npm i

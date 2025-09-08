@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Replace /home/tooling/* path to /home/user/* path
@@ -160,7 +161,7 @@ if [ $HOME_USER_MOUNTED -eq 0 ] && [ ! -f $STOW_COMPLETE ]; then
     # only get the sub-paths so we can do a proper comparison
     #
     # In the case of /home/user, we want regular file types and not symbolic
-    # links. 
+    # links.
     find /home/user -type f -xtype f -print  | sort | sed 's|/home/user||g' > /tmp/user.txt
     find /home/tooling -print | sort | sed 's|/home/tooling||g' > /tmp/tooling.txt
     # We compare the two files, trying to find files that exist in /home/user
@@ -188,19 +189,19 @@ if [ -f "/home/tooling/.copy-files" ]; then
 
         if [ -e "/home/tooling/$line" ]; then
             tooling_path=$(realpath "/home/tooling/$line")
-            
+
             # Determine target path based on whether source is a directory
             if [ -d "$tooling_path" ]; then
                 # For directories: copy to parent directory (e.g., dir1/dir2 -> /home/user/dir1/)
                 target_parent=$(dirname "${HOME}/${line}")
                 target_full="$target_parent/$(basename "$tooling_path")"
-                
+
                 # Skip if target directory already exists
                 if [ -d "$target_full" ]; then
                     echo "Directory $target_full already exists, skipping..."
                     continue
                 fi
-                
+
                 echo "Copying directory $tooling_path to $target_parent/"
                 mkdir -p "$target_parent"
                 cp --no-clobber -r "$tooling_path" "$target_parent/"
@@ -214,7 +215,7 @@ if [ -f "/home/tooling/.copy-files" ]; then
                     echo "File $target_full already exists, skipping..."
                     continue
                 fi
-                
+
                 echo "Copying file $tooling_path to $target_full"
                 mkdir -p "$target_parent"
                 cp --no-clobber -r "$tooling_path" "$target_full"
@@ -233,16 +234,16 @@ fi
 # This is done because stow ignores the .config directory.
 if [ -d /home/tooling/.config ]; then
     echo "Creating .config symlinks for files that don't already exist..."
-    
+
     # Find all files recursively in /home/tooling/.config
     find /home/tooling/.config -type f | while read -r file; do
         # Get the relative path from /home/tooling/.config
         relative_path="${file#/home/tooling/.config/}"
-        
+
         # Determine target path in /home/user/.config
         target_file="${HOME}/.config/${relative_path}"
         target_dir=$(dirname "$target_file")
-        
+
         # Only create symlink if target file doesn't exist
         if [ ! -e "$target_file" ]; then
             # Create target directory if it doesn't exist
@@ -254,7 +255,7 @@ if [ -d /home/tooling/.config ]; then
             echo "File $target_file already exists, skipping..."
         fi
     done
-    
+
     echo "Finished creating .config symlinks."
 fi
 
