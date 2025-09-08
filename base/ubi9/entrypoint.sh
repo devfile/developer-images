@@ -77,10 +77,10 @@ if [ "${HOST_USERS}" == "false" ]; then
     echo "User information: $(id)"
 
     USER_ID=$(id -u)
-    if [ "${USER_ID}" -lt 65536 ]; then
+    if [ ${USER_ID} -lt 65536 ]; then
       USER_NAME=$(whoami)
-      START_ID=$(( "${USER_ID}" + 1 ))
-      COUNT=$(( 65536 - "${START_ID}" ))
+      START_ID=$(( ${USER_ID} + 1 ))
+      COUNT=$(( 65536 - ${START_ID} ))
       IDS_RANGE="${USER_NAME}:${START_ID}:${COUNT}"
 
       if [ -w /etc/subuid ]; then
