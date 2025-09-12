@@ -33,6 +33,68 @@ if ! whoami &> /dev/null; then
   fi
 fi
 
+# The user namespace is created when `UserNamespacesSupport` feature is enabled and `hostUsers` is set to false in Pod spec.
+# See for more details:
+# - https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/#introduction
+# Assume, that HOST_USERS environment variable is provided and is set to false in that case.
+# If so, update /etc/sub*id files to reflect the valid UID/GID range.
+if [ "${HOST_USERS}" == "false" ]; then
+  echo "Running in a user namespace"
+  if [ -f /proc/self/uid_map ]; then
+    # Typical output of `/proc/self/uid_map`:
+    # 1. When NOT running in a user namespace:
+    #         0          0 4294967295
+    # 2. When running in a user namespace:
+    #         0 1481179136      65536
+    # 3. When container is run in a user namespace:
+    #         0       1000          1
+    #         1       1001      64535
+    # We can use the content of /proc/self/uid_map to detect if we are running in a user namespace.
+    # However, to keep things simple, we will rely on HOST_USERS environment variable only.
+    # This way, we avoid breaking anything.
+    echo "/proc/self/uid_map content: $(cat /proc/self/uid_map)"
+  fi
+
+  # Why do we need to update /etc/sub*id files?
+  # We are already in the user namespace, so we know there are at least 65536 UIDs/GIDs available.
+  # For more details, see:
+  # - https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/#id-count-for-each-of-pods
+  # Podman needs to create a new user namespace for any container being launched and map the container's user
+  # and group IDs (UID/GID) to the corresponding user on the current namespace.
+  # For the mapping, podman refers to the /etc/sub*id files.
+  # For more details, see:
+  # - https://man7.org/linux/man-pages/man5/subuid.5.html
+  # So if the user ID exceeds 65535, it cannot be mapped if only UIDs/GIDs from 0-65535 are available.
+  # If that's the case, podman commands would fail.
+
+  # Even though the range can be extended using configuration, we can rely on the fact that there are at least 65536 user IDs available in the user namespace.
+  # See for more details:
+  # - https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-UserNamespaces
+
+  # To ensure the provided user ID stays within this range, `runAsUser` in the Pod spec should be set to a value below 65536.
+  # In OpenShift, the Container Security Context Constraint (SCC) should be created accordingly.
+  if whoami &> /dev/null; then
+    echo "User information: $(id)"
+
+    USER_ID=$(id -u)
+    if [ ${USER_ID} -lt 65536 ]; then
+      USER_NAME=$(whoami)
+      START_ID=$(( ${USER_ID} + 1 ))
+      COUNT=$(( 65536 - ${START_ID} ))
+      IDS_RANGE="${USER_NAME}:${START_ID}:${COUNT}"
+
+      if [ -w /etc/subuid ]; then
+        echo "${IDS_RANGE}" > /etc/subuid
+        echo "/etc/subuid updated"
+      fi
+      if [ -w /etc/subgid ]; then
+        echo "${IDS_RANGE}" > /etc/subgid
+        echo "/etc/subgid updated"
+      fi
+    fi
+  fi
+fi
+
 source kubedock_setup
 
 

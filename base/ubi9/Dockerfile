@@ -180,5 +180,6 @@ RUN \
 USER 10001
 ENV HOME=/home/user
 WORKDIR /projects
-ENTRYPOINT [ "/entrypoint.sh" ]
+# /usr/libexec/podman/catatonit is used to reap zombie processes
+ENTRYPOINT ["/usr/libexec/podman/catatonit","--","/entrypoint.sh"]
 CMD ["tail", "-f", "/dev/null"]
