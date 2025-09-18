@@ -4,69 +4,82 @@
 # Developer Images
 
 [![Build of UBI 9 based Developer Images](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
+[![Build of UBI 10 based Developer Images](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml)
 
 Containers images with tools for developers 👨‍💻👩‍💻
 
 ## Developer Base Image
 
-### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image))
+### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based images
 
-Run the following command to test it with Docker:
+Available versions:
+- **UBI 9**: [quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image) 
+- **UBI 10**: [quay.io/devfile/base-developer-image:ubi10-latest](https://quay.io/repository/devfile/base-developer-image)
 
+Run the following commands to test with Docker:
+
+**UBI 9:**
 ```bash
 $ docker run -ti --rm \
        quay.io/devfile/base-developer-image:ubi9-latest \
        bash
 ```
+
+**UBI 10:**
+```bash
+$ docker run -ti --rm \
+       quay.io/devfile/base-developer-image:ubi10-latest \
+       bash
+```
 ### Included Development Tools
 
-| Tool                | ubi9 based image                    |
-|---------------------|-------------------------------------|
-| `bash`              |`bash`                               |
-| `bat`               |`<gh releases>`                      |
-| `buildah`           |`buildah`                            |
-| `curl`              |`curl`                               |
-| `ps`                |`ps`                                 |
-| `diff`              |`diffutils`                          |
-| `emacs`             |`NOT AVAILABLE (fedora only)`        |
-| `fish`              |`NOT AVAILABLE (fedora only)`        |
-| `gh`                |`<gh releases>`                      |
-| `git`               |`git`                                |
-| `git-lfs`           |`git-lfs`                            |
-| `ip`                |`iproute`                            |
-| `jq`                |`jq`                                 |
-| `htop`              |`NOT AVAILABLE (fedora only)`        |
-| `kubedock`          |`<gh releases>`                      |
-| `less`              |`less`                               |
-| `lsof`              |`lsof`                               |
-| `man`               |`man`                                |
-| `nano`              |`nano`                               |
-| `netcat`            |`NOT AVAILABLE`                      |
-| `netstat`           |`net-tools`                          |
-| `openssh-client`    |`openssh-clients`                    |
-| `podman`            |`podman`                             |
-| `7z`                |`p7zip-plugins`                      |
-| `ripgrep`           |`<gh releases>`                      |
-| `rsync`             |`rsync`                              |
-| `scp`               |`openssh-clients`                    |
-| `screen`            |`NOT AVAILABLE`                      |
-| `sed`               |`sed`                                |
-| `shasum`            |`perl-Digest-SHA`                    |
-| `socat`             |`socat`                              |
-| `sudo`              |`sudo`                               |
-| `ss`                |`NOT AVAILABLE`                      |
-| `ssl-cert`          |`NOT AVAILABLE`                      |
-| `stow`              |`stow`                               |
-| `tail`              |`<built in>`                         |
-| `tar`               |`tar`                                |
-| `time`              |`time`                               |
-| `tldr`              |`NOT AVAILABLE (fedora only)`        |
-| `tmux`              |`NOT AVAILABLE (fedora only)`        |
-| `vim`               |`vim`                                |
-| `wget`              |`wget`                               |
-| `zip`               |`zip`                                |
-| `zsh`               |`NOT AVAILABLE (fedora only)`        |
-| **TOTAL SIZE**      | **903MB** (341MB compressed)        |
+| Tool                | ubi9 based image                    | ubi10 based image                   |
+|---------------------|-------------------------------------|-------------------------------------|
+| `bash`              |`bash`                               |`bash`                               |
+| `bat`               |`<gh releases>`                      |`<gh releases>`                      |
+| `buildah`           |`buildah`                            |`buildah`                            |
+| `curl`              |`curl`                               |`curl`                               |
+| `ps`                |`ps`                                 |`ps`                                 |
+| `diff`              |`diffutils`                          |`diffutils`                          |
+| `emacs`             |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| `fish`              |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| `gh`                |`<gh releases>`                      |`<gh releases>`                      |
+| `git`               |`git`                                |`git`                                |
+| `git-lfs`           |`git-lfs`                            |`git-lfs`                            |
+| `ip`                |`iproute`                            |`iproute`                            |
+| `jq`                |`jq`                                 |`jq`                                 |
+| `htop`              |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| `kubedock`          |`<gh releases>`                      |`<gh releases>`                      |
+| `less`              |`less`                               |`less`                               |
+| `lsof`              |`lsof`                               |`lsof`                               |
+| `man`               |`man`                                |`man`                                |
+| `nano`              |`nano`                               |`nano`                               |
+| `netcat`            |`NOT AVAILABLE`                      |`NOT AVAILABLE`                      |
+| `netstat`           |`net-tools`                          |`net-tools`                          |
+| `openssh-client`    |`openssh-clients`                    |`openssh-clients`                    |
+| `podman`            |`podman`                             |`podman`                             |
+| `7z`                |`p7zip-plugins`                      |`p7zip-plugins`                      |
+| `ripgrep`           |`<gh releases>`                      |`<gh releases>`                      |
+| `rsync`             |`rsync`                              |`rsync`                              |
+| `scp`               |`openssh-clients`                    |`openssh-clients`                    |
+| `screen`            |`NOT AVAILABLE`                      |`NOT AVAILABLE`                      |
+| `sed`               |`sed`                                |`sed`                                |
+| `shasum`            |`perl-Digest-SHA`                    |`perl-Digest-SHA`                    |
+| `socat`             |`socat`                              |`socat`                              |
+| `sudo`              |`sudo`                               |`sudo`                               |
+| `ss`                |`NOT AVAILABLE`                      |`NOT AVAILABLE`                      |
+| `ssl-cert`          |`NOT AVAILABLE`                      |`NOT AVAILABLE`                      |
+| `stow`              |`stow`                               |`stow`                               |
+| `tail`              |`<built in>`                         |`<built in>`                         |
+| `tar`               |`tar`                                |`tar`                                |
+| `time`              |`time`                               |`time`                               |
+| `tldr`              |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| `tmux`              |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| `vim`               |`vim`                                |`vim`                                |
+| `wget`              |`wget`                               |`wget`                               |
+| `zip`               |`zip`                                |`zip`                                |
+| `zsh`               |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| **TOTAL SIZE**      | **903MB** (341MB compressed)        | **TODO**   |
 
 ### Extending the base image
 When extending the base image, `source kubedock_setup` should be called in the new image's entrypoint to set up kubedock support. This sets up a wrapper for podman to use kubedock for the following podman commands if the `KUBEDOCK_ENABLED` env variable is set to `true`:
@@ -171,10 +184,30 @@ docker run -ti --rm \
 #### Java
 JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
 
+## Configuration
+
+### Registry Override
+
+The workflows support using custom container registries through the `REGISTRY` environment variable. This is useful for forks that want to publish to their own registry.
+
+**Default behavior:** Images are published to `quay.io/devfile`
+
+**To override in a fork:**
+1. Go to your repository **Settings** → **Secrets and Variables** → **Actions** → **Variables**
+2. Add a repository variable: `REGISTRY` = `your-registry.com/your-namespace`
+3. All workflows will automatically use your custom registry
+
+**Example registry formats:**
+- `quay.io/youruser`
+- `ghcr.io/youruser` 
+- `docker.io/youruser`
+- `your-private-registry.com/namespace`
+
 # Builds
 
 This repo contains [actions](https://github.com/devfile/developer-images/actions), including:
-* [![release latest stable](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
+* [![release latest stable UBI 9](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
+* [![release latest stable UBI 10](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml)
 
 Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
 
