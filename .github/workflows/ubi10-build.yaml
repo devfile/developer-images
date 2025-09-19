@@ -32,6 +32,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Debug Registry Configuration
+        run: |
+          echo "🔍 Registry Configuration Debug:"
+          echo "Repository Variable (vars.REGISTRY): '${{ vars.REGISTRY }}'"
+          echo "Resolved REGISTRY env var: '${{ env.REGISTRY }}'"
+          echo "GitHub Repository: ${{ github.repository }}"
+          echo "Repository Owner: ${{ github.repository_owner }}"
+          if [ "${{ vars.REGISTRY }}" != "" ]; then
+            echo "✅ Using custom registry from repository variable"
+          else
+            echo "⚠️  Using fallback registry (no custom REGISTRY variable set)"
+          fi
       - name: Set arch environment variable
         run: |
           if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
