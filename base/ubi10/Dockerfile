@@ -31,7 +31,7 @@ RUN \
     \
     # Install the main list of packages
     dnf install -y diffutils git git-lfs iproute jq less lsof man nano procps p7zip p7zip-plugins \
-    perl-Digest-SHA net-tools openssh-clients openssl rsync socat sudo time vim wget zip && \
+    perl-Digest-SHA net-tools openssh-clients openssl ripgrep rsync socat sudo time vim wget zip && \
     # Final update and cleanup
     dnf update -y && \
     dnf clean all
