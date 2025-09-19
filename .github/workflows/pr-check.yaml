@@ -89,7 +89,7 @@ jobs:
       - name: Display docker images
         run: docker images
       - name: Update UDI Dockerfile
-        run: sed "s|${{ env.REGISTRY }}/base-developer-image:ubi9-latest|base-developer-image-${{env.arch}}|" -i "universal/ubi9/Dockerfile"
+        run: sed "s|quay.io/devfile/base-developer-image:ubi9-latest|base-developer-image-${{env.arch}}|" -i "universal/ubi9/Dockerfile"
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
