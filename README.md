@@ -79,7 +79,7 @@ $ docker run -ti --rm \
 | `wget`              |`wget`                               |`wget`                               |
 | `zip`               |`zip`                                |`zip`                                |
 | `zsh`               |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
-| **TOTAL SIZE**      | **903MB** (341MB compressed)        | **TODO**   |
+| **TOTAL SIZE**      | **800MB** (255MB compressed)        | **789MB** (256MB compressed)   |
 
 ### Extending the base image
 When extending the base image, `source kubedock_setup` should be called in the new image's entrypoint to set up kubedock support. This sets up a wrapper for podman to use kubedock for the following podman commands if the `KUBEDOCK_ENABLED` env variable is set to `true`:
