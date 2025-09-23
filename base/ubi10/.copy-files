@@ -1,0 +1,20 @@
+# This file contains a list directories or files to copy over from /home/tooling to /home/user in entrypoint.sh.
+#
+# For example, the following will copy /home/tooling/testfile to /home/user/testfile:
+# ./testfile
+#
+# The goal of this file is to copy over files that cannot be used as symbolic links created by stow.
+# For example, Vim does not permit .viminfo to be a symbolic link for security reasons, therefore it is copied 
+# over to /home/user manually without stow.
+#
+# When copying over directories or files from /home/tooling to /home/user using this file, remember to add the
+# directory or file to .stow-local-ignore so that a symbolic link is not created.
+
+
+# Vim does not permit .viminfo to be a symbolic link for security reasons, so manually copy it
+.viminfo
+
+# We have to restore bash-related files back onto /home/user/ (since they will have been overwritten by the PVC)
+# but we don't want them to be symbolic links (so that they persist on the PVC)
+.bashrc
+.bash_profile

@@ -1,0 +1,17 @@
+# .viminfo cannot be a symlink for security reasons
+\.viminfo
+
+# We store bash related files in /home/tooling/ so they aren't overriden if persistUserHome is enabled
+# but we don't want them to be symbolic links (or to cause stow conflicts). They will be copied to /home/user/ manually.
+\.bashrc
+\.bash_profile
+
+# Ignore absolute symbolic links, as they are not supported by stow
+\.krew
+\.sdkman
+\.local/bin/podman
+
+# Ignore files under .config directory
+\.config
+
+\.copy-files
