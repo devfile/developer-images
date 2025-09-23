@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.3-labs
 
-# https://registry.access.redhat.com/ubi10/ubi
-FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi10/ubi:10.0-1756805986
+# https://catalog.redhat.com/en/software/containers/ubi10/ubi/66f2b46b122803e4937d11ae
+FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi10/ubi:10.0-1758186945
 
 ARG TARGETARCH
 LABEL maintainer="Red Hat, Inc."
@@ -52,11 +52,11 @@ RUN dnf -y reinstall shadow-utils && \
     dnf clean all
 
 # Download and install gh-cli depending on the architecture.
-# See release page for details https://github.com/cli/cli/releases/tag/v2.73.0
+# See release page for details https://github.com/cli/cli/releases/tag/v2.78.0
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
-    GH_VERSION="2.73.0"; \
+    GH_VERSION="2.78.0"; \
     GH_ARCH="linux_$TARGETARCH"; \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
@@ -151,8 +151,8 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-layers/layers.lock
 
 # Add kubedock
-# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.1
-ENV KUBEDOCK_VERSION 0.18.1
+# See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.2
+ENV KUBEDOCK_VERSION 0.18.2
 ENV KUBECONFIG=/home/user/.kube/config
 RUN KUBEDOCK_ARCH="linux_amd64" && \
     curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
