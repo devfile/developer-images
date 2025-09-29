@@ -61,6 +61,8 @@ ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
 ENV SDKMAN_DIR="/home/tooling/.sdkman"
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
         export SDKMAN_PLATFORM="linuxarm64"; \
+	elif [ "$TARGETARCH" = "ppc64le" ]; then \
+	    export SDKMAN_PLATFORM="linuxppc64le"; \
     else \
         export SDKMAN_PLATFORM="linuxx64"; \
     fi
@@ -201,6 +203,8 @@ RUN mkdir -p /home/tooling/.m2 && \
 ENV OC_VERSION=4.15
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
         curl -L https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
+    elif [ "$TARGETARCH" = "ppc64le" ]; then \
+        curl -L https://mirror.openshift.com/pub/openshift-v4/ppc64le/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
     else \
         curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
     fi | tar -C /usr/local/bin -xz --no-same-owner && \
@@ -244,6 +248,8 @@ cd "${TEMP_DIR}"
 SHELL_CHECK_VERSION="0.8.0"
 if [ "$TARGETARCH" = "arm64" ]; then
     SHELL_CHECK_ARCH="aarch64"
+elif [ "$TARGETARCH" = "ppc64le" ]; then
+    SHELL_CHECK_ARCH="ppc64le"
 else
     SHELL_CHECK_ARCH="x86_64"
 fi
@@ -330,6 +336,8 @@ cd "${TEMP_DIR}"
 TKN_VERSION="0.20.0"
 if [ "$TARGETARCH" = "arm64" ]; then
     TKN_ARCH="Linux_arm64"
+elif if [ "$TARGETARCH" = "ppc64le" ]; then
+    TKN_ARCH="Linux_ppc64le"
 else
     TKN_ARCH="Linux_x86_64"
 fi
