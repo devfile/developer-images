@@ -63,6 +63,8 @@ RUN \
     RG_VERSION="13.0.0"; \
     if [ "$TARGETARCH" = "arm64" ]; then \
         RG_ARCH="arm-unknown-linux-gnueabihf"; \
+    elif [ "$TARGETARCH" = "ppc64le" ]; then \
+        RG_ARCH="powerpc64-unknown-linux-gnu"; \
     else \
         RG_ARCH="x86_64-unknown-linux-musl"; \
     fi; \
@@ -83,6 +85,8 @@ RUN \
     BAT_VERSION="0.18.3"; \
     if [ "$TARGETARCH" = "arm64" ]; then \
         BAT_ARCH="aarch64-unknown-linux-gnu"; \
+    elif [ "$TARGETARCH" = "ppc64le" ]; then \
+        BAT_ARCH="powerpc64-unknown-linux-gnu"; \
     else \
         BAT_ARCH="x86_64-unknown-linux-musl"; \
     fi; \
@@ -103,6 +107,8 @@ RUN \
     FD_VERSION="8.7.0" && \
     if [ "$TARGETARCH" = "arm64" ]; then \
         FD_ARCH="aarch64-unknown-linux-gnu"; \
+    elif [ "$TARGETARCH" = "ppc64le" ]; then \
+        FD_ARCH="powerpc64-unknown-linux-gnu"; \
     else \
         FD_ARCH="x86_64-unknown-linux-musl"; \
     fi && \
