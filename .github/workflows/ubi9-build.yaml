@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
+        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-22.04-ppc64le']
     runs-on: ${{matrix.runners}}
     steps:
       - name: Checkout
@@ -33,6 +33,8 @@ jobs:
         run: |
           if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
             echo arch="amd64" >> $GITHUB_ENV
+          elif [[ ${{matrix.runners}} == 'ubuntu-22.04-ppc64le' ]]; then
+            echo arch="ppc64le" >> $GITHUB_ENV
           else
             echo arch="arm64" >> $GITHUB_ENV
           fi
@@ -77,6 +79,7 @@ jobs:
           do
             docker manifest create quay.io/devfile/base-developer-image:${tag} \
               --amend quay.io/devfile/base-developer-image:amd64-${{env.short_sha}} \
+              --amend quay.io/devfile/base-developer-image:ppc64le-${{env.short_sha}} \
               --amend quay.io/devfile/base-developer-image:arm64-${{env.short_sha}}
           
             docker manifest annotate quay.io/devfile/base-developer-image:${tag} \
@@ -86,6 +89,10 @@ jobs:
             docker manifest annotate quay.io/devfile/base-developer-image:${tag} \
                quay.io/devfile/base-developer-image:arm64-${{env.short_sha}} \
               --os linux --arch arm64
+
+            docker manifest annotate quay.io/devfile/base-developer-image:${tag} \
+               quay.io/devfile/base-developer-image:ppc64le-${{env.short_sha}} \
+              --os linux --arch ppc64le
           
             docker manifest push quay.io/devfile/base-developer-image:${tag}
           done
@@ -95,7 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
+        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm', 'ubuntu-22.04-ppc64le']
     runs-on: ${{matrix.runners}}
     needs: publish-base-image
     steps:
@@ -105,6 +112,8 @@ jobs:
         run: |
           if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
             echo arch="amd64" >> $GITHUB_ENV
+          elif [[ ${{matrix.runners}} == 'ubuntu-22.04-ppc64le' ]]; then
+            echo arch="ppc64le" >> $GITHUB_ENV
           else
             echo arch="arm64" >> $GITHUB_ENV
           fi
@@ -149,6 +158,7 @@ jobs:
           do
             docker manifest create quay.io/devfile/universal-developer-image:${tag} \
               --amend quay.io/devfile/universal-developer-image:amd64-${{env.short_sha}} \
+              --amend quay.io/devfile/universal-developer-image:ppc64le-${{env.short_sha}} \
               --amend quay.io/devfile/universal-developer-image:arm64-${{env.short_sha}}
           
             docker manifest annotate quay.io/devfile/universal-developer-image:${tag} \
@@ -158,6 +168,10 @@ jobs:
             docker manifest annotate quay.io/devfile/universal-developer-image:${tag} \
                quay.io/devfile/universal-developer-image:arm64-${{env.short_sha}} \
               --os linux --arch arm64
+
+            docker manifest annotate quay.io/devfile/universal-developer-image:${tag} \
+               quay.io/devfile/universal-developer-image:ppc64le-${{env.short_sha}} \
+              --os linux --arch ppc64le
           
             docker manifest push quay.io/devfile/universal-developer-image:${tag}
           done  
