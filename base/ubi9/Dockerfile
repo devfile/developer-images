@@ -38,20 +38,52 @@ RUN dnf -y reinstall shadow-utils && \
 
 # Download and install gh-cli depending on the architecture.
 # See release page for details https://github.com/cli/cli/releases/tag/v2.78.0
+# RUN \
+#     TEMP_DIR="$(mktemp -d)"; \
+#     cd "${TEMP_DIR}"; \
+#     GH_VERSION="2.78.0"; \
+#     GH_ARCH="linux_$TARGETARCH"; \
+#     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
+#     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
+#     GH_CHEKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"; \
+#     curl -sSLO "${GH_TGZ_URL}"; \
+#     curl -sSLO "${GH_CHEKSUMS_URL}"; \
+#     sha256sum --ignore-missing -c "gh_${GH_VERSION}_checksums.txt" 2>&1 | grep OK; \
+#     tar -zxv --no-same-owner -f "${GH_TGZ}"; \
+#     mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/; \
+#     mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
+#     cd -; \
+#     rm -rf "${TEMP_DIR}"
+# Download and install gh-cli depending on the architecture.
+# See release page for details https://github.com/cli/cli/releases
 RUN \
     TEMP_DIR="$(mktemp -d)"; \
     cd "${TEMP_DIR}"; \
     GH_VERSION="2.78.0"; \
-    GH_ARCH="linux_$TARGETARCH"; \
-    GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
-    GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
-    GH_CHEKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"; \
-    curl -sSLO "${GH_TGZ_URL}"; \
-    curl -sSLO "${GH_CHEKSUMS_URL}"; \
-    sha256sum --ignore-missing -c "gh_${GH_VERSION}_checksums.txt" 2>&1 | grep OK; \
-    tar -zxv --no-same-owner -f "${GH_TGZ}"; \
-    mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/; \
-    mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
+    if [ "$TARGETARCH" = "amd64" ]; then \
+        GH_ARCH="linux_amd64"; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+        GH_ARCH="linux_arm64"; \
+    elif [ "$TARGETARCH" = "ppc64le" ]; then \
+        echo "gh-cli is not available for ppc64le, skipping installation"; \
+        GH_ARCH=""; \
+    else \
+        echo "Unknown architecture for gh-cli: $TARGETARCH, skipping installation"; \
+        GH_ARCH=""; \
+    fi; \
+    if [ -n "$GH_ARCH" ]; then \
+        GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
+        GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
+        GH_CHECKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"; \
+        curl -sSLO "${GH_TGZ_URL}"; \
+        curl -sSLO "${GH_CHECKSUMS_URL}"; \
+        sha256sum --ignore-missing -c "gh_${GH_VERSION}_checksums.txt" 2>&1 | grep OK; \
+        tar -zxv --no-same-owner -f "${GH_TGZ}"; \
+        mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/; \
+        mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
+    else \
+        echo "Skipping gh-cli installation for $TARGETARCH"; \
+    fi; \
     cd -; \
     rm -rf "${TEMP_DIR}"
 
@@ -145,9 +177,17 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
 # See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.2
 ENV KUBEDOCK_VERSION 0.18.2
 ENV KUBECONFIG=/home/user/.kube/config
-RUN KUBEDOCK_ARCH="linux_amd64" && \
-    curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-    && chmod +x /usr/local/bin/kubedock
+# RUN KUBEDOCK_ARCH="linux_amd64" && \
+#     curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+#     && chmod +x /usr/local/bin/kubedock
+RUN \
+    if [ "$TARGETARCH" = "ppc64le" ]; then \
+        echo "Skipping kubedock: no ppc64le release"; \
+    else \
+        KUBEDOCK_ARCH="linux_amd64"; \
+        curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
+        && chmod +x /usr/local/bin/kubedock; \
+    fi
 COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
 
 # Configure Podman wrapper
