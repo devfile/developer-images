@@ -6,7 +6,7 @@ replace_user_home() {
   echo "$1" | sed "s|^/home/tooling|$HOME|"
 }
 
-java_import_ca_bundle() {
+jdk_import_ca_bundle() {
   CA_BUNDLE="${JDK_CA_BUNDLE:-/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem}"
   KEYSTORE_PASSWORD="${JDK_KEYSTORE_PASSWORD:-changeit}"
 
@@ -257,6 +257,6 @@ if [ -d /home/tooling/.config ]; then
     echo "Finished creating .config symlinks."
 fi
 
-java_import_ca_bundle &
+jdk_import_ca_bundle &
 
 exec "$@"
