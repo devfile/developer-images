@@ -5,6 +5,46 @@ replace_user_home() {
   echo "$1" | sed "s|^/home/tooling|$HOME|"
 }
 
+jdk_import_ca_bundle() {
+  CA_BUNDLE="${JDK_CA_BUNDLE:-/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem}"
+  KEYSTORE_PASSWORD="${JDK_KEYSTORE_PASSWORD:-changeit}"
+
+  if ! command -v keytool >/dev/null 2>&1; then
+    return
+  fi
+
+  if [ ! -f "$CA_BUNDLE" ]; then
+    echo "[jdk] Failed to import CA certificates from ${CA_BUNDLE}. File doesn't exist"
+    return
+  fi
+
+  bundle_name=$(basename "$CA_BUNDLE")
+  certs_imported=0
+  cert_index=0
+  tmp_file=/tmp/cert.pem
+  is_cert=false
+  echo "[jdk] Importing certificates..."
+  while IFS= read -r line; do
+    if [ "$line" = "-----BEGIN CERTIFICATE-----" ]; then
+      is_cert=true
+      cert_index=$((cert_index+1))
+      echo "$line" > ${tmp_file}
+    elif [ "$line" = "-----END CERTIFICATE-----" ]; then
+      is_cert=false
+      echo "$line" >> ${tmp_file}
+      if keytool -import -trustcacerts -cacerts -storepass "$KEYSTORE_PASSWORD" -noprompt -alias "${bundle_name}_${cert_index}" -file $tmp_file; then
+        certs_imported=$((certs_imported+1))
+      fi
+      certs_imported=$((certs_imported+1))
+    elif [ "$is_cert" = true ]; then
+      echo "$line" >> ${tmp_file}
+    fi
+  done < "$CA_BUNDLE"
+
+  echo "[jdk] Imported ${certs_imported} certificates from ${CA_BUNDLE}"
+  rm -f $tmp_file
+}
+
 # Ensure $HOME exists when starting
 if [ ! -d "${HOME}" ]; then
   mkdir -p "${HOME}"
@@ -217,5 +257,7 @@ if [ -d /home/tooling/.config ]; then
     
     echo "Finished creating .config symlinks."
 fi
+
+jdk_import_ca_bundle &
 
 exec "$@"
