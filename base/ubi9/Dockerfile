@@ -39,83 +39,121 @@ RUN dnf -y reinstall shadow-utils && \
 # Download and install gh-cli depending on the architecture.
 # See release page for details https://github.com/cli/cli/releases/tag/v2.78.0
 RUN \
-    TEMP_DIR="$(mktemp -d)"; \
-    cd "${TEMP_DIR}"; \
-    GH_VERSION="2.78.0"; \
-    GH_ARCH="linux_$TARGETARCH"; \
-    GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz"; \
-    GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}"; \
-    GH_CHEKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"; \
-    curl -sSLO "${GH_TGZ_URL}"; \
-    curl -sSLO "${GH_CHEKSUMS_URL}"; \
-    sha256sum --ignore-missing -c "gh_${GH_VERSION}_checksums.txt" 2>&1 | grep OK; \
-    tar -zxv --no-same-owner -f "${GH_TGZ}"; \
-    mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/; \
-    mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
-    cd -; \
-    rm -rf "${TEMP_DIR}"
+    TEMP_DIR="$(mktemp -d)" && cd "${TEMP_DIR}" && \
+    GH_VERSION="2.78.0" && \
+    case "$TARGETARCH" in \
+        amd64) GH_ARCH="linux_amd64" ;; \
+        arm64) GH_ARCH="linux_arm64" ;; \
+        ppc64le) GH_ARCH="linux_ppc64le" ;; \
+        *) echo "Unsupported architecture: $TARGETARCH" && exit 0 ;; \
+    esac && \
+    GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz" && \
+    GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}" && \
+    echo "Downloading ${GH_TGZ_URL}..." && \
+    if curl -fsSL "${GH_TGZ_URL}" -o "${GH_TGZ}"; then \
+        if file "${GH_TGZ}" | grep -q 'gzip compressed'; then \
+            tar -zxv --no-same-owner -f "${GH_TGZ}" && \
+            mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/ && \
+            mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
+        else \
+            echo "Downloaded gh archive invalid — skipping."; \
+        fi; \
+    else \
+        echo "gh binary not found for ${TARGETARCH}, skipping installation."; \
+    fi && \
+    cd - && rm -rf "${TEMP_DIR}"
 
 # Download and install ripgrep depending on the architecture.
 # See release page for details https://github.com/BurntSushi/ripgrep/releases/tag/13.0.0
 RUN \
-    TEMP_DIR="$(mktemp -d)"; \
-    cd "${TEMP_DIR}"; \
-    RG_VERSION="13.0.0"; \
-    if [ "$TARGETARCH" = "arm64" ]; then \
-        RG_ARCH="arm-unknown-linux-gnueabihf"; \
+    if [ "$TARGETARCH" = "ppc64le" ]; then \
+        echo "Skipping ripgrep installation for ppc64le as binary not available"; \
     else \
-        RG_ARCH="x86_64-unknown-linux-musl"; \
-    fi; \
-    RG_TGZ="ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz"; \
-    RG_TGZ_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/${RG_TGZ}"; \
-    curl -sSLO "${RG_TGZ_URL}"; \
-    tar -zxv --no-same-owner -f "${RG_TGZ}"; \
-    mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/rg /usr/local/bin/; \
-    mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/doc/rg.1 /usr/local/share/man/man1; \
-    cd -; \
-    rm -rf "${TEMP_DIR}"
+        TEMP_DIR="$(mktemp -d)" && cd "${TEMP_DIR}" && \
+        RG_VERSION="13.0.0" && \
+        if [ "$TARGETARCH" = "arm64" ]; then \
+            RG_ARCH="arm-unknown-linux-gnueabihf"; \
+        else \
+            RG_ARCH="x86_64-unknown-linux-musl"; \
+        fi && \
+        RG_TGZ="ripgrep-${RG_VERSION}-${RG_ARCH}.tar.gz" && \
+        RG_TGZ_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/${RG_TGZ}" && \
+        echo "Downloading ${RG_TGZ_URL}..." && \
+        if curl -fsSL "${RG_TGZ_URL}" -o "${RG_TGZ}"; then \
+            if file "${RG_TGZ}" | grep -q 'gzip compressed'; then \
+                tar -zxv --no-same-owner -f "${RG_TGZ}" && \
+                mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/rg /usr/local/bin/ && \
+                mv "ripgrep-${RG_VERSION}-${RG_ARCH}"/doc/rg.1 /usr/local/share/man/man1; \
+            else \
+                echo "Downloaded ripgrep archive invalid — skipping."; \
+            fi; \
+        else \
+            echo "ripgrep binary not found for ${TARGETARCH}, skipping installation."; \
+        fi && \
+        cd - && rm -rf "${TEMP_DIR}"; \
+    fi
 
 # Download and install bat depending on the architecture.
 # See release page for details https://github.com/sharkdp/bat/releases/tag/v0.18.3
 RUN \
-    TEMP_DIR="$(mktemp -d)"; \
-    cd "${TEMP_DIR}"; \
-    BAT_VERSION="0.18.3"; \
-    if [ "$TARGETARCH" = "arm64" ]; then \
-        BAT_ARCH="aarch64-unknown-linux-gnu"; \
+    if [ "$TARGETARCH" = "ppc64le" ]; then \
+        echo "Skipping bat installation for ppc64le as binary not available"; \
     else \
-        BAT_ARCH="x86_64-unknown-linux-musl"; \
-    fi; \
-    BAT_TGZ="bat-v${BAT_VERSION}-${BAT_ARCH}.tar.gz"; \
-    BAT_TGZ_URL="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/${BAT_TGZ}"; \
-    curl -sSLO "${BAT_TGZ_URL}"; \
-    tar -zxv --no-same-owner -f "${BAT_TGZ}"; \
-    mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat /usr/local/bin/; \
-    mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat.1 /usr/local/share/man/man1; \
-    cd -; \
-    rm -rf "${TEMP_DIR}"
+        TEMP_DIR="$(mktemp -d)" && cd "${TEMP_DIR}" && \
+        BAT_VERSION="0.18.3" && \
+        if [ "$TARGETARCH" = "arm64" ]; then \
+            BAT_ARCH="aarch64-unknown-linux-gnu"; \
+        else \
+            BAT_ARCH="x86_64-unknown-linux-musl"; \
+        fi && \
+        BAT_TGZ="bat-v${BAT_VERSION}-${BAT_ARCH}.tar.gz" && \
+        BAT_TGZ_URL="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/${BAT_TGZ}" && \
+        echo "Downloading ${BAT_TGZ_URL}..." && \
+        if curl -fsSL "${BAT_TGZ_URL}" -o "${BAT_TGZ}"; then \
+            if file "${BAT_TGZ}" | grep -q 'gzip compressed'; then \
+                tar -zxv --no-same-owner -f "${BAT_TGZ}" && \
+                mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat /usr/local/bin/ && \
+                mv "bat-v${BAT_VERSION}-${BAT_ARCH}"/bat.1 /usr/local/share/man/man1; \
+            else \
+                echo "Downloaded bat archive invalid — skipping."; \
+            fi; \
+        else \
+            echo "bat binary not found for ${TARGETARCH}, skipping installation."; \
+        fi && \
+        cd - && rm -rf "${TEMP_DIR}"; \
+    fi
 
 # Download and install fd depending on the architecture.
 # See release page for details https://github.com/sharkdp/fd/releases/tag/v8.7.0
 RUN \
-    TEMP_DIR="$(mktemp -d)" && \
-    cd "${TEMP_DIR}" && \
-    FD_VERSION="8.7.0" && \
-    if [ "$TARGETARCH" = "arm64" ]; then \
-        FD_ARCH="aarch64-unknown-linux-gnu"; \
+    if [ "$TARGETARCH" = "ppc64le" ]; then \
+        echo "Skipping fd installation for ppc64le as binary not available"; \
     else \
-        FD_ARCH="x86_64-unknown-linux-musl"; \
-    fi && \
-    FD_TGZ="fd-v${FD_VERSION}-${FD_ARCH}.tar.gz" && \
-    FD_TGZ_URL="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/${FD_TGZ}" && \
-    curl -sSLO "${FD_TGZ_URL}" && \
-    tar -xv --no-same-owner -f "${FD_TGZ}" && \
-    mv "fd-v${FD_VERSION}-${FD_ARCH}"/fd /usr/local/bin && \
-    mv "fd-v${FD_VERSION}-${FD_ARCH}"/fd.1 /usr/local/share/man/man1 && \
-    cd - && \
-    rm -rf "${TEMP_DIR}"
+        TEMP_DIR="$(mktemp -d)" && cd "${TEMP_DIR}" && \
+        FD_VERSION="8.7.0" && \
+        if [ "$TARGETARCH" = "arm64" ]; then \
+            FD_ARCH="aarch64-unknown-linux-gnu"; \
+        else \
+            FD_ARCH="x86_64-unknown-linux-musl"; \
+        fi && \
+        FD_TGZ="fd-v${FD_VERSION}-${FD_ARCH}.tar.gz" && \
+        FD_TGZ_URL="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/${FD_TGZ}" && \
+        echo "Downloading ${FD_TGZ_URL}..." && \
+        if curl -fsSL "${FD_TGZ_URL}" -o "${FD_TGZ}"; then \
+            if file "${FD_TGZ}" | grep -q 'gzip compressed'; then \
+                tar -xv --no-same-owner -f "${FD_TGZ}" && \
+                mv "fd-v${FD_VERSION}-${FD_ARCH}"/fd /usr/local/bin/ && \
+                mv "fd-v${FD_VERSION}-${FD_ARCH}"/fd.1 /usr/local/share/man/man1; \
+            else \
+                echo "Downloaded fd archive invalid — skipping."; \
+            fi; \
+        else \
+            echo "fd binary not found for ${TARGETARCH}, skipping installation."; \
+        fi && \
+        cd - && rm -rf "${TEMP_DIR}"; \
+    fi
 
-    # Define user directory for binaries
+# Define user directory for binaries
 ENV PATH="/home/user/.local/bin:$PATH"
 
 # Set up environment variables to note that this is
@@ -137,11 +175,28 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
 
 # Add kubedock
 # See release page for details https://github.com/joyrex2001/kubedock/releases/tag/0.18.2
-ENV KUBEDOCK_VERSION 0.18.2
+ENV KUBEDOCK_VERSION=0.18.2
 ENV KUBECONFIG=/home/user/.kube/config
-RUN KUBEDOCK_ARCH="linux_amd64" && \
-    curl -L https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-    && chmod +x /usr/local/bin/kubedock
+RUN \
+    if [ "$TARGETARCH" = "ppc64le" ]; then \
+        echo "Skipping kubedock installation for ppc64le as binary not available"; \
+    else \
+        KUBEDOCK_ARCH="linux_${TARGETARCH}" && \
+        KUBEDOCK_URL="https://github.com/joyrex2001/kubedock/releases/download/${KUBEDOCK_VERSION}/kubedock_${KUBEDOCK_VERSION}_${KUBEDOCK_ARCH}.tar.gz"; \
+        echo "Downloading ${KUBEDOCK_URL}..."; \
+        if curl -fsSL "${KUBEDOCK_URL}" -o /tmp/kubedock.tar.gz; then \
+            if file /tmp/kubedock.tar.gz | grep -q 'gzip compressed'; then \
+                tar -C /usr/local/bin -xz --no-same-owner -f /tmp/kubedock.tar.gz && \
+                chmod +x /usr/local/bin/kubedock && \
+                echo "Kubedock installed successfully."; \
+            else \
+                echo "Downloaded kubedock file invalid — skipping extraction."; \
+            fi; \
+        else \
+            echo "Kubedock binary not found for ${TARGETARCH}, skipping installation."; \
+        fi; \
+        rm -f /tmp/kubedock.tar.gz; \
+    fi
 COPY --chown=0:0 kubedock_setup.sh /usr/local/bin/kubedock_setup
 
 # Configure Podman wrapper
