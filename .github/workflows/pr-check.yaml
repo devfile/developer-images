@@ -22,18 +22,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
-    runs-on: ${{matrix.runners}}
+        include:
+          - name: amd64-build
+            runner: ubuntu-22.04
+            arch: amd64
+          - name: arm64-build
+            runner: ubuntu-22.04-arm
+            arch: arm64
+          - name: ppc64le-build
+            runner: ubuntu-22.04
+            arch: ppc64le
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set arch environment variable
-        run: |
-          if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
-            echo arch="amd64" >> $GITHUB_ENV
-          else
-            echo arch="arm64" >> $GITHUB_ENV
-          fi
+        run: echo "arch=${{ matrix.arch }}" >> $GITHUB_ENV
       - name: Free runner space
         run: sudo rm -rf /usr/local/lib/android
       - name: Cleanup docker images
@@ -59,17 +63,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
-    runs-on: ${{matrix.runners}}
+        include:
+          - name: amd64-build
+            runner: ubuntu-22.04
+            arch: amd64
+          - name: arm64-build
+            runner: ubuntu-22.04-arm
+            arch: arm64
+          - name: ppc64le-build
+            runner: ubuntu-22.04
+            arch: ppc64le
+    runs-on: ${{ matrix.runner }}
     needs: build-base-image
     steps:
       - name: Set arch environment variable
-        run: |
-          if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
-            echo arch="amd64" >> $GITHUB_ENV
-          else
-            echo arch="arm64" >> $GITHUB_ENV
-          fi
+        run: echo "arch=${{ matrix.arch }}" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v4
       - name: Free runner space
@@ -119,7 +127,8 @@ jobs:
         run: |
           docker manifest create ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
             --amend ${{ env.REGISTRY }}/universal-developer-image:amd64-pr-${{github.event.number}} \
-            --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-pr-${{github.event.number}}         
+            --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-pr-${{github.event.number}} \
+            --amend ${{ env.REGISTRY }}/universal-developer-image:ppc64le-pr-${{github.event.number}} 
           
           docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
             ${{ env.REGISTRY }}/universal-developer-image:amd64-pr-${{github.event.number}} \
@@ -127,6 +136,9 @@ jobs:
           docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
             ${{ env.REGISTRY }}/universal-developer-image:arm64-pr-${{github.event.number}} \
             --os linux --arch arm64
+          docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/universal-developer-image:ppc64le-pr-${{github.event.number}} \
+            --os linux --arch ppc64le
            
           docker manifest push ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}}
       - name: 'Comment PR'
