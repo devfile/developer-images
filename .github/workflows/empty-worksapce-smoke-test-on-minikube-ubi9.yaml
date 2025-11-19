@@ -31,8 +31,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
-    runs-on: ${{matrix.runners}}
+        include:
+          - name: amd64-build
+            runner: ubuntu-22.04
+            arch: amd64
+          - name: arm64-build
+            runner: ubuntu-22.04-arm
+            arch: arm64
+          - name: ppc64le-build
+            runner: ubuntu-22.04
+            arch: ppc64le
+    runs-on: ${{ matrix.runner }}
     steps:
 
     - name: Checkout
@@ -54,12 +63,7 @@ jobs:
         docker rmi -f $(docker images -aq)
 
     - name: Set arch environment variable
-      run: |
-        if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
-          echo arch="amd64" >> $GITHUB_ENV
-        else
-          echo arch="arm64" >> $GITHUB_ENV
-        fi
+      run: echo "arch=${{ matrix.arch }}" >> $GITHUB_ENV
 
     - name: Start minikube cluster
       run: |
