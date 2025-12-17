@@ -52,12 +52,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
-      # TODO: Remove this step once UDI on UBI 10 is ready and we have proper PR workflow for UDI
-      # This temporary step pushes base image to registry for testing purposes
-      - name: Tag and push base image for testing
-        run: |
-          docker tag base-developer-image-${{env.arch}} ${{ env.REGISTRY }}/base-developer-image:${{env.arch}}-ubi10-pr-${{github.event.number}}
-          docker push ${{ env.REGISTRY }}/base-developer-image:${{env.arch}}-ubi10-pr-${{github.event.number}}
       - name: Compress image to a file
         run: docker save base-developer-image-${{env.arch}} | gzip > base-developer-image-${{env.arch}}.tgz
       - name: Upload image artifact
@@ -66,10 +60,61 @@ jobs:
           name: base-developer-image-${{env.arch}}
           path: base-developer-image-${{env.arch}}.tgz
 
-  publish-base-image:
-    name: Publish base image
-    runs-on: ubuntu-22.04
+
+  build-udi:
+    name: Build udi
+    strategy:
+      fail-fast: false
+      matrix:
+        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
+    runs-on: ${{matrix.runners}}
     needs: build-base-image
+    steps:
+      - name: Set arch environment variable
+        run: |
+          if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
+            echo arch="amd64" >> $GITHUB_ENV
+          else
+            echo arch="arm64" >> $GITHUB_ENV
+          fi
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Free runner space
+        run: sudo rm -rf /usr/local/lib/android
+      - name: Cleanup docker images
+        run: docker system prune -af
+      - name: Download BDI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: base-developer-image-*
+          merge-multiple: true
+          path: .
+      - name: List downloaded files
+        run: ls -lah
+      - name: Load docker images
+        run: docker load -i base-developer-image-${{env.arch}}.tgz
+      - name: Display docker images
+        run: docker images
+      - name: Update UDI Dockerfile
+        run: sed "s|quay.io/devfile/base-developer-image:ubi10-latest|base-developer-image-${{env.arch}}|" -i "universal/ubi10/Dockerfile"
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Build udi
+        run: |
+          cd universal/ubi10 && docker buildx build \
+            --platform linux/${{env.arch}} \
+            --progress=plain \
+            --push \
+            -t ${{ env.REGISTRY }}/universal-developer-image:${{env.arch}}-ubi10-pr-${{github.event.number}} .
+
+  publish-udi:
+    name: Publish udi
+    runs-on: ubuntu-22.04
+    needs: build-udi
     steps:
       - name: Login to Registry
         uses: docker/login-action@v3
@@ -77,22 +122,20 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
-      # TODO: Remove this job once UDI on UBI 10 is ready and we have proper PR workflow for UDI
-      # This temporary job publishes base image manifest for testing purposes
-      - name: publish base image manifest
+      - name: publish
         run: |
-          docker manifest create ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}} \
-            --amend ${{ env.REGISTRY }}/base-developer-image:amd64-ubi10-pr-${{github.event.number}} \
-            --amend ${{ env.REGISTRY }}/base-developer-image:arm64-ubi10-pr-${{github.event.number}}         
+          docker manifest create ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}} \
+            --amend ${{ env.REGISTRY }}/universal-developer-image:amd64-ubi10-pr-${{github.event.number}} \
+            --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-ubi10-pr-${{github.event.number}}
           
-          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/base-developer-image:amd64-ubi10-pr-${{github.event.number}} \
+          docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/universal-developer-image:amd64-ubi10-pr-${{github.event.number}} \
             --os linux --arch amd64
-          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/base-developer-image:arm64-ubi10-pr-${{github.event.number}} \
+          docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/universal-developer-image:arm64-ubi10-pr-${{github.event.number}} \
             --os linux --arch arm64
-           
-          docker manifest push ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}}
+          
+          docker manifest push ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}}
       - name: 'Comment PR'
         uses: actions/github-script@v7
         with:
@@ -102,92 +145,5 @@ jobs:
                issue_number: ${{github.event.number}},
                owner: context.repo.owner,
                repo: context.repo.repo,
-               body: `Pull Request UBI 10 images published ✨\n\nBase Image: [${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}}](https://${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}})`
+               body: `Pull Request UBI 10 images published ✨\n\nUDI: [${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}}](https://${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}})`
              })
-
-  # build-udi:
-  #   name: Build udi
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
-  #   runs-on: ${{matrix.runners}}
-  #   needs: build-base-image
-  #   steps:
-  #     - name: Set arch environment variable
-  #       run: |
-  #         if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
-  #           echo arch="amd64" >> $GITHUB_ENV
-  #         else
-  #           echo arch="arm64" >> $GITHUB_ENV
-  #         fi
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Free runner space
-  #       run: sudo rm -rf /usr/local/lib/android
-  #     - name: Cleanup docker images
-  #       run: docker system prune -af
-  #     - name: Download BDI artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: base-developer-image-*
-  #         merge-multiple: true
-  #         path: .
-  #     - name: List downloaded files
-  #       run: ls -lah
-  #     - name: Load docker images
-  #       run: docker load -i base-developer-image-${{env.arch}}.tgz
-  #     - name: Display docker images
-  #       run: docker images
-  #     - name: Update UDI Dockerfile
-  #       run: sed "s|${{ env.REGISTRY }}/base-developer-image:ubi10-latest|base-developer-image-${{env.arch}}|" -i "universal/ubi10/Dockerfile"
-  #     - name: Login to Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ${{ env.REGISTRY }}
-  #         username: ${{ secrets.QUAY_USERNAME }}
-  #         password: ${{ secrets.QUAY_PASSWORD }}
-  #     - name: Build udi
-  #       run: |
-  #         cd universal/ubi10 && docker buildx build \
-  #           --platform linux/${{env.arch}} \
-  #           --progress=plain \
-  #           --push \
-  #           -t ${{ env.REGISTRY }}/universal-developer-image:${{env.arch}}-ubi10-pr-${{github.event.number}} .
-
-  # publish-udi:
-  #   name: Publish udi
-  #   runs-on: ubuntu-22.04
-  #   needs: build-udi
-  #   steps:
-  #     - name: Login to Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ${{ env.REGISTRY }}
-  #         username: ${{ secrets.QUAY_USERNAME }}
-  #         password: ${{ secrets.QUAY_PASSWORD }}
-  #     - name: publish
-  #       run: |
-  #         docker manifest create ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}} \
-  #           --amend ${{ env.REGISTRY }}/universal-developer-image:amd64-ubi10-pr-${{github.event.number}} \
-  #           --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-ubi10-pr-${{github.event.number}}         
-  #         
-  #         docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}} \
-  #           ${{ env.REGISTRY }}/universal-developer-image:amd64-ubi10-pr-${{github.event.number}} \
-  #           --os linux --arch amd64
-  #         docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}} \
-  #           ${{ env.REGISTRY }}/universal-developer-image:arm64-ubi10-pr-${{github.event.number}} \
-  #           --os linux --arch arm64
-  #          
-  #         docker manifest push ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}}
-  #     - name: 'Comment PR'
-  #       uses: actions/github-script@v7
-  #       with:
-  #         script: |
-  #           const { repo: { owner, repo } } = context;
-  #           await github.rest.issues.createComment({
-  #              issue_number: ${{github.event.number}},
-  #              owner: context.repo.owner,
-  #              repo: context.repo.repo,
-  #              body: `Pull Request images published ✨\n\nUDI: [${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}}](https://${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}})`
-  #            })
