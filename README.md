@@ -13,12 +13,14 @@ Containers images with tools for developers 👨‍💻👩‍💻
 ### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based images
 
 Available versions:
-- **UBI 9**: [quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image) 
+
+- **UBI 9**: [quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image)
 - **UBI 10**: [quay.io/devfile/base-developer-image:ubi10-latest](https://quay.io/repository/devfile/base-developer-image)
 
 Run the following commands to test with Docker:
 
 **UBI 9:**
+
 ```bash
 $ docker run -ti --rm \
        quay.io/devfile/base-developer-image:ubi9-latest \
@@ -26,11 +28,13 @@ $ docker run -ti --rm \
 ```
 
 **UBI 10:**
+
 ```bash
 $ docker run -ti --rm \
        quay.io/devfile/base-developer-image:ubi10-latest \
        bash
 ```
+
 ### Included Development Tools
 
 | Tool                | ubi9 based image                    | ubi10 based image                   |
@@ -82,8 +86,10 @@ $ docker run -ti --rm \
 | **TOTAL SIZE**      | **800MB** (255MB compressed)        | **789MB** (256MB compressed)   |
 
 ### Extending the base image
+
 When extending the base image, `source kubedock_setup` should be called in the new image's entrypoint to set up kubedock support. This sets up a wrapper for podman to use kubedock for the following podman commands if the `KUBEDOCK_ENABLED` env variable is set to `true`:
-```
+
+```text
 podman run
 podman ps
 podman exec
@@ -97,7 +103,7 @@ podman stop
 podman start
 ```
 
-An example is available in the Universal Developer Image dockerfile [here](https://github.com/devfile/developer-images/blob/main/universal/ubi9/entrypoint.sh#L3).
+An example is available in the [Universal Developer Image dockerfile](https://github.com/devfile/developer-images/blob/main/universal/ubi9/entrypoint.sh#L3).
 
 ## Developer Universal Image
 
@@ -106,6 +112,7 @@ An example is available in the Universal Developer Image dockerfile [here](https
 **Image:** [quay.io/devfile/universal-developer-image:ubi9-latest](https://quay.io/repository/devfile/universal-developer-image)
 
 **Test:**
+
 ```bash
 docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 ```
@@ -176,9 +183,11 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
 **Libraries:**
+
 - e2fsprogs v1.46.5
 
 **Environment Variables:**
+
 - JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
 
 ### UBI 10 based image
@@ -186,6 +195,7 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 **Image:** [quay.io/devfile/universal-developer-image:ubi10-latest](https://quay.io/repository/devfile/universal-developer-image)
 
 **Test:**
+
 ```bash
 docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 ```
@@ -256,9 +266,11 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 | **TOTAL SIZE**      | **TBD**                             |
 
 **Libraries:**
+
 - e2fsprogs v1.47.3
 
 **Environment Variables:**
+
 - JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21, JAVA_HOME_23, JAVA_HOME_25
 
 ## Configuration
@@ -270,25 +282,28 @@ The workflows support using custom container registries through the `REGISTRY` e
 **Default behavior:** Images are published to `quay.io/devfile`
 
 **To override in a fork:**
+
 1. Go to your repository **Settings** → **Secrets and Variables** → **Actions** → **Variables**
 2. Add a repository variable: `REGISTRY` = `your-registry.com/your-namespace`
 3. All workflows will automatically use your custom registry
 
 **Example registry formats:**
+
 - `quay.io/youruser`
-- `ghcr.io/youruser` 
+- `ghcr.io/youruser`
 - `docker.io/youruser`
 - `your-private-registry.com/namespace`
 
 # Builds
 
 This repo contains [actions](https://github.com/devfile/developer-images/actions), including:
-* [![release latest stable UBI 9](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
-* [![release latest stable UBI 10](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml)
 
-Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
+- [![release latest stable UBI 9](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
+- [![release latest stable UBI 10](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml)
 
-* [udi_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/udi_3.x)
+Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.
+
+- [udi_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/udi_3.x)
 
 # License
 
