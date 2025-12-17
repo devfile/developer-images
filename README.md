@@ -101,16 +101,16 @@ An example is available in the Universal Developer Image dockerfile [here](https
 
 ## Developer Universal Image
 
-### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi9-latest](https://quay.io/repository/devfile/universal-developer-image))
+### UBI 9 based image
 
-Run the following command to test it with Docker: 
+**Image:** [quay.io/devfile/universal-developer-image:ubi9-latest](https://quay.io/repository/devfile/universal-developer-image)
 
+**Test:**
 ```bash
-docker run -ti --rm \
-       quay.io/devfile/universal-developer-image:ubi9-latest \
-       bash
+docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 ```
-### Included Development Tools
+
+**Included Development Tools:**
 
 | Tool or language    | ubi9 based image                    |
 |---------------------|-------------------------------------|
@@ -119,10 +119,10 @@ docker run -ti --rm \
 | `java`              |`<8.0.432-tem via sdkman>`           |
 | `java`              |`<11.0.25-tem via sdkman>`           |
 | `java`              |`<17.0.13-tem via sdkman>/default`   |
-| `java`              |`<21.0.5-tem via sdkman>`   |
+| `java`              |`<21.0.5-tem via sdkman>`            |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-| `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`  |
+| `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`    |
 | `jbang`             |`<via sdkman>`                       |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
@@ -175,14 +175,91 @@ docker run -ti --rm \
 | `kamel`             |`<gh release>`                       |
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
-### Included libraries
+**Libraries:**
+- e2fsprogs v1.46.5
 
-#### e2fsprogs v1.46.5
+**Environment Variables:**
+- JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
 
-### Environment Variables
+### UBI 10 based image
 
-#### Java
-JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
+**Image:** [quay.io/devfile/universal-developer-image:ubi10-latest](https://quay.io/repository/devfile/universal-developer-image)
+
+**Test:**
+```bash
+docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
+```
+
+**Included Development Tools:**
+
+| Tool or language    | ubi10 based image                   |
+|---------------------|-------------------------------------|
+|--------JAVA---------|-------------------------------------|
+| `sdk`               |`<https://get.sdkman.io>`            |
+| `java`              |`<8.0.472-tem via sdkman>`           |
+| `java`              |`<11.0.29-tem via sdkman>`           |
+| `java`              |`<17.0.17-tem via sdkman>`           |
+| `java`              |`<21.0.9-tem via sdkman>`            |
+| `java`              |`<23.0.2-tem via sdkman>/default`    |
+| `java`              |`<25.0.1.r25-mandrel via sdkman>`    |
+| `maven`             |`<via sdkman>`                       |
+| `gradle`            |`<via sdkman>`                       |
+| `jbang`             |`<via sdkman>`                       |
+|--------SCALA--------|-------------------------------------|
+| `cs`                |`<https://get-coursier.io/>`         |
+| `sbt`               |`<sbt launch script>`                |
+| `mill`              |`<mill launch script>`               |
+|--------C/CPP--------|-------------------------------------|
+| `gcc`               |`gcc`                                |
+| `g++`               |`gcc-c++`                            |
+| `clang`             |`clang`                              |
+| `gdb`               |`gdb`                                |
+|--------PHP----------|-------------------------------------|
+| `php`               |`php 8.3`                            |
+| `composer`          |`dnf`                                |
+| `xdebug`            |`php-pecl-xdebug`                    |
+|-------NODEJS--------|-------------------------------------|
+| `nodejs`            |`24.12.0 (default), 22.21.1`         |
+| `npm`               |`npm`                                |
+| `yarn`              |`v1.22.22`                           |
+|--------GO-----------|-------------------------------------|
+| `go`                |`go-toolset 1.25+`                   |
+| `gopls`             |`golang.org/x/tools/gopls v0.21.0`   |
+|--------.NET---------|-------------------------------------|
+| `dotnet`            |`dotnet-sdk-10.0`                    |
+|------PYTHON---------|-------------------------------------|
+| `python`            |`python3.13`                         |
+| `setuptools`        |`python3.13-setuptools`               |
+| `pip`               |`python3.13-pip`                     |
+| `pylint`            |`<via pip>`                          |
+| `yq`                |`<via pip>`                          |
+|--------RUST---------|-------------------------------------|
+| `rustup`            |`<sh.rustup.rs>`                     |
+| `rust-src`          |`<via rustup>`                       |
+| `rust-analysis`     |`<via rustup>`                       |
+| `rust-analyzer`     |`<via rustup>`                       |
+|--------Platform-----|-------------------------------------|
+| `camel-k`           |`v2.8.0`                             |
+|------CLOUD----------|-------------------------------------|
+| `oc`                |`v4.20`                              |
+| `tkn`               |`v1.20.0 (OpenShift)`                |
+| `kubectl`           |`v1.28`                              |
+| `krew`              |`v0.4.5`                             |
+| `helm`              |`v4.0.4`                             |
+| `kustomize`         |`v5.8.0`                             |
+| `tkn`               |`v0.43.0 (Tekton)`                   |
+| `kn`                |`v1.20.0`                            |
+| `terraform`         |`v1.14.2`                            |
+| `skaffold`          |`<latest>`                           |
+| `kamel`             |`v2.8.0`                             |
+| `shellcheck`        |`v0.11.0`                            |
+| **TOTAL SIZE**      | **TBD**                             |
+
+**Libraries:**
+- e2fsprogs v1.47.3
+
+**Environment Variables:**
+- JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21, JAVA_HOME_23, JAVA_HOME_25
 
 ## Configuration
 
