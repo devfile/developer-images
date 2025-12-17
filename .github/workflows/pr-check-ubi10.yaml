@@ -38,20 +38,24 @@ jobs:
         run: sudo rm -rf /usr/local/lib/android
       - name: Cleanup docker images
         run: docker system prune -af
-      - name: Build base image
-        run: |
-            cd base/ubi10 && docker buildx build \
-            --platform linux/${{env.arch}} \
-            --progress=plain \
-            -t base-developer-image-${{env.arch}} .
-      - name: Display docker images
-        run: docker images
+      - name: Add expiration label to base Dockerfile
+        run: sed -i '/^FROM/a LABEL quay.expires-after=4w' base/ubi10/Dockerfile
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Build base image
+        run: |
+            cd base/ubi10 && docker buildx build \
+            --platform linux/${{env.arch}} \
+            --progress=plain \
+            --push \
+            -t ${{ env.REGISTRY }}/base-developer-image:${{env.arch}}-ubi10-pr-${{github.event.number}} \
+            -t base-developer-image-${{env.arch}} .
+      - name: Display docker images
+        run: docker images
       - name: Compress image to a file
         run: docker save base-developer-image-${{env.arch}} | gzip > base-developer-image-${{env.arch}}.tgz
       - name: Upload image artifact
@@ -97,6 +101,8 @@ jobs:
         run: docker images
       - name: Update UDI Dockerfile
         run: sed "s|quay.io/devfile/base-developer-image:ubi10-latest|base-developer-image-${{env.arch}}|" -i "universal/ubi10/Dockerfile"
+      - name: Add expiration label to UDI Dockerfile
+        run: sed -i '/^FROM/a LABEL quay.expires-after=4w' universal/ubi10/Dockerfile
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
@@ -110,6 +116,32 @@ jobs:
             --progress=plain \
             --push \
             -t ${{ env.REGISTRY }}/universal-developer-image:${{env.arch}}-ubi10-pr-${{github.event.number}} .
+
+  publish-base-image:
+    name: Publish base image
+    runs-on: ubuntu-22.04
+    needs: build-base-image
+    steps:
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - name: publish
+        run: |
+          docker manifest create ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}} \
+            --amend ${{ env.REGISTRY }}/base-developer-image:amd64-ubi10-pr-${{github.event.number}} \
+            --amend ${{ env.REGISTRY }}/base-developer-image:arm64-ubi10-pr-${{github.event.number}}
+          
+          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/base-developer-image:amd64-ubi10-pr-${{github.event.number}} \
+            --os linux --arch amd64
+          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/base-developer-image:arm64-ubi10-pr-${{github.event.number}} \
+            --os linux --arch arm64
+          
+          docker manifest push ${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}}
 
   publish-udi:
     name: Publish udi
@@ -145,5 +177,5 @@ jobs:
                issue_number: ${{github.event.number}},
                owner: context.repo.owner,
                repo: context.repo.repo,
-               body: `Pull Request UBI 10 images published ✨\n\nUDI: [${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}}](https://${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}})`
+               body: `Pull Request UBI 10 images published ✨\n\nBase: [${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}}](https://${{ env.REGISTRY }}/base-developer-image:ubi10-pr-${{github.event.number}})\nUDI: [${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}}](https://${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{github.event.number}})`
              })
