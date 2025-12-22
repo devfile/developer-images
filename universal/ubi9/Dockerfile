@@ -125,9 +125,9 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
 # Go 1.22+    - installed to /usr/bin/go
-# gopls 0.16.2+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
+# gopls 0.21.0+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
 RUN dnf install -y go-toolset && \
-    GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.16.2 && \
+    GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.21.0 && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
