@@ -31,10 +31,13 @@ USER 10001
 ENV HOME=/home/tooling
 
 # Java
-RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
-    && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
-             && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
-	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
+RUN if [ "$TARGETARCH" = "ppc64le" ]; then \
+      echo "Skipping Java installation: tem Java not available for ppc64le"; \
+    else \
+      curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
+      && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
+             && sed -i 's/sdkman_auto_answer=false/sdkman_auto_answer=true/g' /home/tooling/.sdkman/etc/config \
+             && sed -i 's/sdkman_auto_env=false/sdkman_auto_env=true/g' /home/tooling/.sdkman/etc/config \
              && sdk install java 8.0.432-tem \
              && sdk install java 11.0.25-tem \
              && sdk install java 17.0.13-tem \
@@ -45,9 +48,9 @@ RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
              && sdk install maven \
              && sdk install jbang \
              && sdk flush archives \
-             && sdk flush temp" \
-         && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-
+             && sdk flush temp"; \
+      chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling; \
+    fi
 # sdk home java <version>
 ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.432-tem
 ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.25-tem
@@ -84,7 +87,7 @@ RUN mkdir -p /home/tooling/.nvm/
 ENV NVM_DIR="/home/tooling/.nvm"
 ENV NODEJS_20_VERSION=20.18.1
 ENV NODEJS_18_VERSION=18.20.5
-ENV NODEJS_DEFAULT_VERSION=${NODEJS_20_VERSION}
+ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | PROFILE=/dev/null bash
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
@@ -125,12 +128,29 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
 
 # Go 1.22+    - installed to /usr/bin/go
-# gopls 0.21.0+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
-RUN dnf install -y go-toolset && \
-    GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.21.0 && \
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-ENV GOBIN="/home/tooling/go/bin/"
-ENV PATH="$GOBIN:$PATH"
+# gopls 0.16.2+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
+USER 0
+
+ENV GOBIN=/home/tooling/go/bin
+ENV PATH=$GOBIN:/usr/local/go/bin:$PATH
+
+ARG TARGETARCH
+
+RUN mkdir -p $GOBIN \
+    && case "$TARGETARCH" in \
+        amd64) GO_ARCH="amd64" ;; \
+        arm64) GO_ARCH="arm64" ;; \
+        ppc64le) GO_ARCH="ppc64le" ;; \
+        *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
+    esac \
+    && GO_VERSION="1.22.5" \
+    && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" -o /tmp/go.tar.gz \
+    && tar -C /usr/local -xzf /tmp/go.tar.gz \
+    && rm -rf /tmp/go.tar.gz \
+    && go version \
+    && GO111MODULE=on go install golang.org/x/tools/gopls@v0.16.2 \
+    && chgrp -R 0 /home/tooling \
+    && chmod -R g=u /home/tooling
 
 # Python
 RUN dnf -y install python3.11 python3.11-devel python3.11-setuptools python3.11-pip nss_wrapper
@@ -179,11 +199,16 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
-# camel-k
+# camel-k 
+ARG TARGETARCH
 ENV KAMEL_VERSION 2.2.0
-RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-    && chmod +x /usr/local/bin/kamel
-
+RUN if [ "$TARGETARCH" != "ppc64le" ]; then \
+    curl -sSLf https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-${TARGETARCH}.tar.gz \
+    | tar -C /usr/local/bin -xz --no-same-owner \
+    && chmod +x /usr/local/bin/kamel; \
+    else \
+    echo "Skipping Camel K install for ppc64le — not supported"; \
+    fi
 # Config directories
 RUN mkdir -p /home/tooling/.m2 && \
     mkdir -p /home/tooling/.gradle && \
@@ -199,59 +224,62 @@ RUN mkdir -p /home/tooling/.m2 && \
 
 # oc client
 ENV OC_VERSION=4.15
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        curl -L https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
-    else \
-        curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
-    fi | tar -C /usr/local/bin -xz --no-same-owner && \
+
+RUN case "$TARGETARCH" in \
+        arm64)   ARCH_PATH="arm64" ;; \
+        amd64)   ARCH_PATH="x86_64" ;; \
+        ppc64le) ARCH_PATH="ppc64le" ;; \
+        *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
+    esac && \
+    curl -L "https://mirror.openshift.com/pub/openshift-v4/${ARCH_PATH}/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz" \
+    | tar -C /usr/local/bin -xz --no-same-owner && \
     chmod +x /usr/local/bin/oc
 
 # OS Pipelines CLI (tkn)
 ENV TKN_VERSION=1.14.0
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
- 
+
 RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
 
 # Configure container engine
 COPY --chown=0:0 containers.conf /etc/containers/containers.conf
 
-ENV K8S_VERSION=1.28
-## kubectl
-RUN <<EOF
-set -euf -o pipefail
-
-cat <<EOF2 > /etc/yum.repos.d/kubernetes.repo
-[kubernetes]
-name=Kubernetes
-baseurl=https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/rpm/
-enabled=1
-gpgcheck=1
-gpgkey=https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/rpm/repodata/repomd.xml.key
-EOF2
-
-dnf install -y kubectl
-curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
-echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
-EOF
+##kubectl
+ARG TARGETARCH
+ENV KUBECTL_VERSION=1.30.1
+RUN curl -LO "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/${TARGETARCH}/kubectl" \
+ && chmod +x kubectl \
+ && mv kubectl /usr/local/bin/kubectl
 
 ## shellcheck
 RUN <<EOF
 dnf install -y xz
 set -euf -o pipefail
+
+if [ "$TARGETARCH" = "ppc64le" ]; then
+    echo "ShellCheck installation is skipped for ppc64le: unsupported architecture"
+    exit 0
+fi
+
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
+
 SHELL_CHECK_VERSION="0.8.0"
+
 if [ "$TARGETARCH" = "arm64" ]; then
     SHELL_CHECK_ARCH="aarch64"
 else
     SHELL_CHECK_ARCH="x86_64"
 fi
+
 SHELL_CHECK_TGZ="shellcheck-v${SHELL_CHECK_VERSION}.linux.${SHELL_CHECK_ARCH}.tar.xz"
 SHELL_CHECK_TGZ_URL="https://github.com/koalaman/shellcheck/releases/download/v${SHELL_CHECK_VERSION}/${SHELL_CHECK_TGZ}"
+
 curl -sSLO "${SHELL_CHECK_TGZ_URL}"
 tar -xv --no-same-owner -f "${SHELL_CHECK_TGZ}"
 mv "${TEMP_DIR}"/shellcheck-v${SHELL_CHECK_VERSION}/shellcheck /bin/shellcheck
+
 cd -
 rm -rf "${TEMP_DIR}"
 EOF
@@ -261,7 +289,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-KREW_VERSION="0.4.2"
+KREW_VERSION="0.4.5"
 KREW_ARCH="linux_${TARGETARCH}"
 KREW_TGZ="krew-${KREW_ARCH}.tar.gz"
 KREW_TGZ_URL="https://github.com/kubernetes-sigs/krew/releases/download/v${KREW_VERSION}/${KREW_TGZ}"
@@ -277,7 +305,10 @@ sha256sum -c "${KREW_TGZ}.sha256" 2>&1 | grep OK
 tar -zxv --no-same-owner -f "${KREW_TGZ}"
 ./"krew-${KREW_ARCH}" install krew
 echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> ${PROFILE_EXT}
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+#export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export KREW_ROOT="/home/tooling/.krew"
+export PATH="$KREW_ROOT/bin:$PATH"
+
 # kubens and kubectx
 kubectl krew install ns
 kubectl krew install ctx
@@ -323,25 +354,42 @@ rm -rf "${TEMP_DIR}"
 EOF
 
 ## tektoncd-cli
-RUN <<EOF
+RUN <<'EOF'
 set -euf -o pipefail
+
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
+
 TKN_VERSION="0.20.0"
-if [ "$TARGETARCH" = "arm64" ]; then
-    TKN_ARCH="Linux_arm64"
-else
-    TKN_ARCH="Linux_x86_64"
-fi
+
+case "$TARGETARCH" in
+    amd64)
+        TKN_ARCH="Linux_x86_64"
+        ;;
+    arm64)
+        TKN_ARCH="Linux_arm64"
+        ;;
+    ppc64le)
+        TKN_ARCH="Linux_ppc64le"
+        ;;
+    *)
+        echo "Unsupported architecture: $TARGETARCH"
+        exit 1
+        ;;
+esac
+
 TKN_TGZ="tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz"
 TKN_TGZ_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/${TKN_TGZ}"
-TKN_CHEKSUMS_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/checksums.txt"
+TKN_CHECKSUMS_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/checksums.txt"
+
 curl -sSLO "${TKN_TGZ_URL}"
-curl -sSLO "${TKN_CHEKSUMS_URL}"
-sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
-tar -zxv --no-same-owner -f "${TKN_TGZ}"
-mv tkn /usr/local/bin/
-cd -
+curl -sSLO "${TKN_CHECKSUMS_URL}"
+sha256sum --ignore-missing -c checksums.txt | grep OK
+
+tar -zx --no-same-owner -f "${TKN_TGZ}"
+mv tkn /usr/local/bin/tkn
+
+cd /
 rm -rf "${TEMP_DIR}"
 EOF
 
@@ -366,24 +414,27 @@ rm -rf "${TEMP_DIR}"
 EOF
 
 ## terraform-cli
-RUN <<EOF
-set -euf -o pipefail
-TEMP_DIR="$(mktemp -d)"
-cd "${TEMP_DIR}"
-TF_VERSION="1.7.5"
-TF_ARCH="linux_${TARGETARCH}"
-TF_ZIP="terraform_${TF_VERSION}_${TF_ARCH}.zip"
-TF_ZIP_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/${TF_ZIP}"
-TF_CHEKSUMS_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_SHA256SUMS"
-curl -sSLO "${TF_ZIP_URL}"
-curl -sSLO "${TF_CHEKSUMS_URL}"
-sha256sum --ignore-missing -c "terraform_${TF_VERSION}_SHA256SUMS" 2>&1 | grep OK
-unzip ${TF_ZIP}
-chmod +x terraform
-mv terraform /usr/local/bin
-cd -
-rm -rf "${TEMP_DIR}"
-EOF
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" != "ppc64le" ]; then \
+  set -euf -o pipefail; \
+  TEMP_DIR="$(mktemp -d)"; \
+  cd "${TEMP_DIR}"; \
+  TF_VERSION="1.7.5"; \
+  TF_ARCH="linux_${TARGETARCH}"; \
+  TF_ZIP="terraform_${TF_VERSION}_${TF_ARCH}.zip"; \
+  TF_ZIP_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/${TF_ZIP}"; \
+  TF_CHECKSUMS_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_SHA256SUMS"; \
+  curl -sSLO "${TF_ZIP_URL}"; \
+  curl -sSLO "${TF_CHECKSUMS_URL}"; \
+  sha256sum --ignore-missing -c "terraform_${TF_VERSION}_SHA256SUMS" 2>&1 | grep OK; \
+  unzip ${TF_ZIP}; \
+  chmod +x terraform; \
+  mv terraform /usr/local/bin; \
+  cd -; \
+  rm -rf "${TEMP_DIR}"; \
+else \
+  echo "Skipping Terraform install for architecture: ${TARGETARCH}"; \
+fi
 
 ## skaffold
 RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${TARGETARCH} && \
@@ -394,23 +445,35 @@ RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/sk
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#removed-packages_changes-to-packages
 RUN <<EOF
 set -euf -o pipefail
+
+if [ "$TARGETARCH" = "ppc64le" ]; then
+    echo "Skipping e2fsprogs build for ppc64le"
+    exit 0
+fi
+
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
+
 E2FSPROGS_VERSION="1.46.5"
 E2FSPROGS_TGZ="e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
 E2FSPROGS_TGZ_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/${E2FSPROGS_TGZ}"
 E2FSPROGS_CHEKSUMS_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/sha256sums.asc"
+
 curl -sSLO "${E2FSPROGS_TGZ_URL}"
 curl -sSLO "${E2FSPROGS_CHEKSUMS_URL}"
 sha256sum --ignore-missing -c "sha256sums.asc" 2>&1 | grep OK
+
 tar -zxv --no-same-owner -f "${E2FSPROGS_TGZ}"
 cd "e2fsprogs-${E2FSPROGS_VERSION}"
+
 mkdir build
 cd build
+
 ../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs --disable-evms
 make
 make install
 make install-libs
+
 cd -
 rm -rf "${TEMP_DIR}"
 EOF
@@ -422,7 +485,7 @@ RUN dnf -y install bash-completion \
 
 RUN <<EOF
 oc completion bash > /usr/share/bash-completion/completions/oc
-tkn completion bash > /usr/share/bash-completion/completions/tkn 
+tkn completion bash > /usr/share/bash-completion/completions/tkn
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF

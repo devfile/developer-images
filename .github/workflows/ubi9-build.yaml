@@ -1,11 +1,9 @@
-
 name: Build of UBI 9 based Developer Images
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
   workflow_call:
     # Map the workflow outputs to job outputs
     secrets:
@@ -15,8 +13,8 @@ on:
         required: true
     outputs:
       uniq_tag:
-        description: "The first output string"
-        value: ${{ jobs.build_universal_ubi9_image.outputs.output1 }}
+        description: "The unique tag for universal developer image"
+        value: ${{ jobs.publish-udi.outputs.uniq_tag }}
 
 env:
   # Use repository variable if set, otherwise fallback to default registry
@@ -28,24 +26,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
-    runs-on: ${{matrix.runners}}
+        include:
+          - name: amd64-build
+            runner: ubuntu-22.04
+            arch: amd64
+          - name: arm64-build
+            runner: ubuntu-22.04-arm
+            arch: arm64
+          - name: ppc64le-build
+            runner: ubuntu-22.04
+            arch: ppc64le
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set arch environment variable
-        run: |
-          if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
-            echo arch="amd64" >> $GITHUB_ENV
-          else
-            echo arch="arm64" >> $GITHUB_ENV
-          fi
+        run: echo "arch=${{ matrix.arch }}" >> $GITHUB_ENV
       - name: Set short_sha environment variable
         run: echo short_sha="$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
       - name: Free runner space
         run: sudo rm -rf /usr/local/lib/android
       - name: Cleanup docker images
         run: docker system prune -af
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          platforms: linux/amd64,linux/arm64,linux/ppc64le
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
@@ -81,7 +90,8 @@ jobs:
           do
             docker manifest create ${{ env.REGISTRY }}/base-developer-image:${tag} \
               --amend ${{ env.REGISTRY }}/base-developer-image:amd64-${{env.short_sha}} \
-              --amend ${{ env.REGISTRY }}/base-developer-image:arm64-${{env.short_sha}}
+              --amend ${{ env.REGISTRY }}/base-developer-image:arm64-${{env.short_sha}} \
+              --amend ${{ env.REGISTRY }}/base-developer-image:ppc64le-${{env.short_sha}}
           
             docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:${tag} \
               ${{ env.REGISTRY }}/base-developer-image:amd64-${{env.short_sha}} \
@@ -90,6 +100,10 @@ jobs:
             docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:${tag} \
                ${{ env.REGISTRY }}/base-developer-image:arm64-${{env.short_sha}} \
               --os linux --arch arm64
+
+            docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:${tag} \
+               ${{ env.REGISTRY }}/base-developer-image:ppc64le-${{env.short_sha}} \
+              --os linux --arch ppc64le
           
             docker manifest push ${{ env.REGISTRY }}/base-developer-image:${tag}
           done
@@ -99,25 +113,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runners: ['ubuntu-22.04', 'ubuntu-22.04-arm']
-    runs-on: ${{matrix.runners}}
+        include:
+          - name: amd64-build
+            runner: ubuntu-22.04
+            arch: amd64
+          - name: arm64-build
+            runner: ubuntu-22.04-arm
+            arch: arm64
+          - name: ppc64le-build
+            runner: ubuntu-22.04
+            arch: ppc64le
+    runs-on: ${{ matrix.runner }}
     needs: publish-base-image
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set arch environment variable
-        run: |
-          if [[ ${{matrix.runners}} == 'ubuntu-22.04' ]]; then
-            echo arch="amd64" >> $GITHUB_ENV
-          else
-            echo arch="arm64" >> $GITHUB_ENV
-          fi
+        run: echo "arch=${{ matrix.arch }}" >> $GITHUB_ENV
       - name: Set short_sha environment variable
         run: echo short_sha="$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
       - name: Free runner space
         run: sudo rm -rf /usr/local/lib/android
       - name: Cleanup docker images
         run: docker system prune -af
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          platforms: linux/amd64,linux/arm64,linux/ppc64le
       - name: Login to Registry
         uses: docker/login-action@v3
         with:
@@ -153,7 +178,8 @@ jobs:
           do
             docker manifest create ${{ env.REGISTRY }}/universal-developer-image:${tag} \
               --amend ${{ env.REGISTRY }}/universal-developer-image:amd64-${{env.short_sha}} \
-              --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-${{env.short_sha}}
+              --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-${{env.short_sha}} \
+              --amend ${{ env.REGISTRY }}/universal-developer-image:ppc64le-${{env.short_sha}} 
           
             docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:${tag} \
               ${{ env.REGISTRY }}/universal-developer-image:amd64-${{env.short_sha}} \
@@ -163,11 +189,13 @@ jobs:
                ${{ env.REGISTRY }}/universal-developer-image:arm64-${{env.short_sha}} \
               --os linux --arch arm64
           
+            docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:${tag} \
+               ${{ env.REGISTRY }}/universal-developer-image:ppc64le-${{env.short_sha}} \
+              --os linux --arch ppc64le
+
             docker manifest push ${{ env.REGISTRY }}/universal-developer-image:${tag}
           done  
       - name: Get tag with uniq prefix
         id: setTagName
-        # set the image with uniq tag prefix (for example: quay.io/..../base-developer-image:ubi9-7ad6cab) to env. var
-        # and define it for output. This output with tag image will be used in caller job
         run: |
           echo "uniq_tag=${{ env.REGISTRY }}/universal-developer-image:ubi9-${{env.short_sha}}" >> $GITHUB_OUTPUT
