@@ -13,12 +13,14 @@ Containers images with tools for developers 👨‍💻👩‍💻
 ### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based images
 
 Available versions:
-- **UBI 9**: [quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image) 
+
+- **UBI 9**: [quay.io/devfile/base-developer-image:ubi9-latest](https://quay.io/repository/devfile/base-developer-image)
 - **UBI 10**: [quay.io/devfile/base-developer-image:ubi10-latest](https://quay.io/repository/devfile/base-developer-image)
 
 Run the following commands to test with Docker:
 
 **UBI 9:**
+
 ```bash
 $ docker run -ti --rm \
        quay.io/devfile/base-developer-image:ubi9-latest \
@@ -26,11 +28,13 @@ $ docker run -ti --rm \
 ```
 
 **UBI 10:**
+
 ```bash
 $ docker run -ti --rm \
        quay.io/devfile/base-developer-image:ubi10-latest \
        bash
 ```
+
 ### Included Development Tools
 
 | Tool                | ubi9 based image                    | ubi10 based image                   |
@@ -82,8 +86,10 @@ $ docker run -ti --rm \
 | **TOTAL SIZE**      | **800MB** (255MB compressed)        | **789MB** (256MB compressed)   |
 
 ### Extending the base image
+
 When extending the base image, `source kubedock_setup` should be called in the new image's entrypoint to set up kubedock support. This sets up a wrapper for podman to use kubedock for the following podman commands if the `KUBEDOCK_ENABLED` env variable is set to `true`:
-```
+
+```text
 podman run
 podman ps
 podman exec
@@ -97,20 +103,21 @@ podman stop
 podman start
 ```
 
-An example is available in the Universal Developer Image dockerfile [here](https://github.com/devfile/developer-images/blob/main/universal/ubi9/entrypoint.sh#L3).
+An example is available in the [Universal Developer Image dockerfile](https://github.com/devfile/developer-images/blob/main/universal/ubi9/entrypoint.sh#L3).
 
 ## Developer Universal Image
 
-### Red Hat Universal Base Image ([UBI](https://developers.redhat.com/articles/ubi-faq#)) based image ([quay.io/devfile/universal-developer-image:ubi9-latest](https://quay.io/repository/devfile/universal-developer-image))
+### UBI 9 based image
 
-Run the following command to test it with Docker: 
+**Image:** [quay.io/devfile/universal-developer-image:ubi9-latest](https://quay.io/repository/devfile/universal-developer-image)
+
+**Test:**
 
 ```bash
-docker run -ti --rm \
-       quay.io/devfile/universal-developer-image:ubi9-latest \
-       bash
+docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 ```
-### Included Development Tools
+
+**Included Development Tools:**
 
 | Tool or language    | ubi9 based image                    |
 |---------------------|-------------------------------------|
@@ -119,10 +126,10 @@ docker run -ti --rm \
 | `java`              |`<8.0.432-tem via sdkman>`           |
 | `java`              |`<11.0.25-tem via sdkman>`           |
 | `java`              |`<17.0.13-tem via sdkman>/default`   |
-| `java`              |`<21.0.5-tem via sdkman>`   |
+| `java`              |`<21.0.5-tem via sdkman>`            |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-| `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`  |
+| `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`    |
 | `jbang`             |`<via sdkman>`                       |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
@@ -175,14 +182,96 @@ docker run -ti --rm \
 | `kamel`             |`<gh release>`                       |
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
-### Included libraries
+**Libraries:**
 
-#### e2fsprogs v1.46.5
+- e2fsprogs v1.46.5
 
-### Environment Variables
+**Environment Variables:**
 
-#### Java
-JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
+- JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21
+
+### UBI 10 based image
+
+**Image:** [quay.io/devfile/universal-developer-image:ubi10-latest](https://quay.io/repository/devfile/universal-developer-image)
+
+**Test:**
+
+```bash
+docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
+```
+
+**Included Development Tools:**
+
+| Tool or language    | ubi10 based image                   |
+|---------------------|-------------------------------------|
+|--------JAVA---------|-------------------------------------|
+| `sdk`               |`<https://get.sdkman.io>`            |
+| `java`              |`<8.0.472-tem via sdkman>`           |
+| `java`              |`<11.0.29-tem via sdkman>`           |
+| `java`              |`<17.0.17-tem via sdkman>`           |
+| `java`              |`<21.0.9-tem via sdkman>`            |
+| `java`              |`<23.0.2-tem via sdkman>/default`    |
+| `java`              |`<25.0.1.r25-mandrel via sdkman>`    |
+| `maven`             |`<via sdkman>`                       |
+| `gradle`            |`<via sdkman>`                       |
+| `jbang`             |`<via sdkman>`                       |
+|--------SCALA--------|-------------------------------------|
+| `cs`                |`<https://get-coursier.io/>`         |
+| `sbt`               |`<sbt launch script>`                |
+| `mill`              |`<mill launch script>`               |
+|--------C/CPP--------|-------------------------------------|
+| `gcc`               |`gcc`                                |
+| `g++`               |`gcc-c++`                            |
+| `clang`             |`clang`                              |
+| `gdb`               |`gdb`                                |
+|--------PHP----------|-------------------------------------|
+| `php`               |`php 8.3`                            |
+| `composer`          |`dnf`                                |
+| `xdebug`            |`php-pecl-xdebug`                    |
+|-------NODEJS--------|-------------------------------------|
+| `nodejs`            |`24.12.0 (default), 22.21.1`         |
+| `npm`               |`npm`                                |
+| `yarn`              |`v1.22.22`                           |
+|--------GO-----------|-------------------------------------|
+| `go`                |`go-toolset 1.25+`                   |
+| `gopls`             |`golang.org/x/tools/gopls v0.21.0`   |
+|--------.NET---------|-------------------------------------|
+| `dotnet`            |`dotnet-sdk-10.0`                    |
+|------PYTHON---------|-------------------------------------|
+| `python`            |`python3.13`                         |
+| `setuptools`        |`python3.13-setuptools`               |
+| `pip`               |`python3.13-pip`                     |
+| `pylint`            |`<via pip>`                          |
+| `yq`                |`<via pip>`                          |
+|--------RUST---------|-------------------------------------|
+| `rustup`            |`<sh.rustup.rs>`                     |
+| `rust-src`          |`<via rustup>`                       |
+| `rust-analysis`     |`<via rustup>`                       |
+| `rust-analyzer`     |`<via rustup>`                       |
+|--------Platform-----|-------------------------------------|
+| `camel-k`           |`v2.8.0`                             |
+|------CLOUD----------|-------------------------------------|
+| `oc`                |`v4.20`                              |
+| `tkn`               |`v1.20.0 (OpenShift)`                |
+| `kubectl`           |`v1.28`                              |
+| `krew`              |`v0.4.5`                             |
+| `helm`              |`v4.0.4`                             |
+| `kustomize`         |`v5.8.0`                             |
+| `tkn`               |`v0.43.0 (Tekton)`                   |
+| `kn`                |`v1.20.0`                            |
+| `terraform`         |`v1.14.2`                            |
+| `skaffold`          |`<latest>`                           |
+| `kamel`             |`v2.8.0`                             |
+| `shellcheck`        |`v0.11.0`                            |
+| **TOTAL SIZE**      | **TBD**                             |
+
+**Libraries:**
+
+- e2fsprogs v1.47.3
+
+**Environment Variables:**
+
+- JAVA_HOME_8, JAVA_HOME_11, JAVA_HOME_17, JAVA_HOME_21, JAVA_HOME_23, JAVA_HOME_25
 
 ## Configuration
 
@@ -193,25 +282,28 @@ The workflows support using custom container registries through the `REGISTRY` e
 **Default behavior:** Images are published to `quay.io/devfile`
 
 **To override in a fork:**
+
 1. Go to your repository **Settings** → **Secrets and Variables** → **Actions** → **Variables**
 2. Add a repository variable: `REGISTRY` = `your-registry.com/your-namespace`
 3. All workflows will automatically use your custom registry
 
 **Example registry formats:**
+
 - `quay.io/youruser`
-- `ghcr.io/youruser` 
+- `ghcr.io/youruser`
 - `docker.io/youruser`
 - `your-private-registry.com/namespace`
 
 # Builds
 
 This repo contains [actions](https://github.com/devfile/developer-images/actions), including:
-* [![release latest stable UBI 9](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
-* [![release latest stable UBI 10](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml)
 
-Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
+- [![release latest stable UBI 9](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi9-build.yaml)
+- [![release latest stable UBI 10](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml/badge.svg)](https://github.com/devfile/developer-images/actions/workflows/ubi10-build.yaml)
 
-* [udi_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/udi_3.x)
+Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.
+
+- [udi_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/udi_3.x)
 
 # License
 

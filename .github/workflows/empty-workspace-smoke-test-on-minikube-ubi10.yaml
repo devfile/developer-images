@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2024 Red Hat, Inc.
+# Copyright (c) 2019-2025 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -10,24 +10,24 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-name: Empty workspace smoke test on udi9
+name: Empty workspace smoke test on udi10
 on:
-  pull_request:
-    paths-ignore:
-      - '**/*.md'
-      - .devfile.yaml
-      - LICENSE
+  workflow_run:
+    workflows: ["Pull Request Check UBI 10"]
+    types:
+      - completed
+    branches:
+      - '**'
 
 env:
-   # Use repository variable if set, otherwise fallback to default registry
-   REGISTRY: ${{ vars.REGISTRY || 'quay.io/devfile' }}
-   USERSTORY: CloneGitRepoAPI
-   TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
-   DEPLOYMENT_TIMEOUT: 90s
-   PULL_POLICY: IfNotPresent
+  # Use repository variable if set, otherwise fallback to default registry
+  REGISTRY: ${{ vars.REGISTRY || 'quay.io/devfile' }}
+  TS_API_TEST_KUBERNETES_COMMAND_LINE_TOOL: kubectl
+  DEPLOYMENT_TIMEOUT: 90s
 
 jobs:
   workspace-api-tests-on-minikube:
+    if: github.event.workflow_run.conclusion == 'success'
     strategy:
       fail-fast: false
       matrix:
@@ -36,15 +36,20 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v4
     - name: Free runner space
       run: |
         sudo rm -rf /usr/local/lib/android
-      # obtain the PR number for tegging the image
     - name: Get PR number
-      id: get_pr_number
       run: |
-        pr_number=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+        pr_number="${{ github.event.workflow_run.pull_requests[0].number }}"
+        if [ -z "$pr_number" ] || [ "$pr_number" == "null" ]; then
+          pr_number=$(echo "${{ github.event.workflow_run.head_branch }}" | grep -oE '[0-9]+' | head -1 || echo "")
+        fi
+        if [ -z "$pr_number" ]; then
+          echo "Error: Could not extract PR number from workflow_run event"
+          exit 1
+        fi
         echo "PR_NUMBER=$pr_number" >> $GITHUB_ENV
         echo ">>>>>>>>>>>$pr_number"
 
@@ -67,18 +72,18 @@ jobs:
         install minikube-linux-${{env.arch}} /usr/local/bin/minikube && rm minikube-linux-${{env.arch}}
         minikube start --vm-driver=docker --addons=ingress --cpus 2 --memory 6500
 
-     # connect with docker daemon in the minikube and build an image there
-     # we need to build the image in the minikube because we have just 14 GB of space on the runner
-     # the UBI have more than 9 GB size this approach saves the disk space
-    - name: Build base image
-      run: |
-       eval $(minikube docker-env)
-       cd base/ubi9 && docker build -t ${{ env.REGISTRY }}/base-developer-image:ubi9-latest .
+    - name: Login to Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
 
-    - name: Build universal image
+    - name: Pull UDI image into minikube
       run: |
         eval $(minikube docker-env)
-        cd universal/ubi9 && docker build -t ${{ env.REGISTRY }}/universal-developer-image:${{ env.PR_NUMBER }} .
+        docker pull ${{ env.REGISTRY }}/universal-developer-image:${{env.arch}}-ubi10-pr-${{ env.PR_NUMBER }}
+        docker tag ${{ env.REGISTRY }}/universal-developer-image:${{env.arch}}-ubi10-pr-${{ env.PR_NUMBER }} ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{ env.PR_NUMBER }}
 
     - name: Checkout DWO
       uses: actions/checkout@master
@@ -105,8 +110,6 @@ jobs:
 
     - name: Check that UDI is present in the image list
       run: |
-        # we used it for the build above and do not need it anymore. It saves the disk space
-        minikube image rm ${{ env.REGISTRY }}/base-developer-image:ubi9-latest
         minikube image list --format table
 
     - name: Install NodeJs
@@ -161,7 +164,7 @@ jobs:
                   cpuRequest: 30m
               - name: che-code-runtime-description
                 container:
-                  image: ${{ env.REGISTRY }}/universal-developer-image:${{ env.PR_NUMBER }}
+                  image: ${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{ env.PR_NUMBER }}
                   memoryLimit: 1024Mi
                   memoryRequest: 256Mi
                   cpuLimit: 500m
@@ -244,9 +247,8 @@ jobs:
 
     - name: Run Empty workspace smoke test
       run: |
-        export TS_API_TEST_UDI_IMAGE=${{ env.REGISTRY }}/universal-developer-image:${{ env.PR_NUMBER }}
+        export TS_API_TEST_UDI_IMAGE=${{ env.REGISTRY }}/universal-developer-image:ubi10-pr-${{ env.PR_NUMBER }}
         export TS_API_TEST_CHE_CODE_EDITOR_DEVFILE_URI=http://file-service.default.svc:80/devfile.yaml
         cd che/tests/e2e
         npm i
         npm run driver-less-test
-        
