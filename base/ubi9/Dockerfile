@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.3-labs
 
-# https://catalog.redhat.com/en/software/containers/ubi9/618326f8c0d15aff4912fe0b
+# https://catalog.redhat.com/en/software/containers/ubi9/ubi/
 FROM registry.access.redhat.com/ubi9/ubi:9.7-1764794285
 
 ARG TARGETARCH

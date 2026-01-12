@@ -1,14 +1,14 @@
 # syntax=docker/dockerfile:1.3-labs
 
 # updateBaseImages.sh can't operate on SHA-based tags as they're not date-based or semver-sequential, and therefore cannot be ordered
-FROM quay.io/devfile/base-developer-image:ubi9-latest
+FROM quay.io/devfile/base-developer-image:ubi10-latest
 
 ARG TARGETARCH
 LABEL maintainer="Red Hat, Inc."
 
 LABEL com.redhat.component="devfile-universal-container"
 LABEL name="devfile/universal-developer-image"
-LABEL version="ubi9"
+LABEL version="ubi10"
 
 #label for EULA
 LABEL com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
@@ -31,28 +31,35 @@ USER 10001
 ENV HOME=/home/tooling
 
 # Java
-RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
+# Cleanup added
+RUN curl -fsSL "https://get.sdkman.io/?ci=true&rcupdate=false" | bash \
     && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
-             && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
-	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
-             && sdk install java 8.0.432-tem \
-             && sdk install java 11.0.25-tem \
-             && sdk install java 17.0.13-tem \
-             && sdk install java 21.0.5-tem \
-             && sdk install java 23.1.5.r21-mandrel \
-             && sdk default java 17.0.13-tem \
-             && sdk install gradle \
-             && sdk install maven \
-             && sdk install jbang \
-             && sdk flush archives \
-             && sdk flush temp" \
-         && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+        && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
+        && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
+        && sdk install java 8.0.472-tem \
+        && sdk install java 11.0.29-tem \
+        && sdk install java 17.0.17-tem \
+        && sdk install java 21.0.9-tem \
+        && sdk install java 23.0.2-tem \
+        && sdk install java 25.0.1.r25-mandrel \
+        && sdk default java 23.0.2-tem \
+        && sdk install gradle \
+        && sdk install maven \
+        && sdk install jbang \
+        && sdk flush archives \
+        && sdk flush temp" \
+    && find /home/tooling/.sdkman/candidates/java -name "src.zip" -delete \
+    && find /home/tooling/.sdkman/candidates/java -name "javafx-src.zip" -delete \
+    && find /home/tooling/.sdkman/candidates/java -type d -name "man" -exec rm -rf {} + 2>/dev/null || true \
+    && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # sdk home java <version>
-ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.432-tem
-ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.25-tem
-ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.13-tem
-ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.5-tem
+ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.472-tem
+ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.29-tem
+ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.17-tem
+ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.9-tem
+ENV JAVA_HOME_23=/home/tooling/.sdkman/candidates/java/23.0.2-tem
+ENV JAVA_HOME_25=/home/tooling/.sdkman/candidates/java/25.0.1.r25-mandrel
 
 # Java-related environment variables are described and set by ${PROFILE_EXT}, which will be loaded by ~/.bashrc
 # To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
@@ -60,18 +67,18 @@ ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
 ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
 ENV SDKMAN_DIR="/home/tooling/.sdkman"
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        export SDKMAN_PLATFORM="linuxarm64"; \
+    export SDKMAN_PLATFORM="linuxarm64"; \
     else \
-        export SDKMAN_PLATFORM="linuxx64"; \
+    export SDKMAN_PLATFORM="linuxx64"; \
     fi
 ENV SDKMAN_PLATFORM=${SDKMAN_PLATFORM}
-ENV SDKMAN_VERSION="5.18.2"
+ENV SDKMAN_VERSION="5.20.0"
 
 ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
 ENV JAVA_HOME="/home/tooling/.sdkman/candidates/java/current"
 ENV MAVEN_HOME="/home/tooling/.sdkman/candidates/maven/current"
 
-ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/23.1.5.r21-mandrel
+ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/25.0.1.r25-mandrel
 
 ENV PATH="/home/tooling/.krew/bin:$PATH"
 ENV PATH="/home/tooling/.sdkman/candidates/maven/current/bin:$PATH"
@@ -82,21 +89,21 @@ ENV PATH="/home/tooling/.local/share/coursier/bin:$PATH"
 # NodeJS
 RUN mkdir -p /home/tooling/.nvm/
 ENV NVM_DIR="/home/tooling/.nvm"
-ENV NODEJS_20_VERSION=20.18.1
-ENV NODEJS_18_VERSION=18.20.5
-ENV NODEJS_DEFAULT_VERSION=${NODEJS_20_VERSION}
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | PROFILE=/dev/null bash
+ENV NODEJS_24_VERSION=24.12.0
+ENV NODEJS_22_VERSION=22.21.1
+ENV NODEJS_DEFAULT_VERSION=${NODEJS_24_VERSION}
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | PROFILE=/dev/null bash
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
 RUN source /home/user/.bashrc && \
-    nvm install v${NODEJS_20_VERSION} && \
-    nvm install v${NODEJS_18_VERSION} && \
+    nvm install v${NODEJS_24_VERSION} && \
+    nvm install v${NODEJS_22_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
     npm install --global yarn@v1.22.22 &&\
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
-ENV NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
-ENV NODEJS_HOME_18=$NVM_DIR/versions/node/v${NODEJS_18_VERSION}
+ENV NODEJS_HOME_24=$NVM_DIR/versions/node/v${NODEJS_24_VERSION}
+ENV NODEJS_HOME_22=$NVM_DIR/versions/node/v${NODEJS_22_VERSION}
 
 # kube
 ENV KUBECONFIG=/home/user/.kube/config
@@ -107,7 +114,7 @@ USER 0
 RUN dnf install -y libXext libXrender libXtst libXi
 
 # Lombok
-ENV LOMBOK_VERSION=1.18.18
+ENV LOMBOK_VERSION=1.18.42
 RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
 
 # Scala
@@ -122,37 +129,46 @@ RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
     mv mill /usr/local/bin/
 
 # C/CPP
-RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
+# Cleanup added
+RUN dnf -y install gcc gcc-c++ clang clang-libs clang-tools-extra gdb && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
 
-# Go 1.22+    - installed to /usr/bin/go
+# Go 1.25+    - installed to /usr/bin/go
 # gopls 0.21.0+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
+# Cleanup added
 RUN dnf install -y go-toolset && \
     GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.21.0 && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
 # Python
-RUN dnf -y install python3.11 python3.11-devel python3.11-setuptools python3.11-pip nss_wrapper
+# Cleanup added
+RUN dnf -y install python3.13 python3.13-devel python3.13-setuptools python3.13-pip nss_wrapper && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
 
 RUN cd /usr/bin \
-    && if [ ! -L python ]; then ln -s python3.11 python; fi \
-    && if [ ! -L pydoc ]; then ln -s pydoc3.11 pydoc; fi \
-    && if [ ! -L python-config ]; then ln -s python3.11-config python-config; fi \
-    && if [ ! -L pip ]; then ln -s pip-3.11 pip; fi
+    && if [ ! -L python ]; then ln -s python3.13 python; fi \
+    && if [ ! -L pydoc ]; then ln -s pydoc3.13 pydoc; fi \
+    && if [ ! -L python-config ]; then ln -s python3.13-config python-config; fi \
+    && if [ ! -L pip ]; then ln -s pip-3.13 pip; fi
 
 RUN pip install pylint yq
 
 # PHP
-ENV PHP_VERSION=8.2
-RUN dnf -y module enable php:$PHP_VERSION && \
-    dnf install -y --setopt=tsflags=nodocs php php-mysqlnd php-pgsql php-bcmath \
-                php-gd php-intl php-json php-ldap php-mbstring php-pdo \
-                php-pear php-zlib php-mysqli php-curl php-xml php-devel\
-                php-process php-soap php-opcache php-fpm ca-certificates \
-                php-gmp php-pecl-xdebug php-pecl-zip mod_ssl hostname && \
-    wget https://getcomposer.org/installer -O /tmp/composer-installer.php && \
-    php /tmp/composer-installer.php --filename=composer --install-dir=/usr/local/bin
+# Cleanup added
+RUN dnf install -y --setopt=tsflags=nodocs \
+    php php-mysqlnd php-pgsql php-bcmath \
+    php-gd php-intl php-json php-ldap php-mbstring php-pdo \
+    php-pear php-zlib php-mysqli php-curl php-xml php-devel \
+    php-process php-soap php-opcache php-fpm ca-certificates \
+    php-gmp php-pecl-xdebug php-pecl-zip mod_ssl hostname composer && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
 
 ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
     PHP_SYSCONF_PATH=/etc \
@@ -166,8 +182,11 @@ ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
     HTTPD_VAR_PATH=/var
 
 # .NET
-ENV DOTNET_RPM_VERSION=8.0
-RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
+# Cleanup added
+ENV DOTNET_RPM_VERSION=10.0
+RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION} && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
 
 # rust
 ENV CARGO_HOME=/home/tooling/.cargo \
@@ -176,11 +195,11 @@ ENV CARGO_HOME=/home/tooling/.cargo \
 RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     chmod +x rustup && \
     mv rustup /usr/bin/ && \
-    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
+    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rust-analyzer && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # camel-k
-ENV KAMEL_VERSION 2.2.0
+ENV KAMEL_VERSION 2.8.0
 RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/kamel
 
@@ -198,19 +217,19 @@ RUN mkdir -p /home/tooling/.m2 && \
 # Cloud
 
 # oc client
-ENV OC_VERSION=4.15
+ENV OC_VERSION=4.20
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        curl -L https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
+    curl -L https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
     else \
-        curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
+    curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable-${OC_VERSION}/openshift-client-linux.tar.gz; \
     fi | tar -C /usr/local/bin -xz --no-same-owner && \
     chmod +x /usr/local/bin/oc
 
 # OS Pipelines CLI (tkn)
-ENV TKN_VERSION=1.14.0
+ENV TKN_VERSION=1.20.0
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
- 
+
 RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
 
 # Configure container engine
@@ -241,7 +260,7 @@ dnf install -y xz
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-SHELL_CHECK_VERSION="0.8.0"
+SHELL_CHECK_VERSION="0.11.0"
 if [ "$TARGETARCH" = "arm64" ]; then
     SHELL_CHECK_ARCH="aarch64"
 else
@@ -261,7 +280,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-KREW_VERSION="0.4.2"
+KREW_VERSION="0.4.5"
 KREW_ARCH="linux_${TARGETARCH}"
 KREW_TGZ="krew-${KREW_ARCH}.tar.gz"
 KREW_TGZ_URL="https://github.com/kubernetes-sigs/krew/releases/download/v${KREW_VERSION}/${KREW_TGZ}"
@@ -290,7 +309,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-HELM_VERSION="3.14.3"
+HELM_VERSION="4.0.4"
 HELM_ARCH="linux-${TARGETARCH}"
 HELM_TGZ="helm-v${HELM_VERSION}-${HELM_ARCH}.tar.gz"
 HELM_TGZ_URL="https://get.helm.sh/${HELM_TGZ}"
@@ -308,7 +327,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-KUSTOMIZE_VERSION="5.3.0"
+KUSTOMIZE_VERSION="5.8.0"
 KUSTOMIZE_ARCH="linux_${TARGETARCH}"
 KUSTOMIZE_TGZ="kustomize_v${KUSTOMIZE_VERSION}_${KUSTOMIZE_ARCH}.tar.gz"
 KUSTOMIZE_TGZ_URL="https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/${KUSTOMIZE_TGZ}"
@@ -327,9 +346,9 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-TKN_VERSION="0.20.0"
+TKN_VERSION="0.43.0"
 if [ "$TARGETARCH" = "arm64" ]; then
-    TKN_ARCH="Linux_arm64"
+    TKN_ARCH="Linux_aarch64"
 else
     TKN_ARCH="Linux_x86_64"
 fi
@@ -350,7 +369,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-KN_VERSION="1.13.0"
+KN_VERSION="1.20.0"
 KN_ARCH="linux-${TARGETARCH}"
 KN_BIN="kn-${KN_ARCH}"
 KN_BIN_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/${KN_BIN}"
@@ -370,7 +389,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-TF_VERSION="1.7.5"
+TF_VERSION="1.14.2"
 TF_ARCH="linux_${TARGETARCH}"
 TF_ZIP="terraform_${TF_VERSION}_${TF_ARCH}.zip"
 TF_ZIP_URL="https://releases.hashicorp.com/terraform/${TF_VERSION}/${TF_ZIP}"
@@ -396,7 +415,7 @@ RUN <<EOF
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
-E2FSPROGS_VERSION="1.46.5"
+E2FSPROGS_VERSION="1.47.3"
 E2FSPROGS_TGZ="e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
 E2FSPROGS_TGZ_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/${E2FSPROGS_TGZ}"
 E2FSPROGS_CHEKSUMS_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/sha256sums.asc"
@@ -431,7 +450,6 @@ EOF
 ## NOTE: all modifications to ${PROFILE_EXT} must happen BEFORE this step in order for sdkman to function correctly
 RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> ${PROFILE_EXT}
 RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> ${PROFILE_EXT}
-
 
 # Create symbolic links from /home/tooling/ -> /home/user/
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
