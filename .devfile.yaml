@@ -10,3 +10,48 @@ components:
       image: quay.io/devfile/universal-developer-image:ubi9-latest
       memoryLimit: 6Gi
       memoryRequest: 256Mi
+commands:
+  - id: build-and-push-base-image
+    exec:
+      label: "1. Build and push base developer image"
+      component: devtools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: |
+        export DOCKER=podman &&
+        read -p "ENTER UBI version (ubi9 or ubi10): " UBI_VERSION &&
+        read -p "ENTER container registry org (e.g. quay.io/devfile): " IMG_REPO &&
+        read -p "ENTER image tag (e.g. ubi9-latest): " IMG_TAG &&
+        read -p "ENTER platform (leave empty for default, or linux/amd64, linux/arm64): " PLATFORM &&
+        export IMG_NAME=${IMG_REPO}/base-developer-image:${IMG_TAG} &&
+        cd base/${UBI_VERSION} &&
+        if [ -z "$PLATFORM" ]; then
+          ${DOCKER} build --progress=plain -t ${IMG_NAME} .
+        else
+          ${DOCKER} build --platform ${PLATFORM} --progress=plain -t ${IMG_NAME} .
+        fi &&
+        ${DOCKER} push ${IMG_NAME}
+      group:
+        kind: build
+        isDefault: false
+  - id: build-and-push-universal-image
+    exec:
+      label: "2. Build and push universal developer image"
+      component: devtools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: |
+        export DOCKER=podman &&
+        read -p "ENTER UBI version (ubi9 or ubi10): " UBI_VERSION &&
+        read -p "ENTER container registry org (e.g. quay.io/devfile): " IMG_REPO &&
+        read -p "ENTER image tag (e.g. ubi9-latest): " IMG_TAG &&
+        read -p "ENTER platform (leave empty for default, or linux/amd64, linux/arm64): " PLATFORM &&
+        export IMG_NAME=${IMG_REPO}/universal-developer-image:${IMG_TAG} &&
+        cd universal/${UBI_VERSION} &&
+        if [ -z "$PLATFORM" ]; then
+          ${DOCKER} build --progress=plain -t ${IMG_NAME} .
+        else
+          ${DOCKER} build --platform ${PLATFORM} --progress=plain -t ${IMG_NAME} .
+        fi &&
+        ${DOCKER} push ${IMG_NAME}
+      group:
+        kind: build
+        isDefault: true
