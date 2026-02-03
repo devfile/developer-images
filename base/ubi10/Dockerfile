@@ -27,13 +27,16 @@ RUN mkdir -p /home/tooling/
 ## install packages from epel 10
 RUN \
     # Install the primary EPEL 10 repository
-    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm && \
+    dnf install -y --setopt=install_weak_deps=False \
+        https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm && \
     \
-    # Install the main list of packages
-    dnf install -y diffutils git git-lfs iproute jq less lsof man nano procps p7zip p7zip-plugins \
-    perl-Digest-SHA net-tools openssh-clients openssl ripgrep rsync socat sudo time vim wget zip && \
-    # Final update and cleanup
-    dnf update -y && \
+    # Install the main list of packages (no full system update)
+    dnf install -y --setopt=install_weak_deps=False \
+        diffutils git git-lfs iproute jq less lsof man nano procps \
+        p7zip p7zip-plugins perl-Digest-SHA net-tools \
+        openssh-clients openssl ripgrep rsync socat sudo \
+        time vim wget zip && \
+    \
     dnf clean all
 
 # install stow from EPEL 9 as it is not yet available in EPEL 10
@@ -47,8 +50,7 @@ RUN \
     rm /etc/yum.repos.d/epel-9.repo
 
 ## podman buildah skopeo
-RUN dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs && \
+RUN dnf -y install podman buildah skopeo fuse-overlayfs && \
     dnf clean all
 
 # Download and install gh-cli depending on the architecture.
