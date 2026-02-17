@@ -165,50 +165,12 @@ jobs:
           echo "=========================================="
           echo "Publishing UBI9 base image manifest"
           echo "=========================================="
-          echo "Verifying all architecture images exist..."
-          docker manifest inspect ${{ env.REGISTRY }}/base-developer-image:amd64-pr-${{github.event.number}} || {
-            echo "ERROR: amd64 base image not found"
-            exit 1
-          }
-          docker manifest inspect ${{ env.REGISTRY }}/base-developer-image:arm64-pr-${{github.event.number}} || {
-            echo "ERROR: arm64 base image not found"
-            exit 1
-          }
-          docker manifest inspect ${{ env.REGISTRY }}/base-developer-image:ppc64le-pr-${{github.event.number}} || {
-            echo "ERROR: ppc64le base image not found"
-            exit 1
-          }
-          echo "All images verified, extracting digests..."
-
-          # Extract the actual image digest for each architecture from the manifest list
-          AMD64_DIGEST=$(docker manifest inspect ${{ env.REGISTRY }}/base-developer-image:amd64-pr-${{github.event.number}} | \
-            jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
-          ARM64_DIGEST=$(docker manifest inspect ${{ env.REGISTRY }}/base-developer-image:arm64-pr-${{github.event.number}} | \
-            jq -r '.manifests[] | select(.platform.architecture == "arm64") | .digest')
-          PPC64LE_DIGEST=$(docker manifest inspect ${{ env.REGISTRY }}/base-developer-image:ppc64le-pr-${{github.event.number}} | \
-            jq -r '.manifests[] | select(.platform.architecture == "ppc64le") | .digest')
-
-          echo "AMD64 digest: $AMD64_DIGEST"
-          echo "ARM64 digest: $ARM64_DIGEST"
-          echo "PPC64LE digest: $PPC64LE_DIGEST"
-
-          echo "Creating multi-arch manifest..."
-          docker manifest create ${{ env.REGISTRY }}/base-developer-image:pr-${{github.event.number}} \
-            --amend ${{ env.REGISTRY }}/base-developer-image@$AMD64_DIGEST \
-            --amend ${{ env.REGISTRY }}/base-developer-image@$ARM64_DIGEST \
-            --amend ${{ env.REGISTRY }}/base-developer-image@$PPC64LE_DIGEST
-
-          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/base-developer-image@$AMD64_DIGEST \
-            --os linux --arch amd64
-          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/base-developer-image@$ARM64_DIGEST \
-            --os linux --arch arm64
-          docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/base-developer-image@$PPC64LE_DIGEST \
-            --os linux --arch ppc64le
-
-          docker manifest push ${{ env.REGISTRY }}/base-developer-image:pr-${{github.event.number}}
+          
+          docker buildx imagetools create \
+            -t ${{ env.REGISTRY }}/base-developer-image:pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/base-developer-image:amd64-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/base-developer-image:arm64-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/base-developer-image:ppc64le-pr-${{github.event.number}}
 
   publish-udi:
     name: Publish udi (UDI9)
@@ -226,50 +188,12 @@ jobs:
           echo "=========================================="
           echo "Publishing UDI9 manifest"
           echo "=========================================="
-          echo "Verifying all architecture images exist..."
-          docker manifest inspect ${{ env.REGISTRY }}/universal-developer-image:amd64-pr-${{github.event.number}} || {
-            echo "ERROR: amd64 UDI image not found"
-            exit 1
-          }
-          docker manifest inspect ${{ env.REGISTRY }}/universal-developer-image:arm64-pr-${{github.event.number}} || {
-            echo "ERROR: arm64 UDI image not found"
-            exit 1
-          }
-          docker manifest inspect ${{ env.REGISTRY }}/universal-developer-image:ppc64le-pr-${{github.event.number}} || {
-            echo "ERROR: ppc64le UDI image not found"
-            exit 1
-          }
-          echo "All images verified, extracting digests..."
 
-          # Extract the actual image digest for each architecture from the manifest list
-          AMD64_DIGEST=$(docker manifest inspect ${{ env.REGISTRY }}/universal-developer-image:amd64-pr-${{github.event.number}} | \
-            jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
-          ARM64_DIGEST=$(docker manifest inspect ${{ env.REGISTRY }}/universal-developer-image:arm64-pr-${{github.event.number}} | \
-            jq -r '.manifests[] | select(.platform.architecture == "arm64") | .digest')
-          PPC64LE_DIGEST=$(docker manifest inspect ${{ env.REGISTRY }}/universal-developer-image:ppc64le-pr-${{github.event.number}} | \
-            jq -r '.manifests[] | select(.platform.architecture == "ppc64le") | .digest')
-
-          echo "AMD64 digest: $AMD64_DIGEST"
-          echo "ARM64 digest: $ARM64_DIGEST"
-          echo "PPC64LE digest: $PPC64LE_DIGEST"
-
-          echo "Creating multi-arch manifest..."
-          docker manifest create ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
-            --amend ${{ env.REGISTRY }}/universal-developer-image@$AMD64_DIGEST \
-            --amend ${{ env.REGISTRY }}/universal-developer-image@$ARM64_DIGEST \
-            --amend ${{ env.REGISTRY }}/universal-developer-image@$PPC64LE_DIGEST
-
-          docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/universal-developer-image@$AMD64_DIGEST \
-            --os linux --arch amd64
-          docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/universal-developer-image@$ARM64_DIGEST \
-            --os linux --arch arm64
-          docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
-            ${{ env.REGISTRY }}/universal-developer-image@$PPC64LE_DIGEST \
-            --os linux --arch ppc64le
-
-          docker manifest push ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}}
+          docker buildx imagetools create \
+            -t ${{ env.REGISTRY }}/universal-developer-image:pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/universal-developer-image:amd64-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/universal-developer-image:arm64-pr-${{github.event.number}} \
+            ${{ env.REGISTRY }}/universal-developer-image:ppc64le-pr-${{github.event.number}}
       - name: 'Comment PR'
         uses: actions/github-script@v7
         with:

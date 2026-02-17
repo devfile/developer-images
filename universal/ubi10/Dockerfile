@@ -113,9 +113,9 @@ USER 0
 # Required packages for AWT
 RUN dnf install -y libXext libXrender libXtst libXi
 
-# Lombok
+# Lombok 
 ENV LOMBOK_VERSION=1.18.42
-RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+RUN curl -fsSL -o /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
 
 # Scala
 RUN curl -fLo cs https://git.io/coursier-cli && \
@@ -149,7 +149,7 @@ RUN mkdir -p $GOBIN \
     && case "$TARGETARCH" in \
         amd64) GO_ARCH="amd64" ;; \
         arm64) GO_ARCH="arm64" ;; \
-        ppc64le) GO_ARCH="ppc64" ;; \
+        ppc64le) GO_ARCH="ppc64le" ;; \
         *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
     esac \
     && GO_VERSION="1.25.5" \
@@ -157,7 +157,11 @@ RUN mkdir -p $GOBIN \
     && tar -C /usr/local -xzf /tmp/go.tar.gz \
     && rm -rf /tmp/go.tar.gz \
     && go version \
-    && GO111MODULE=on go install golang.org/x/tools/gopls@v0.21.0 \
+    && if [ "$TARGETARCH" = "ppc64le" ]; then \
+         CGO_ENABLED=0 GO111MODULE=on go install golang.org/x/tools/gopls@v0.21.0; \
+       else \
+         GO111MODULE=on go install golang.org/x/tools/gopls@v0.21.0; \
+       fi \
     && chgrp -R 0 /home/tooling \
     && chmod -R g=u /home/tooling
 
@@ -399,7 +403,7 @@ case "$TARGETARCH" in
         TKN_ARCH="Linux_x86_64"
         ;;
     arm64)
-        TKN_ARCH="Linux_arm64"
+        TKN_ARCH="Linux_aarch64"
         ;;
     ppc64le)
         TKN_ARCH="Linux_ppc64le"
