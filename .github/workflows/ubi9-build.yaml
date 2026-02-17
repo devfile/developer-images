@@ -88,26 +88,13 @@ jobs:
         run: |
           for tag in latest ubi9-latest ubi9-${{env.short_sha}};
           do
-            docker manifest create ${{ env.REGISTRY }}/base-developer-image:${tag} \
-              --amend ${{ env.REGISTRY }}/base-developer-image:amd64-${{env.short_sha}} \
-              --amend ${{ env.REGISTRY }}/base-developer-image:arm64-${{env.short_sha}} \
-              --amend ${{ env.REGISTRY }}/base-developer-image:ppc64le-${{env.short_sha}}
-          
-            docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:${tag} \
+            docker buildx imagetools create \
+              -t ${{ env.REGISTRY }}/base-developer-image:${tag} \
               ${{ env.REGISTRY }}/base-developer-image:amd64-${{env.short_sha}} \
-              --os linux --arch amd64
-          
-            docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:${tag} \
-               ${{ env.REGISTRY }}/base-developer-image:arm64-${{env.short_sha}} \
-              --os linux --arch arm64
-
-            docker manifest annotate ${{ env.REGISTRY }}/base-developer-image:${tag} \
-               ${{ env.REGISTRY }}/base-developer-image:ppc64le-${{env.short_sha}} \
-              --os linux --arch ppc64le
-          
-            docker manifest push ${{ env.REGISTRY }}/base-developer-image:${tag}
+              ${{ env.REGISTRY }}/base-developer-image:arm64-${{env.short_sha}} \
+              ${{ env.REGISTRY }}/base-developer-image:ppc64le-${{env.short_sha}}
           done
-
+  
   build-udi:
     name: Build udi
     strategy:
@@ -176,24 +163,11 @@ jobs:
         run: |
           for tag in latest ubi9-latest ubi9-${{env.short_sha}};
           do
-            docker manifest create ${{ env.REGISTRY }}/universal-developer-image:${tag} \
-              --amend ${{ env.REGISTRY }}/universal-developer-image:amd64-${{env.short_sha}} \
-              --amend ${{ env.REGISTRY }}/universal-developer-image:arm64-${{env.short_sha}} \
-              --amend ${{ env.REGISTRY }}/universal-developer-image:ppc64le-${{env.short_sha}} 
-          
-            docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:${tag} \
+            docker buildx imagetools create \
+              -t ${{ env.REGISTRY }}/universal-developer-image:${tag} \
               ${{ env.REGISTRY }}/universal-developer-image:amd64-${{env.short_sha}} \
-              --os linux --arch amd64
-          
-            docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:${tag} \
-               ${{ env.REGISTRY }}/universal-developer-image:arm64-${{env.short_sha}} \
-              --os linux --arch arm64
-          
-            docker manifest annotate ${{ env.REGISTRY }}/universal-developer-image:${tag} \
-               ${{ env.REGISTRY }}/universal-developer-image:ppc64le-${{env.short_sha}} \
-              --os linux --arch ppc64le
-
-            docker manifest push ${{ env.REGISTRY }}/universal-developer-image:${tag}
+              ${{ env.REGISTRY }}/universal-developer-image:arm64-${{env.short_sha}} \
+              ${{ env.REGISTRY }}/universal-developer-image:ppc64le-${{env.short_sha}}
           done  
       - name: Get tag with uniq prefix
         id: setTagName
