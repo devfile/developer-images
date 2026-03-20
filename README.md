@@ -180,6 +180,8 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 | `docker`            |`<download.docker.com>`              |
 | `docker-compose`    |`<gh releases>`                      |
 | `kamel`             |`<gh release>`                       |
+|-----AI TOOLING------|-------------------------------------|
+| `goose`             |`<gh releases> v1.28.0`              |
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
 **Libraries:**
