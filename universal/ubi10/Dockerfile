@@ -149,7 +149,7 @@ RUN mkdir -p $GOBIN \
     && case "$TARGETARCH" in \
         amd64) GO_ARCH="amd64" ;; \
         arm64) GO_ARCH="arm64" ;; \
-        ppc64le) GO_ARCH="ppc64" ;; \
+        ppc64le) GO_ARCH="ppc64le" ;; \
         *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
     esac \
     && GO_VERSION="1.25.5" \
