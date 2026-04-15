@@ -113,9 +113,9 @@ USER 0
 # Required packages for AWT
 RUN dnf install -y libXext libXrender libXtst libXi
 
-# Lombok
+# Lombok 
 ENV LOMBOK_VERSION=1.18.42
-RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+RUN curl -fsSL -o /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
 
 # Scala
 RUN curl -fLo cs https://git.io/coursier-cli && \
