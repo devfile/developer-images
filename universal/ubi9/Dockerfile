@@ -446,7 +446,7 @@ set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
 
-GCLOUD_VERSION="512.0.0"
+GCLOUD_VERSION="565.0.0"
 
 case "$TARGETARCH" in
     amd64)
