@@ -472,6 +472,41 @@ fi
 RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${TARGETARCH} && \
     install skaffold /usr/local/bin/
 
+## Google Cloud CLI
+RUN <<EOF
+set -euf -o pipefail
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+
+GCLOUD_VERSION="512.0.0"
+
+case "$TARGETARCH" in
+    amd64)
+        GCLOUD_ARCH="x86_64"
+        ;;
+    arm64)
+        GCLOUD_ARCH="arm"
+        ;;
+    *)
+        echo "Skipping gcloud installation for unsupported architecture: $TARGETARCH"
+        exit 0
+        ;;
+esac
+
+GCLOUD_TGZ="google-cloud-cli-${GCLOUD_VERSION}-linux-${GCLOUD_ARCH}.tar.gz"
+GCLOUD_TGZ_URL="https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/${GCLOUD_TGZ}"
+
+curl -sSLO "${GCLOUD_TGZ_URL}"
+tar -xzf "${GCLOUD_TGZ}"
+./google-cloud-sdk/install.sh --usage-reporting=false --path-update=false --quiet
+mv google-cloud-sdk /usr/local/
+
+cd -
+rm -rf "${TEMP_DIR}"
+EOF
+
+ENV PATH="/usr/local/google-cloud-sdk/bin:${PATH}"
+
 # e2fsprogs setup
 # Since e2fsprogs-static package has removed RHEL 8 distribution, it is not possible to install from the repository
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#removed-packages_changes-to-packages
@@ -520,6 +555,9 @@ oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
+if [ -f /usr/local/google-cloud-sdk/completion.bash.inc ]; then
+    cat /usr/local/google-cloud-sdk/completion.bash.inc > /usr/share/bash-completion/completions/gcloud
+fi
 EOF
 
 ## Add sdkman's init script launcher to the end of ${PROFILE_EXT} since we are not adding it on sdkman install
