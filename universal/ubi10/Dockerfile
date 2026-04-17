@@ -157,7 +157,11 @@ RUN mkdir -p $GOBIN \
     && tar -C /usr/local -xzf /tmp/go.tar.gz \
     && rm -rf /tmp/go.tar.gz \
     && go version \
-    && GO111MODULE=on go install golang.org/x/tools/gopls@v0.21.0 \
+    && if [ "$TARGETARCH" = "ppc64le" ]; then \
+         CGO_ENABLED=0 GO111MODULE=on go install golang.org/x/tools/gopls@v0.21.0; \
+       else \
+         GO111MODULE=on go install golang.org/x/tools/gopls@v0.21.0; \
+       fi \
     && chgrp -R 0 /home/tooling \
     && chmod -R g=u /home/tooling
 
@@ -399,7 +403,7 @@ case "$TARGETARCH" in
         TKN_ARCH="Linux_x86_64"
         ;;
     arm64)
-        TKN_ARCH="Linux_arm64"
+        TKN_ARCH="Linux_aarch64"
         ;;
     ppc64le)
         TKN_ARCH="Linux_ppc64le"
