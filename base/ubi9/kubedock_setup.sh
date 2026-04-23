@@ -25,7 +25,18 @@ if [ "${KUBEDOCK_ENABLED:-false}" = "true" ]; then
   if [ -f $KUBECONFIG ]; then
     echo "Kubeconfig found."
 
-    KUBEDOCK_PARAMS=${KUBEDOCK_PARAMS:-"--reverse-proxy --kubeconfig $KUBECONFIG"}
+    echo "Fix Kubeconfig permission."
+    chmod 600 $KUBECONFIG
+
+    if [ -z "$KUBEDOCK_PARAMS" ]; then
+      KUBEDOCK_PARAMS="--reverse-proxy --kubeconfig $KUBECONFIG"
+      if [ -n "$REQUEST_CPU" ] && [ -n "$REQUEST_MEMORY" ]; then
+        KUBEDOCK_PARAMS="$KUBEDOCK_PARAMS --request-cpu=$REQUEST_CPU --request-memory=$REQUEST_MEMORY"
+      fi
+      if [ -n "$REAPER_KEEPMAX" ]; then
+        KUBEDOCK_PARAMS="$KUBEDOCK_PARAMS --reapmax=$REAPER_KEEPMAX"
+      fi
+    fi
 
     echo "Starting kubedock with params \"${KUBEDOCK_PARAMS}\"..."
 
