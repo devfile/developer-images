@@ -107,11 +107,31 @@ ENV KUBECONFIG=/home/user/.kube/config
 USER 0
 
 # Required packages for AWT
-RUN dnf install -y libXext libXrender libXtst libXi
+RUN dnf install -y libXext libXrender libXtst libXi bzip2
 
 # Lombok
 ENV LOMBOK_VERSION=1.18.18
 RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+
+# Goose CLI
+ENV GOOSE_VERSION=v1.28.0
+RUN mkdir -p /opt/goose-install && \
+    curl -L -o /opt/goose-install/goose.tar.bz2 \
+    https://github.com/block/goose/releases/download/${GOOSE_VERSION}/goose-x86_64-unknown-linux-gnu.tar.bz2 && \
+    tar -xjf /opt/goose-install/goose.tar.bz2 -C /opt/goose-install && \
+    mv /opt/goose-install/goose /usr/local/bin/goose && \
+    chmod +x /usr/local/bin/goose && \
+    rm -rf /opt/goose-install
+
+# pre-create the nested folders Goose expects to avoid "Permission Denied" at runtime
+RUN mkdir -p \
+    /home/user/.local/bin \
+    /home/user/.local/share/goose \
+    /home/user/.local/state/goose/logs \
+    /home/user/.config/goose \
+    /home/user/.cache/goose && \
+    chown -R 10001:0 /home/user/.local && \
+    chmod -R g=u /home/user
 
 # Scala
 RUN curl -fLo cs https://git.io/coursier-cli && \
