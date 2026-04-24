@@ -513,8 +513,8 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-# Bash completions
-RUN dnf -y install bash-completion \
+# Bash completions and tmux
+RUN dnf -y install bash-completion tmux \
     && dnf clean all \
     && rm -rf /var/cache/yum
 
