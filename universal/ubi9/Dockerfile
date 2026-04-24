@@ -518,6 +518,40 @@ RUN dnf -y install bash-completion \
     && dnf clean all \
     && rm -rf /var/cache/yum
 
+## tmux - using pre-built binaries (not available in UBI repos)
+RUN <<'EOF'
+set -euf -o pipefail
+
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+
+TMUX_VERSION="3.6a"
+
+case "$TARGETARCH" in
+    amd64)
+        TMUX_ARCH="x86_64"
+        ;;
+    arm64)
+        TMUX_ARCH="arm64"
+        ;;
+    *)
+        echo "Skipping tmux install for unsupported architecture: $TARGETARCH"
+        exit 0
+        ;;
+esac
+
+TMUX_TGZ="tmux-${TMUX_VERSION}-linux-${TMUX_ARCH}.tar.gz"
+TMUX_TGZ_URL="https://github.com/tmux/tmux-builds/releases/download/v${TMUX_VERSION}/${TMUX_TGZ}"
+
+curl -sSLO "${TMUX_TGZ_URL}"
+tar -xz --no-same-owner -f "${TMUX_TGZ}"
+mv tmux /usr/local/bin/tmux
+chmod +x /usr/local/bin/tmux
+
+cd -
+rm -rf "${TEMP_DIR}"
+EOF
+
 RUN <<EOF
 oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
