@@ -49,9 +49,13 @@ RUN \
     esac && \
     GH_TGZ="gh_${GH_VERSION}_${GH_ARCH}.tar.gz" && \
     GH_TGZ_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_TGZ}" && \
+    GH_CHECKSUMS="gh_${GH_VERSION}_checksums.txt" && \
+    GH_CHECKSUMS_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_CHECKSUMS}" && \
     echo "Downloading ${GH_TGZ_URL}..." && \
     if curl -fsSL "${GH_TGZ_URL}" -o "${GH_TGZ}"; then \
-        if file "${GH_TGZ}" | grep -q 'gzip compressed'; then \
+        curl -fsSL "${GH_CHECKSUMS_URL}" -o "${GH_CHECKSUMS}" && \
+        grep -F -e " ${GH_TGZ}" "${GH_CHECKSUMS}" > "${GH_TGZ}.sha256" && \
+        if sha256sum -c "${GH_TGZ}.sha256"; then \
             tar -zxv --no-same-owner -f "${GH_TGZ}" && \
             mv "gh_${GH_VERSION}_${GH_ARCH}"/bin/gh /usr/local/bin/ && \
             mv "gh_${GH_VERSION}_${GH_ARCH}"/share/man/man1/* /usr/local/share/man/man1; \
