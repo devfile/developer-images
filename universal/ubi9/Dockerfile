@@ -555,6 +555,13 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+## mise
+RUN dnf -y install 'dnf-command(copr)' && \
+    dnf -y copr enable jdxcode/mise centos-stream+epel-next-9 && \
+    dnf -y install mise && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
 RUN <<EOF
 oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
