@@ -588,6 +588,32 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+## herdr
+# See release page for details https://github.com/ogulcancelik/herdr/releases/tag/v0.7.3
+RUN <<'EOF'
+set -euf -o pipefail
+
+case "$TARGETARCH" in
+    amd64)
+        HERDR_ARCH="x86_64"
+        ;;
+    arm64)
+        HERDR_ARCH="aarch64"
+        ;;
+    *)
+        echo "Skipping herdr install for unsupported architecture: $TARGETARCH"
+        exit 0
+        ;;
+esac
+
+HERDR_VERSION="0.7.3"
+HERDR_BIN="herdr-linux-${HERDR_ARCH}"
+HERDR_URL="https://github.com/ogulcancelik/herdr/releases/download/v${HERDR_VERSION}/${HERDR_BIN}"
+
+curl -fsSL "${HERDR_URL}" -o /usr/local/bin/herdr
+chmod +x /usr/local/bin/herdr
+EOF
+
 RUN <<EOF
 oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
