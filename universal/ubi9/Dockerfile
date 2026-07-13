@@ -555,6 +555,9 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+## bubblewrap - unprivileged sandboxing tool (https://github.com/containers/bubblewrap)
+RUN dnf install -y --enablerepo=crb bubblewrap && dnf clean all && rm -rf /var/cache/dnf
+
 RUN <<EOF
 oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
