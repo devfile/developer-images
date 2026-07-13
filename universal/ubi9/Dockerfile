@@ -555,6 +555,35 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
+## bubblewrap - unprivileged sandboxing tool (https://github.com/containers/bubblewrap)
+## Building from source as the package requires the crb repo which needs a RHEL subscription (not available in UBI)
+RUN <<'EOF'
+set -euf -o pipefail
+
+BWRAP_VERSION="0.11.2"
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+
+dnf install -y meson ninja-build gcc libcap-devel
+
+BWRAP_TGZ="bubblewrap-${BWRAP_VERSION}.tar.xz"
+BWRAP_URL="https://github.com/containers/bubblewrap/releases/download/v${BWRAP_VERSION}"
+curl -sSLO "${BWRAP_URL}/${BWRAP_TGZ}"
+curl -sSLO "${BWRAP_URL}/${BWRAP_TGZ}.sha256sum"
+sha256sum -c "${BWRAP_TGZ}.sha256sum"
+
+tar -xf "${BWRAP_TGZ}"
+cd "bubblewrap-${BWRAP_VERSION}"
+meson setup build
+ninja -C build
+install -m 4755 build/bwrap /usr/bin/bwrap
+
+cd /
+rm -rf "${TEMP_DIR}"
+dnf remove -y meson ninja-build gcc libcap-devel
+dnf clean all && rm -rf /var/cache/dnf
+EOF
+
 RUN <<EOF
 oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
