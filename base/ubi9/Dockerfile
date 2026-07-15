@@ -171,6 +171,37 @@ RUN set -e; \
     cd - >/dev/null; \
     rm -rf "${TEMP_DIR}"
 
+# Download and install OpenShell (NVIDIA) depending on the architecture.
+# See release page for details https://github.com/NVIDIA/OpenShell/releases/tag/v0.0.78
+RUN set -e; \
+    case "$TARGETARCH" in \
+        ppc64le) \
+            echo "Skipping OpenShell installation for ppc64le as binary not available"; \
+            exit 0 ;; \
+        amd64) \
+            OS_ARCH="x86_64" ;; \
+        arm64) \
+            OS_ARCH="aarch64" ;; \
+        *) \
+            echo "Unsupported architecture for OpenShell: $TARGETARCH"; \
+            exit 0 ;; \
+    esac; \
+    TEMP_DIR="$(mktemp -d)"; \
+    cd "${TEMP_DIR}"; \
+    OPENSHELL_VERSION="0.0.78"; \
+    OPENSHELL_RPM="openshell-${OPENSHELL_VERSION}-1.fc44.${OS_ARCH}.rpm"; \
+    OPENSHELL_GW_RPM="openshell-gateway-${OPENSHELL_VERSION}-1.fc44.${OS_ARCH}.rpm"; \
+    OPENSHELL_URL="https://github.com/NVIDIA/OpenShell/releases/download/v${OPENSHELL_VERSION}"; \
+    echo "Downloading OpenShell ${OPENSHELL_VERSION} ..."; \
+    if curl -fsSL "${OPENSHELL_URL}/${OPENSHELL_RPM}" -o "${OPENSHELL_RPM}" && \
+       curl -fsSL "${OPENSHELL_URL}/${OPENSHELL_GW_RPM}" -o "${OPENSHELL_GW_RPM}"; then \
+        rpm -ivh --nodeps "${OPENSHELL_RPM}" "${OPENSHELL_GW_RPM}"; \
+    else \
+        echo "OpenShell binary not found for ${TARGETARCH}, skipping installation."; \
+    fi; \
+    cd - >/dev/null; \
+    rm -rf "${TEMP_DIR}"
+
 # Define user directory for binaries
 ENV PATH="/home/user/.local/bin:$PATH"
 
