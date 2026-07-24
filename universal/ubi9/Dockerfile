@@ -478,6 +478,28 @@ EOF
 
 ENV PATH="/usr/local/google-cloud-sdk/bin:${PATH}"
 
+## Azure CLI
+RUN <<EOF
+set -euf -o pipefail
+
+case "$TARGETARCH" in
+    amd64|arm64)
+        # Azure CLI installation for amd64 and arm64
+        rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        dnf install -y https://packages.microsoft.com/config/rhel/9/packages-microsoft-prod.rpm
+        dnf install -y azure-cli
+        dnf clean all
+        rm -rf /var/cache/dnf
+        ;;
+    ppc64le)
+        echo "Skipping Azure CLI installation for unsupported architecture: $TARGETARCH"
+        ;;
+    *)
+        echo "Skipping Azure CLI installation for unsupported architecture: $TARGETARCH"
+        ;;
+esac
+EOF
+
 # e2fsprogs setup
 # Since e2fsprogs-static package has removed RHEL 8 distribution, it is not possible to install from the repository
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#removed-packages_changes-to-packages
@@ -588,6 +610,9 @@ kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 if [ -f /usr/local/google-cloud-sdk/completion.bash.inc ]; then
     cat /usr/local/google-cloud-sdk/completion.bash.inc > /usr/share/bash-completion/completions/gcloud
+fi
+if command -v az &> /dev/null; then
+    az completion > /usr/share/bash-completion/completions/az
 fi
 EOF
 
