@@ -612,7 +612,7 @@ if [ -f /usr/local/google-cloud-sdk/completion.bash.inc ]; then
     cat /usr/local/google-cloud-sdk/completion.bash.inc > /usr/share/bash-completion/completions/gcloud
 fi
 if command -v az &> /dev/null; then
-    az completion > /usr/share/bash-completion/completions/az
+    az completion bash > /usr/share/bash-completion/completions/az
 fi
 EOF
 
