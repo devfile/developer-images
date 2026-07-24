@@ -604,6 +604,7 @@ chmod +x /usr/local/bin/herdr
 EOF
 
 RUN <<EOF
+set -euf -o pipefail
 oc completion bash > /usr/share/bash-completion/completions/oc
 tkn completion bash > /usr/share/bash-completion/completions/tkn
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
@@ -612,7 +613,12 @@ if [ -f /usr/local/google-cloud-sdk/completion.bash.inc ]; then
     cat /usr/local/google-cloud-sdk/completion.bash.inc > /usr/share/bash-completion/completions/gcloud
 fi
 if command -v az &> /dev/null; then
+    set +e
     az completion bash > /usr/share/bash-completion/completions/az
+    if [ \$? -ne 0 ]; then
+        echo "Warning: az completion generation failed"
+    fi
+    set -e
 fi
 EOF
 
