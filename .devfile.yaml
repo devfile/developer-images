@@ -3,7 +3,6 @@ metadata:
   name: developer-images
 attributes:
   controller.devfile.io/storage-type: ephemeral
-  controller.devfile.io/scc: container-build
 components:
   - name: devtools
     container:
