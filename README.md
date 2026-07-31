@@ -40,20 +40,21 @@ $ docker run -ti --rm \
 | Tool                | ubi9 based image                    | ubi10 based image                   |
 |---------------------|-------------------------------------|-------------------------------------|
 | `bash`              |`bash`                               |`bash`                               |
-| `bat`               |`<gh releases>`                      |`<gh releases>`                      |
+| `bat`               |`v0.26.0 <gh releases>`             |`v0.18.3 <gh releases>`             |
 | `buildah`           |`buildah`                            |`buildah`                            |
 | `curl`              |`curl`                               |`curl`                               |
-| `ps`                |`ps`                                 |`ps`                                 |
+| `ps`                |`procps`                             |`procps`                             |
 | `diff`              |`diffutils`                          |`diffutils`                          |
 | `emacs`             |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
+| `fd`                |`10.3.0 <gh releases>`              |`8.7.0 <gh releases>`               |
 | `fish`              |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
-| `gh`                |`<gh releases>`                      |`<gh releases>`                      |
+| `gh`                |`2.83.2 <gh releases>`              |`2.78.0 <gh releases>`              |
 | `git`               |`git`                                |`git`                                |
 | `git-lfs`           |`git-lfs`                            |`git-lfs`                            |
 | `ip`                |`iproute`                            |`iproute`                            |
 | `jq`                |`jq`                                 |`jq`                                 |
 | `htop`              |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
-| `kubedock`          |`<gh releases>`                      |`<gh releases>`                      |
+| `kubedock`          |`0.19.0 <gh releases>`              |`0.18.2 <gh releases>`              |
 | `less`              |`less`                               |`less`                               |
 | `lsof`              |`lsof`                               |`lsof`                               |
 | `man`               |`man`                                |`man`                                |
@@ -63,12 +64,13 @@ $ docker run -ti --rm \
 | `openssh-client`    |`openssh-clients`                    |`openssh-clients`                    |
 | `podman`            |`podman`                             |`podman`                             |
 | `7z`                |`p7zip-plugins`                      |`p7zip-plugins`                      |
-| `ripgrep`           |`<gh releases>`                      |`<gh releases>`                      |
+| `ripgrep`           |`15.1.0 <gh releases>`              |`<gh releases>`                     |
 | `rsync`             |`rsync`                              |`rsync`                              |
 | `scp`               |`openssh-clients`                    |`openssh-clients`                    |
 | `screen`            |`NOT AVAILABLE`                      |`NOT AVAILABLE`                      |
 | `sed`               |`sed`                                |`sed`                                |
 | `shasum`            |`perl-Digest-SHA`                    |`perl-Digest-SHA`                    |
+| `skopeo`            |`skopeo`                             |`skopeo`                             |
 | `socat`             |`socat`                              |`socat`                              |
 | `sudo`              |`sudo`                               |`sudo`                               |
 | `ss`                |`NOT AVAILABLE`                      |`NOT AVAILABLE`                      |
@@ -83,7 +85,6 @@ $ docker run -ti --rm \
 | `wget`              |`wget`                               |`wget`                               |
 | `zip`               |`zip`                                |`zip`                                |
 | `zsh`               |`NOT AVAILABLE (fedora only)`        |`NOT AVAILABLE (fedora only)`        |
-| **TOTAL SIZE**      | **800MB** (255MB compressed)        | **789MB** (256MB compressed)   |
 
 ### Extending the base image
 
@@ -122,34 +123,37 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 | Tool or language    | ubi9 based image                    |
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
-| `sdk`               |`<https://get.sdkman.io>`            |
+| `sdk`               |`SDKMAN 5.23.0`                      |
 | `java`              |`<8.0.432-tem via sdkman>`           |
 | `java`              |`<11.0.25-tem via sdkman>`           |
 | `java`              |`<17.0.13-tem via sdkman>/default`   |
 | `java`              |`<21.0.5-tem via sdkman>`            |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
-| `mandrel`           |`<22.1.2.r21-mandrel via sdkman>`    |
+| `mandrel`           |`<23.1.5.r21-mandrel via sdkman>`    |
 | `jbang`             |`<via sdkman>`                       |
+| `lombok`            |`1.18.18`                            |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |
 | `mill`              |`<mill launch script>`               |
 |--------C/CPP--------|-------------------------------------|
+| `gcc`               |`gcc`                                |
+| `g++`               |`gcc-c++`                            |
 | `clang`             |`clang`                              |
 | `clangd`            |`llvm-toolset`                       |
 | `gdb`               |`gdb`                                |
 |--------PHP----------|-------------------------------------|
-| `php`               |`php`                                |
+| `php`               |`php 8.2`                            |
 | `composer`          |`https://getcomposer.org/`           |
-| `xdebug`            |`pecl`                               |
+| `xdebug`            |`php-pecl-xdebug`                    |
 |-------NODEJS--------|-------------------------------------|
-| `nodejs`            |`nodejs`                             |
+| `nodejs`            |`22.22.3 (default), 20.20.2, 18.20.8`|
 | `npm`               |`npm`                                |
-| `yarn`              |`<via npm>`                          |
+| `yarn`              |`v1.22.22`                           |
 |--------GO-----------|-------------------------------------|
-| `go`                |`go-toolset`                         |
-| `gopls`             |`golang.org/x/tools/gopls v0.21.0`   |
+| `go`                |`go 1.22.5`                          |
+| `gopls`             |`golang.org/x/tools/gopls v0.16.2`   |
 |--------.NET---------|-------------------------------------|
 | `dotnet`            |`dotnet-sdk-8.0`                     |
 |------PYTHON---------|-------------------------------------|
@@ -163,23 +167,23 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 | `rust-src`          |`<via rustup>`                       |
 | `rust-analysis`     |`<via rustup>`                       |
 |--------Platform-----|-------------------------------------|
-| `camel-k`           |`<gh release>`                       |
+| Apache Camel K (`kamel`)           |`v2.2.0`                             |
 |------CLOUD----------|-------------------------------------|
-| `oc`                |`mirror.openshift.com`               |
-| `tkn`               |`mirror.openshift.com`               |
-| `podman`            |`container-tools:rhel8`              |
-| `buildah`           |`container-tools:rhel8`              |
-| `skopeo`            |`container-tools:rhel8`              |
-| `kubectl`           |`<kubernetes dnf repo>`              |
-| `krew`              |`<gh releases>`                      |
-| `helm`              |`<get.helm.sh>`                      |
-| `kustomize`         |`<gh releases>`                      |
-| `tkn`               |`<gh releases>`                      |
-| `kn`                |`<gh releases>`                      |
-| `terraform`         |`<releases.hashicorp.com>`           |
-| `docker`            |`<download.docker.com>`              |
-| `docker-compose`    |`<gh releases>`                      |
-| `kamel`             |`<gh release>`                       |
+| `oc`                |`v4.15`                              |
+| `tkn`               |`0.20.0`                |
+| `kubectl`           |`v1.30.1`                            |
+| `krew`              |`v0.5.0`                             |
+| `helm`              |`v3.14.3`                            |
+| `kustomize`         |`v5.3.0`                             |
+| `tkn`               |`v0.20.0 (Tekton)`                   |
+| `kn`                |`v1.13.0`                            |
+| `terraform`         |`v1.7.5`                             |
+| `skaffold`          |`<latest>`                           |
+| `kamel`             |`v2.2.0`                             |
+| `gcloud`            |`565.0.0`                            |
+| `shellcheck`        |`v0.8.0`                             |
+| `tmux`              |`3.6a`                               |
+| `herdr`             |`v0.7.3`                             |
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
 **Libraries:**
@@ -205,16 +209,17 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 | Tool or language    | ubi10 based image                   |
 |---------------------|-------------------------------------|
 |--------JAVA---------|-------------------------------------|
-| `sdk`               |`<https://get.sdkman.io>`            |
+| `sdk`               |`SDKMAN 5.23.0`                      |
 | `java`              |`<8.0.472-tem via sdkman>`           |
 | `java`              |`<11.0.29-tem via sdkman>`           |
 | `java`              |`<17.0.17-tem via sdkman>`           |
 | `java`              |`<21.0.9-tem via sdkman>`            |
 | `java`              |`<23.0.2-tem via sdkman>/default`    |
-| `java`              |`<25.0.1.r25-mandrel via sdkman>`    |
+| `mandrel`           |`<25.0.1.r25-mandrel via sdkman>`    |
 | `maven`             |`<via sdkman>`                       |
 | `gradle`            |`<via sdkman>`                       |
 | `jbang`             |`<via sdkman>`                       |
+| `lombok`            |`1.18.42`                            |
 |--------SCALA--------|-------------------------------------|
 | `cs`                |`<https://get-coursier.io/>`         |
 | `sbt`               |`<sbt launch script>`                |
@@ -225,7 +230,7 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 | `clang`             |`clang`                              |
 | `gdb`               |`gdb`                                |
 |--------PHP----------|-------------------------------------|
-| `php`               |`php 8.3`                            |
+| `php`               |`php`                                |
 | `composer`          |`dnf`                                |
 | `xdebug`            |`php-pecl-xdebug`                    |
 |-------NODEJS--------|-------------------------------------|
@@ -233,13 +238,13 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 | `npm`               |`npm`                                |
 | `yarn`              |`v1.22.22`                           |
 |--------GO-----------|-------------------------------------|
-| `go`                |`go-toolset 1.25+`                   |
+| `go`                |`go 1.25.5`                          |
 | `gopls`             |`golang.org/x/tools/gopls v0.21.0`   |
 |--------.NET---------|-------------------------------------|
 | `dotnet`            |`dotnet-sdk-10.0`                    |
 |------PYTHON---------|-------------------------------------|
 | `python`            |`python3.13`                         |
-| `setuptools`        |`python3.13-setuptools`               |
+| `setuptools`        |`python3.13-setuptools`              |
 | `pip`               |`python3.13-pip`                     |
 | `pylint`            |`<via pip>`                          |
 | `yq`                |`<via pip>`                          |
@@ -253,16 +258,19 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 |------CLOUD----------|-------------------------------------|
 | `oc`                |`v4.20`                              |
 | `tkn`               |`v1.20.0 (OpenShift)`                |
-| `kubectl`           |`v1.28`                              |
-| `krew`              |`v0.4.5`                             |
+| `kubectl`           |`v1.30.1`                            |
+| `krew`              |`v0.5.0`                             |
 | `helm`              |`v4.0.4`                             |
 | `kustomize`         |`v5.8.0`                             |
 | `tkn`               |`v0.43.0 (Tekton)`                   |
 | `kn`                |`v1.20.0`                            |
-| `terraform`         |`v1.14.2`                            |
+| `terraform`         |`v1.14.0`                            |
 | `skaffold`          |`<latest>`                           |
 | `kamel`             |`v2.8.0`                             |
+| `gcloud`            |`565.0.0`                            |
 | `shellcheck`        |`v0.11.0`                            |
+| `tmux`              |`3.6a`                               |
+| `herdr`             |`v0.7.3`                             |
 | **TOTAL SIZE**      | **TBD**                             |
 
 **Libraries:**
