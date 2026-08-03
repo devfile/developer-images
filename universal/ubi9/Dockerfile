@@ -521,6 +521,34 @@ RUN dnf -y install bash-completion \
     && dnf clean all \
     && rm -rf /var/cache/yum
 
+## bubblewrap - built from source (not available in UBI 9 repos)
+RUN <<'EOF'
+set -euf -o pipefail
+
+TEMP_DIR="$(mktemp -d)"
+cd "${TEMP_DIR}"
+
+BWRAP_VERSION="0.11.2"
+
+dnf -y install libcap-devel
+
+curl -fsSL "https://github.com/containers/bubblewrap/releases/download/v${BWRAP_VERSION}/bubblewrap-${BWRAP_VERSION}.tar.xz" -o bubblewrap.tar.xz
+tar -xf bubblewrap.tar.xz
+cd "bubblewrap-${BWRAP_VERSION}"
+
+printf '#define PACKAGE_STRING "bubblewrap %s"\n' "${BWRAP_VERSION}" > config.h
+gcc -D_GNU_SOURCE -o bwrap bubblewrap.c bind-mount.c network.c utils.c -lcap
+install -m 755 bwrap /usr/local/bin/bwrap
+bwrap --version
+
+cd /
+rm -rf "${TEMP_DIR}"
+
+dnf -y remove libcap-devel
+dnf clean all
+rm -rf /var/cache/yum
+EOF
+
 ## tmux - using pre-built binaries (not available in UBI repos)
 RUN <<'EOF'
 set -euf -o pipefail

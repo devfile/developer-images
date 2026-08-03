@@ -184,6 +184,8 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi9-latest bash
 | `shellcheck`        |`v0.8.0`                             |
 | `tmux`              |`3.6a`                               |
 | `herdr`             |`v0.7.3`                             |
+|------SANDBOX---------|-------------------------------------|
+| `bubblewrap`        |`v0.11.2 (built from source)`        |
 | **TOTAL SIZE**      | **8.75GB** (3.6GB compressed)       |
 
 **Libraries:**
@@ -271,6 +273,8 @@ docker run -ti --rm quay.io/devfile/universal-developer-image:ubi10-latest bash
 | `shellcheck`        |`v0.11.0`                            |
 | `tmux`              |`3.6a`                               |
 | `herdr`             |`v0.7.3`                             |
+|------SANDBOX---------|-------------------------------------|
+| `bubblewrap`        |`v0.11.2 (built from source)`        |
 | **TOTAL SIZE**      | **TBD**                             |
 
 **Libraries:**
