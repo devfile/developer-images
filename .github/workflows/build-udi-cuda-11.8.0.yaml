@@ -1,0 +1,123 @@
+name: Publish Build 11.8.0
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:  # yamllint disable-line rule:truthy
+  # schedule:
+  #   - cron: '5 4 * * 6'
+  push:
+    branches: ["*"]
+    # Publish semver tags as releases.
+    # tags: ["v*.*.*"]
+    paths:
+      - ".github/workflows/**"
+      - "udi-cuda/ubi8/**"
+      - "python/ubi8/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "udi-cuda/ubi8/**"
+      - "python/ubi8/**"
+
+env:
+  IMAGE_NAME: udi-cuda
+  IMAGE_VERSION: 11.8.0
+  GHCR_REGISTRY: ghcr.io
+  GHCR_USER: ${{ github.repository_owner }}
+  GHCR_IMAGE: ${GHCR_REGISTRY}/${GHCR_USER}/${IMAGE_NAME}
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.0
+
+      - name: Prepare
+        id: prep
+        run: |
+          VERSION=${{ env.IMAGE_VERSION }}
+          GHCR_IMAGE=${{ env.GHCR_IMAGE }}
+          MINOR=${VERSION%.*}
+          MAJOR=${VERSION%%.*}
+          TAGS="${GHCR_IMAGE}:${VERSION}"
+          echo ::set-output name=name::${{ env.IMAGE_NAME }}
+          echo ::set-output name=tags::${TAGS}
+          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=ghcr_image::${GHCR_IMAGE}
+
+      # https://github.com/docker/login-action
+      - name: Log into GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3.0.0
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push runtime
+        uses: docker/build-push-action@v5.0.0
+        with:
+          context: containers/${{ steps.prep.outputs.name }}/ubi8
+          file: containers/${{ steps.prep.outputs.name }}/ubi8/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            IMAGE_NAME=docker.io/nvidia/cuda:${{ steps.prep.outputs.version }}-cudnn8-runtime-ubi8
+            TARGETARCH=amd64
+          tags: ${{ steps.prep.outputs.tags }}-cudnn8-runtime-ubi8
+          labels: org.opencontainers.image.version=${{ steps.prep.outputs.version }}-cudnn8-runtime-ubi8
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push devel
+        uses: docker/build-push-action@v5.0.0
+        with:
+          context: containers/${{ steps.prep.outputs.name }}/ubi8
+          file: containers/${{ steps.prep.outputs.name }}/ubi8/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            IMAGE_NAME=docker.io/nvidia/cuda:${{ steps.prep.outputs.version }}-cudnn8-devel-ubi8
+            TARGETARCH=amd64
+          tags: ${{ steps.prep.outputs.tags }}-cudnn8-devel-ubi8
+          labels: org.opencontainers.image.version=${{ steps.prep.outputs.version }}-cudnn8-devel-ubi8
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push devel python 3.9
+        uses: docker/build-push-action@v5.0.0
+        with:
+          context: python/ubi8/3.9
+          file: python/ubi8/3.9/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            IMAGE_NAME=${{ steps.prep.outputs.ghcr_image }}:${{ steps.prep.outputs.version }}-cudnn8-devel-ubi8
+            TARGETARCH=amd64
+          tags: ${{ steps.prep.outputs.tags }}-cudnn8-devel-ubi8-python39,${{ steps.prep.outputs.ghcr_image }}:latest
+          labels: org.opencontainers.image.version=${{ steps.prep.outputs.version }}-cudnn8-devel-ubi8-python39
+
+      # https://github.com/docker/build-push-action
+      - name: Build and push devel python 3.11
+        uses: docker/build-push-action@v5.0.0
+        with:
+          context: python/ubi8/3.11
+          file: python/ubi8/3.11/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            IMAGE_NAME=${{ steps.prep.outputs.ghcr_image }}:${{ steps.prep.outputs.version }}-cudnn8-devel-ubi8
+            TARGETARCH=amd64
+          tags: ${{ steps.prep.outputs.tags }}-cudnn8-devel-ubi8-python311
+          labels: org.opencontainers.image.version=${{ steps.prep.outputs.version }}-cudnn8-devel-ubi8-python311
