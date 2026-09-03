@@ -101,6 +101,11 @@ RUN source /home/user/.bashrc && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
     npm install --global yarn@v1.22.22 &&\
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
+# devcontainer CLI — used by workspaces that build a devcontainer.json environment
+ENV DEVCONTAINER_CLI_VERSION=0.88.0
+RUN source /home/user/.bashrc && \
+    npm install --global @devcontainers/cli@${DEVCONTAINER_CLI_VERSION} && \
+    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
 ENV NODEJS_HOME_24=$NVM_DIR/versions/node/v${NODEJS_24_VERSION}
 ENV NODEJS_HOME_22=$NVM_DIR/versions/node/v${NODEJS_22_VERSION}
