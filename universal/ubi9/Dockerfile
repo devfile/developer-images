@@ -151,9 +151,9 @@ RUN mkdir -p $GOBIN \
     && tar -C /usr/local -xzf /tmp/go.tar.gz \
     && rm -rf /tmp/go.tar.gz \
     && go version \
-    && GO111MODULE=on go install golang.org/x/tools/gopls@latest \
-    && GO111MODULE=on go install golang.org/x/tools/cmd/goimports@latest \
-    && GO111MODULE=on go install github.com/go-delve/delve/cmd/dlv@latest \
+    && CGO_ENABLED=0 GO111MODULE=on go install golang.org/x/tools/gopls@v0.23.0 \
+    && CGO_ENABLED=0 GO111MODULE=on go install golang.org/x/tools/cmd/goimports@v0.50.0 \
+    && CGO_ENABLED=0 GO111MODULE=on go install github.com/go-delve/delve/cmd/dlv@v1.27.2 \
     && chgrp -R 0 /home/tooling \
     && chmod -R g=u /home/tooling
 
