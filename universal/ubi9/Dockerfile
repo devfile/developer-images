@@ -146,12 +146,14 @@ RUN mkdir -p $GOBIN \
         ppc64le) GO_ARCH="ppc64le" ;; \
         *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
     esac \
-    && GO_VERSION="1.22.5" \
+    && GO_VERSION="1.26.8" \
     && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" -o /tmp/go.tar.gz \
     && tar -C /usr/local -xzf /tmp/go.tar.gz \
     && rm -rf /tmp/go.tar.gz \
     && go version \
-    && GO111MODULE=on go install golang.org/x/tools/gopls@v0.16.2 \
+    && GO111MODULE=on go install golang.org/x/tools/gopls@latest \
+    && GO111MODULE=on go install golang.org/x/tools/cmd/goimports@latest \
+    && GO111MODULE=on go install github.com/go-delve/delve/cmd/dlv@latest \
     && chgrp -R 0 /home/tooling \
     && chmod -R g=u /home/tooling
 
