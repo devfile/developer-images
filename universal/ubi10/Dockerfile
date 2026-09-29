@@ -100,6 +100,7 @@ RUN source /home/user/.bashrc && \
     nvm install v${NODEJS_22_VERSION} && \
     nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
     npm install --global yarn@v1.22.22 &&\
+    npm install --global @anthropic-ai/claude-code &&\
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH
 ENV NODEJS_HOME_24=$NVM_DIR/versions/node/v${NODEJS_24_VERSION}
