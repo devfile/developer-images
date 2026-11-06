@@ -36,7 +36,6 @@ jdk_import_ca_bundle() {
       if keytool -import -trustcacerts -cacerts -storepass "$KEYSTORE_PASSWORD" -noprompt -alias "${bundle_name}_${cert_index}" -file $tmp_file; then
         certs_imported=$((certs_imported+1))
       fi
-      certs_imported=$((certs_imported+1))
     elif [ "$is_cert" = true ]; then
       echo "$line" >> ${tmp_file}
     fi
